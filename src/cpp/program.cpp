@@ -1,0 +1,672 @@
+#include <uv.h>
+
+#include "types.hpp"
+
+
+namespace opencl {
+
+// /* Program Object APIs  */
+
+// extern CL_API_ENTRY cl_program CL_API_CALL
+// clCreateProgramWithSource(cl_context        /* context */,
+//                           cl_uint           /* count */,
+//                           const char **     /* strings */,
+//                           const size_t *    /* lengths */,
+//                           cl_int *          /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
+JS_METHOD(createProgramWithSource) { NAPI_ENV;
+	
+	REQ_CL_ARG(0, context, cl_context);
+	REQ_STR_ARG(1, str);
+	
+	cl_int ret = CL_SUCCESS;
+	size_t lengths[]={(size_t) str.length()};
+	const char *strings[]={ str.c_str() };
+	cl_program p = clCreateProgramWithSource(context, 1, strings, lengths, &ret);
+	CHECK_ERR(ret);
+	
+	RET_WRAPPER(p);
+	
+}
+
+// extern CL_API_ENTRY cl_program CL_API_CALL
+// clCreateProgramWithBinary(cl_context                     /* context */,
+//                           cl_uint                        /* num_devices */,
+//                           const cl_device_id *           /* device_list */,
+//                           const size_t *                 /* lengths */,
+//                           const unsigned char **         /* binaries */,
+//                           cl_int *                       /* binary_status */,
+//                           cl_int *                       /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
+JS_METHOD(createProgramWithBinary) { NAPI_ENV;
+	
+	REQ_CL_ARG(0, context, cl_context);
+	REQ_ARRAY_ARG(1, js_devices);
+	REQ_ARRAY_ARG(2, js_sizes);
+	REQ_ARRAY_ARG(3, js_binaries);
+	
+	std::vector<cl_device_id> cl_devices = Wrapper::fromJsArray<cl_device_id>(js_devices);
+	
+	const size_t n = js_sizes.Length();
+	if (js_sizes.Length() == 0) {
+		THROW_ERR(CL_INVALID_VALUE)
+	}
+	
+	std::vector<size_t> cl_binary_lengths;
+	std::unique_ptr<size_t[]> originalLengths(new size_t[n]);
+	
+	for (size_t i = 0; i < n; ++ i) {
+		size_t len = js_sizes.Get(i).ToNumber().Int64Value();
+		originalLengths[i] = len;
+		if (len > 0) {
+			cl_binary_lengths.push_back(len);
+		}
+	}
+	
+	if (cl_binary_lengths.size() == 0) {
+		THROW_ERR(CL_INVALID_PROGRAM_EXECUTABLE)
+	}
+	
+	std::vector<cl_program_binary> cl_binaries =
+		Wrapper::fromJsArray<cl_program_binary>(js_binaries);
+
+	if (js_sizes.Length() != js_binaries.Length()) {
+		THROW_ERR(CL_INVALID_VALUE)
+	}
+
+	std::vector<unsigned const char *> cl_binaries_str;
+	for (size_t i = 0; i < n; ++ i) {
+		int32_t len = originalLengths[i];
+		if (len > 0) {
+			cl_binaries_str.push_back(cl_binaries[i]);
+		}
+	}
+
+	cl_int ret = CL_SUCCESS;
+	cl_program p = clCreateProgramWithBinary(
+		context,
+		(cl_uint) cl_devices.size(),
+		&cl_devices.front(),
+		&cl_binary_lengths[0],
+		&cl_binaries_str[0],
+		nullptr,
+		&ret
+	);
+	CHECK_ERR(ret);
+	
+	RET_WRAPPER(p);
+	
+}
+
+// extern CL_API_ENTRY cl_program CL_API_CALL
+// clCreateProgramWithBuiltInKernels(cl_context            /* context */,
+//                                   cl_uint               /* num_devices */,
+//                                   const cl_device_id *  /* device_list */,
+//                                   const char *          /* kernel_names */,
+//                                   cl_int *              /* errcode_ret */) CL_API_SUFFIX__VERSION_1_2;
+JS_METHOD(createProgramWithBuiltInKernels) { NAPI_ENV;
+	
+	REQ_CL_ARG(0, context, cl_context);
+	REQ_ARRAY_ARG(1, js_devices);
+	REQ_ARRAY_ARG(2, js_names);
+	
+	size_t namesLen = js_names.Length();
+	if (namesLen == 0) {
+		THROW_ERR(CL_INVALID_VALUE);
+	}
+	
+	std::vector<std::string> strNames;
+	std::vector<const char*> names;
+	for (size_t i = 0; i < namesLen; i++) {
+		if (!js_names.Get(i).IsString()) {
+			THROW_ERR(CL_INVALID_VALUE);
+			RET_UNDEFINED;
+		}
+		strNames.push_back(js_names.Get(i).ToString().Utf8Value());
+		names.push_back(strNames[i].c_str());
+	}
+	
+	std::vector<cl_device_id> cl_devices = Wrapper::fromJsArray<cl_device_id>(js_devices);
+	
+	cl_int err = CL_SUCCESS;
+	cl_program prg = clCreateProgramWithBuiltInKernels(
+		context,
+		(cl_uint) cl_devices.size(),
+		&cl_devices.front(),
+		names.front(),
+		&err
+	);
+	
+	CHECK_ERR(err);
+	
+	RET_WRAPPER(prg);
+	
+}
+
+// extern CL_API_ENTRY cl_int CL_API_CALL
+// clRetainProgram(cl_program /* program */) CL_API_SUFFIX__VERSION_1_0;
+JS_METHOD(retainProgram) { NAPI_ENV;
+	
+	REQ_WRAP_ARG(0, p);
+	
+	cl_int err = p->acquire();
+	CHECK_ERR(err);
+	
+	RET_NUM(CL_SUCCESS);
+	
+}
+
+// extern CL_API_ENTRY cl_int CL_API_CALL
+// clReleaseProgram(cl_program /* program */) CL_API_SUFFIX__VERSION_1_0;
+JS_METHOD(releaseProgram) { NAPI_ENV;
+	
+	REQ_WRAP_ARG(0, p);
+	
+	cl_int err = p->release();
+	CHECK_ERR(err);
+	
+	RET_NUM(CL_SUCCESS);
+	
+}
+
+class ProgramWorker : public Napi::AsyncWorker {
+public:
+	ProgramWorker(Napi::Function callback, Napi::Object userData, Napi::Object wrapper):
+	Napi::AsyncWorker(callback, "CL::ProgramWorker") {
+		_refProgram.Reset(wrapper, 1);
+		_refData.Reset(userData, 1);
+	}
+	
+	~ProgramWorker() {}
+	
+	// Executed inside the worker-thread.
+	void Execute() {}
+	
+	// Executed when the async work is complete
+	// this function will be run inside the main event loop
+	// so it is safe to use V8 again
+	void OnOK () {
+		Napi::Env env = Env();
+		NAPI_HS;
+		Callback().Call({
+			_refProgram.Value(), // program
+			_refData.Value() // userdata
+		});
+	}
+	
+private:
+	Napi::ObjectReference _refProgram;
+	Napi::ObjectReference _refData;
+};
+
+void CL_CALLBACK notifyPCB (cl_program prog, void *user_data) {
+	ProgramWorker* asyncCB = reinterpret_cast<ProgramWorker*>(user_data);
+	asyncCB->Queue();
+}
+
+// extern CL_API_ENTRY cl_int CL_API_CALL
+// clBuildProgram(cl_program           /* program */,
+//                cl_uint              /* num_devices */,
+//                const cl_device_id * /* device_list */,
+//                const char *         /* options */,
+//                void (CL_CALLBACK *  /* pfn_notify */)(cl_program /* program */, void * /* user_data */),
+//                void *               /* user_data */) CL_API_SUFFIX__VERSION_1_0;
+JS_METHOD(buildProgram) { NAPI_ENV;
+	
+	REQ_CL_ARG(0, p, cl_program);
+	
+	std::vector<cl_device_id> cl_devices;
+	if (!IS_ARG_EMPTY(1)){
+		REQ_ARRAY_ARG(1, js_devices);
+		cl_devices = Wrapper::fromJsArray<cl_device_id>(js_devices);
+	}
+	
+	std::string options;
+	if (!IS_ARG_EMPTY(2)){
+		REQ_STR_ARG(2, str);
+		options = str;
+	}
+	
+	int err;
+	
+	// callback + userdata
+	if (!IS_ARG_EMPTY(3)) {
+		REQ_FUN_ARG(3, callback);
+		ProgramWorker* cb = new ProgramWorker(
+			callback,
+			info[4].As<Napi::Object>(),
+			info[0].As<Napi::Object>()
+		);
+		
+		err = clBuildProgram(
+			p,
+			(cl_uint) cl_devices.size(),
+			&cl_devices.front(),
+			options.length() == 0 ? options.c_str() : nullptr,
+			notifyPCB,
+			cb
+		);
+	} else {
+		err = clBuildProgram(
+			p,
+			(cl_uint) cl_devices.size(),
+			&cl_devices.front(),
+			options.length() == 0 ? options.c_str() : nullptr,
+			nullptr,
+			nullptr
+		);
+	}
+	
+	CHECK_ERR(err);
+	
+	RET_NUM(CL_SUCCESS);
+	
+}
+
+
+// extern CL_API_ENTRY cl_int CL_API_CALL
+// clCompileProgram(cl_program           /* program */,
+//                  cl_uint              /* num_devices */,
+//                  const cl_device_id * /* device_list */,
+//                  const char *         /* options */,
+//                  cl_uint              /* num_input_headers */,
+//                  const cl_program *   /* input_headers */,
+//                  const char **        /* header_include_names */,
+//                  void (CL_CALLBACK *  /* pfn_notify */)(cl_program /* program */, void * /* user_data */),
+//                  void *               /* user_data */) CL_API_SUFFIX__VERSION_1_2;
+JS_METHOD(compileProgram) { NAPI_ENV;
+	
+	REQ_CL_ARG(0, p, cl_program);
+	
+	std::vector<cl_device_id> cl_devices;
+	if (!IS_ARG_EMPTY(1)){
+		REQ_ARRAY_ARG(1, js_devices);
+		cl_devices = Wrapper::fromJsArray<cl_device_id>(js_devices);
+	}
+	
+	std::string options;
+	if (!IS_ARG_EMPTY(2)){
+		REQ_STR_ARG(2, str);
+		options = str;
+	}
+	
+	std::vector<cl_program> program_headers;
+	if (!IS_ARG_EMPTY(3)){
+		REQ_ARRAY_ARG(3, js_programs);
+		program_headers = Wrapper::fromJsArray<cl_program>(js_programs);
+	}
+	
+	std::vector<std::string> strNames;
+	std::vector<const char*> names;
+	if (!IS_ARG_EMPTY(4)){
+		REQ_ARRAY_ARG(4, js_names);
+		size_t namesLen = js_names.Length();
+		for (size_t i = 0; i < namesLen; i++) {
+			if (!js_names.Get(i).IsString()) {
+				THROW_ERR(CL_INVALID_VALUE);
+				RET_UNDEFINED;
+			}
+			strNames.push_back(js_names.Get(i).ToString().Utf8Value());
+			names.push_back(strNames[i].c_str());
+		}
+	}
+	
+	if (program_headers.size() != names.size()) {
+		THROW_ERR(CL_INVALID_VALUE);
+	}
+	
+	int err;
+	
+	if (!IS_ARG_EMPTY(5)) {
+		REQ_FUN_ARG(5, callback);
+		ProgramWorker* cb = new ProgramWorker(
+			callback,
+			info[6].As<Napi::Object>(),
+			info[0].As<Napi::Object>()
+		);
+		err = clCompileProgram(
+			p,
+			(cl_uint) cl_devices.size(),
+			&cl_devices.front(),
+			options.length() == 0 ? options.c_str() : nullptr,
+			(cl_uint) program_headers.size(),
+			&program_headers.front(),
+			&names.front(),
+			notifyPCB,
+			cb
+		);
+	} else {
+		err = clCompileProgram(
+			p,
+			(cl_uint) cl_devices.size(),
+			&cl_devices.front(),
+			options.length() == 0 ? options.c_str() : nullptr,
+			(cl_uint) program_headers.size(),
+			&program_headers.front(),
+			&names.front(),
+			nullptr,
+			nullptr
+		);
+	}
+	
+	CHECK_ERR(err);
+	
+	RET_NUM(CL_SUCCESS);
+	
+}
+
+// extern CL_API_ENTRY cl_program CL_API_CALL
+// clLinkProgram(cl_context           /* context */,
+//               cl_uint              /* num_devices */,
+//               const cl_device_id * /* device_list */,
+//               const char *         /* options */,
+//               cl_uint              /* num_input_programs */,
+//               const cl_program *   /* input_programs */,
+//               void (CL_CALLBACK *  /* pfn_notify */)(cl_program /* program */, void * /* user_data */),
+//               void *               /* user_data */,
+//               cl_int *             /* errcode_ret */ ) CL_API_SUFFIX__VERSION_1_2;
+JS_METHOD(linkProgram) { NAPI_ENV;
+	
+	REQ_CL_ARG(0, ctx, cl_context);
+	
+	std::vector<cl_device_id> cl_devices;
+	if (!IS_ARG_EMPTY(1)){
+		REQ_ARRAY_ARG(1, js_devices);
+		cl_devices = Wrapper::fromJsArray<cl_device_id>(js_devices);
+	}
+	
+
+	std::string options;
+	if (!IS_ARG_EMPTY(2)){
+		REQ_STR_ARG(2, str);
+		options = str;
+	}
+	
+	std::vector<cl_program> cl_programs;
+	if (!IS_ARG_EMPTY(3)){
+		REQ_ARRAY_ARG(3, js_programs);
+		cl_programs = Wrapper::fromJsArray<cl_program>(js_programs);
+	}
+	
+	// OSX ISSUE: ret is always equals to CL_SUCCESS
+	cl_int ret = CL_SUCCESS;
+	
+	cl_program prg;
+	
+	if (!IS_ARG_EMPTY(4)) {
+		REQ_FUN_ARG(4, callback);
+		ProgramWorker* cb = new ProgramWorker(
+			callback,
+			info[5].As<Napi::Object>(),
+			info[0].As<Napi::Object>()
+		);
+		prg = clLinkProgram(
+			ctx,
+			(cl_uint) cl_devices.size(),
+			&cl_devices.front(),
+			options.length() == 0 ? options.c_str() : nullptr,
+			(cl_uint) cl_programs.size(),
+			&cl_programs.front(),
+			notifyPCB,
+			cb,
+			&ret
+		);
+	} else {
+		prg = clLinkProgram(
+			ctx,
+			(cl_uint) cl_devices.size(),
+			&cl_devices.front(),
+			options.length() == 0 ? options.c_str() : nullptr,
+			(cl_uint) cl_programs.size(),
+			&cl_programs.front(),
+			nullptr,
+			nullptr,
+			&ret
+		);
+	}
+	
+	CHECK_ERR(ret);
+	
+	RET_WRAPPER(prg);
+	
+}
+
+// extern CL_API_ENTRY cl_int CL_API_CALL
+// clUnloadPlatformCompiler(cl_platform_id /* platform */) CL_API_SUFFIX__VERSION_1_2;
+JS_METHOD(unloadPlatformCompiler) { NAPI_ENV;
+	
+	REQ_CL_ARG(0, platform, cl_platform_id);
+	
+	CHECK_ERR(clUnloadPlatformCompiler(platform));
+	
+	RET_NUM(CL_SUCCESS);
+	
+}
+
+// extern CL_API_ENTRY cl_int CL_API_CALL
+// clGetProgramInfo(cl_program         /* program */,
+//                  cl_program_info    /* param_name */,
+//                  size_t             /* param_value_size */,
+//                  void *             /* param_value */,
+//                  size_t *           /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
+JS_METHOD(getProgramInfo) { NAPI_ENV;
+	
+	REQ_CL_ARG(0, prog, cl_program);
+	REQ_UINT32_ARG(1, param_name);
+	
+	switch(param_name) {
+		case CL_PROGRAM_REFERENCE_COUNT:
+		case CL_PROGRAM_NUM_DEVICES:
+		{
+			cl_uint val;
+			CHECK_ERR(clGetProgramInfo(
+				prog,
+				param_name,
+				sizeof(cl_uint),
+				&val,
+				nullptr
+			));
+			RET_NUM(val);
+		}
+		case CL_PROGRAM_CONTEXT:
+		{
+			cl_context val;
+			CHECK_ERR(clGetProgramInfo(
+				prog,
+				param_name,
+				sizeof(cl_context),
+				&val,
+				nullptr
+			));
+			CHECK_ERR(clRetainContext(val))
+			RET_WRAPPER(val);
+		}
+		case CL_PROGRAM_DEVICES:
+		{
+			size_t n = 0;
+			CHECK_ERR(clGetProgramInfo(prog,param_name, 0, nullptr, &n));
+			n /= sizeof(cl_device_id);
+			
+			std::unique_ptr<cl_device_id[]> devices(new cl_device_id[n]);
+			CHECK_ERR(clGetProgramInfo(
+				prog,
+				param_name,
+				sizeof(cl_device_id) * n,
+				devices.get(),
+				nullptr
+			));
+			
+			Napi::Array arr = Napi::Array::New(env);
+			for(size_t i = 0; i < n; i++) {
+				CHECK_ERR(clRetainDevice(devices[i]))
+				arr.Set(i, Wrapper::fromRaw(env, devices[i]));
+			}
+			
+			RET_VALUE(arr);
+		}
+		// DRIVER ISSUE : Segfault if program has not been compiled
+		case CL_PROGRAM_BINARY_SIZES:
+		{
+			cl_uint nsizes;CHECK_ERR(clGetProgramInfo(
+				prog,
+				CL_PROGRAM_NUM_DEVICES,
+				sizeof(cl_uint),
+				&nsizes,
+				nullptr
+			));
+			
+			std::unique_ptr<size_t[]> sizes(new size_t[nsizes]);
+			CHECK_ERR(clGetProgramInfo(
+				prog,
+				param_name,
+				nsizes * sizeof(size_t),
+				sizes.get(),
+				nullptr
+			));
+			
+			Napi::Array arr = Napi::Array::New(env);
+			for(cl_uint i = 0; i < nsizes; i++) {
+				arr.Set(i, JS_NUM(sizes[i]));
+			}
+			RET_VALUE(arr);
+		}
+		// DRIVER ISSUE : segfault if program has not been compiled
+		case CL_PROGRAM_BINARIES:
+		{
+			cl_uint nsizes;
+			CHECK_ERR(clGetProgramInfo(
+				prog,
+				CL_PROGRAM_NUM_DEVICES,
+				sizeof(cl_uint),
+				&nsizes,
+				nullptr
+			));
+			
+			std::unique_ptr<size_t[]> sizes(new size_t[nsizes]);
+			CHECK_ERR(clGetProgramInfo(
+				prog,
+				CL_PROGRAM_BINARY_SIZES,
+				nsizes * sizeof(size_t),
+				sizes.get(),
+				nullptr
+			));
+			
+			unsigned char** bn = new unsigned char* [nsizes];
+			for(size_t i = 0; i < nsizes;i++)  {
+				bn[i] = new unsigned char[sizes[i]];
+			}
+			
+			CHECK_ERR(clGetProgramInfo(
+				prog,
+				CL_PROGRAM_BINARIES,
+				sizeof(unsigned char*) * nsizes,
+				bn,
+				sizes.get()
+			));
+			
+			Napi::Array arr = Napi::Array::New(env);
+			for (cl_uint i = 0; i < nsizes; i++) {
+				Napi::Object bin = Wrapper::fromRaw(env, bn[i]);
+				void* data = reinterpret_cast<void*>(bn[i]);
+				// FIXME: (memleak) add finalizer delete
+				Napi::ArrayBuffer buf = Napi::ArrayBuffer::New(env, data, sizes[i]);
+				bin.Set("buffer", buf);
+				arr.Set(i, bin);
+			}
+			RET_VALUE(arr);
+		}
+		case CL_PROGRAM_NUM_KERNELS:
+		{
+			size_t val;
+			CHECK_ERR(clGetProgramInfo(prog,param_name,sizeof(size_t), &val, nullptr))
+			RET_NUM(val);
+		}
+		case CL_PROGRAM_KERNEL_NAMES:
+		case CL_PROGRAM_SOURCE:
+		{
+			size_t nchars;
+			CHECK_ERR(clGetProgramInfo(prog, param_name, 0, nullptr, &nchars));
+			std::unique_ptr<char[]> names(new char[nchars]);
+			CHECK_ERR(clGetProgramInfo(
+				prog,
+				param_name,
+				nchars * sizeof(char),
+				names.get(),
+				nullptr
+			));
+			RET_STR(names.get());
+		}
+	}
+	
+	THROW_ERR(CL_INVALID_VALUE);
+	
+}
+
+// extern CL_API_ENTRY cl_int CL_API_CALL
+// clGetProgramBuildInfo(cl_program            /* program */,
+//                       cl_device_id          /* device */,
+//                       cl_program_build_info /* param_name */,
+//                       size_t                /* param_value_size */,
+//                       void *                /* param_value */,
+//                       size_t *              /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
+JS_METHOD(getProgramBuildInfo) { NAPI_ENV;
+	
+	REQ_CL_ARG(0, prog, cl_program);
+	REQ_CL_ARG(1, device, cl_device_id);
+	REQ_UINT32_ARG(2, param_name);
+	
+	switch(param_name) {
+		case CL_PROGRAM_BUILD_STATUS:
+		{
+			cl_build_status val;
+			CHECK_ERR(clGetProgramBuildInfo(
+				prog,
+				device,
+				param_name,
+				sizeof(cl_build_status),
+				&val,
+				nullptr
+			));
+			RET_NUM(val);
+		}
+		case CL_PROGRAM_BUILD_OPTIONS:
+		case CL_PROGRAM_BUILD_LOG:
+		{
+			size_t param_value_size_ret = 0;
+			CHECK_ERR(clGetProgramBuildInfo(
+				prog,
+				device,
+				param_name,
+				0,
+				nullptr,
+				&param_value_size_ret
+			));
+			std::unique_ptr<char[]> param_value(new char[param_value_size_ret]);
+			CHECK_ERR(clGetProgramBuildInfo(
+				prog,
+				device,
+				param_name,
+				param_value_size_ret,
+				param_value.get(),
+				nullptr
+			));
+			RET_STR(param_value.get());
+		}
+		case CL_PROGRAM_BINARY_TYPE:
+		{
+			cl_program_binary_type val;
+			CHECK_ERR(clGetProgramBuildInfo(
+				prog,
+				device,
+				param_name,
+				sizeof(cl_program_binary_type),
+				&val,
+				nullptr
+			));
+			RET_NUM(val);
+		}
+	}
+	
+	THROW_ERR(CL_INVALID_VALUE);
+	
+}
+
+} // namespace opencl
