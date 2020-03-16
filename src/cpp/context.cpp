@@ -11,7 +11,6 @@ namespace opencl {
 //                 void (CL_CALLBACK * /* pfn_notify */)(const char *, const void *, size_t, void *),
 //                 void *                  /* user_data */,
 //                 cl_int *                /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
-#include <iostream>
 JS_METHOD(createContext) { NAPI_ENV;
 	
 	REQ_ARRAY_ARG(0, properties);
@@ -19,11 +18,9 @@ JS_METHOD(createContext) { NAPI_ENV;
 	size_t propLen = properties.Length();
 	for (size_t i = 0; i < propLen; i++) {
 		cl_uint prop_id = properties.Get(i).ToNumber().Uint32Value();
-		std::cout << "prop_id " << prop_id << std::endl;
 		cl_properties.push_back(prop_id);
 		if(prop_id == CL_CONTEXT_PLATFORM) {
 			Wrapper *platform = Wrapper::unwrap(properties.Get(++i).As<Napi::Object>());
-			std::cout << "prop_id2 " << platform->as<cl_platform_id>() << std::endl;
 			cl_properties.push_back(
 				(cl_context_properties) platform->as<cl_platform_id>()
 			);
@@ -33,8 +30,6 @@ JS_METHOD(createContext) { NAPI_ENV;
 	
 	REQ_ARRAY_ARG(1, js_devices);
 	std::vector<cl_device_id> cl_devices = Wrapper::fromJsArray<cl_device_id>(js_devices);
-	// std::cout << "createContext00 " << cl_properties[0] << " " << cl_properties[1] << " " << cl_properties[2] << std::endl;
-	std::cout << "createContext " << cl_properties.size() << " " << cl_devices.size() << " " << env.IsExceptionPending() << std::endl;
 	int err = CL_SUCCESS;
 	cl_context ctx = clCreateContext(
 		&cl_properties.front(),
@@ -44,7 +39,7 @@ JS_METHOD(createContext) { NAPI_ENV;
 		nullptr,
 		&err
 	);
-	std::cout << "createContext " << err << " " << env.IsExceptionPending() << std::endl;
+	
 	CHECK_ERR(err);
 	
 	RET_WRAPPER(ctx);

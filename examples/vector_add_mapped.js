@@ -1,17 +1,11 @@
-/*
-* @Author: mikael
-* @Date:   2015-09-21 22:30:37
-* @Last Modified by:   Mikael Bourges-Sevenier
-* @Last Modified time: 2018-02-24 19:38:36
-*/
-
 'use strict';
 
-let cl = require('../lib/opencl');
-let log = console.log;
+const cl = require('../');
+
+
 let BUFFER_SIZE = 10;
 
-function printResults(A,B,C) {
+const printResults = (A,B,C) => {
 	//Print input vectors and result vector
 	let output = '\nA = ';
 	for (let i = 0; i < BUFFER_SIZE; i++) {
@@ -26,8 +20,8 @@ function printResults(A,B,C) {
 		output += C[i] + ', ';
 	}
 
-	log(output);
-}
+	console.log(output);
+};
 
 let A = new Uint32Array(BUFFER_SIZE);
 let B = new Uint32Array(BUFFER_SIZE);
@@ -67,7 +61,7 @@ else {
 let devices = cl.getContextInfo(context, cl.CONTEXT_DEVICES);
 let device = devices[0];
 
-log('using device: ' + cl.getDeviceInfo(device, cl.DEVICE_VENDOR).trim() +
+console.log('using device: ' + cl.getDeviceInfo(device, cl.DEVICE_VENDOR).trim() +
     ' ' + cl.getDeviceInfo(device, cl.DEVICE_NAME));
 
 let kernelSourceCode = [
@@ -112,12 +106,7 @@ cl.setKernelArg(kernel, 2, 'uint*', cBuffer);
 cl.setKernelArg(kernel, 3, 'uint', BUFFER_SIZE);
 
 // Create command queue
-let queue;
-if (cl.createCommandQueueWithProperties !== undefined) {
-	queue = cl.createCommandQueueWithProperties(context, device, []); // OpenCL 2
-} else {
-	queue = cl.createCommandQueue(context, device, null); // OpenCL 1.x
-}
+let queue = cl.createCommandQueue(context, device, null); // OpenCL 1.x
 
 // Execute the OpenCL kernel on the list
 // let localWS = [5]; // process one list at a time
@@ -125,8 +114,8 @@ if (cl.createCommandQueueWithProperties !== undefined) {
 let localWS = null;
 let globalWS = [BUFFER_SIZE];
 
-log('Global work item size: ' + globalWS);
-log('Local work item size: ' + localWS);
+console.log('Global work item size: ' + globalWS);
+console.log('Local work item size: ' + localWS);
 
 // Execute (enqueue) kernel
 cl.enqueueNDRangeKernel(queue, kernel, 1,
@@ -134,7 +123,7 @@ cl.enqueueNDRangeKernel(queue, kernel, 1,
 	globalWS,
 	localWS);
 
-log('using enqueueMapBuffer');
+console.log('using enqueueMapBuffer');
 // Map cBuffer to host pointer. This enforces a sync with
 // the host backing space, remember we choose GPU device.
 let map = cl.enqueueMapBuffer(queue,
@@ -148,7 +137,7 @@ let output = 'after map C= ';
 for (let i = 0; i < BUFFER_SIZE; i++) {
 	output += C[i] + ', ';
 }
-log(output);
+console.log(output);
 
 // we are now reading values as bytes, we need to cast it to the output type we want
 output = 'output = [' + map.byteLength + ' bytes] ';
@@ -156,7 +145,7 @@ let mapView = new Uint8Array(map);
 for (let i = 0; i < mapView.length; i++) {
 	output += mapView[i] + ', ';
 }
-log(output);
+console.log(output);
 
 cl.enqueueUnmapMemObject(queue, cBuffer, map);
 
@@ -164,7 +153,7 @@ output = 'after unmap C= ';
 for (let i = 0; i < BUFFER_SIZE; i++) {
 	output += C[i] + ', ';
 }
-log(output);
+console.log(output);
 
 cl.finish(queue); // Finish all the operations
 

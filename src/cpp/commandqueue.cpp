@@ -175,7 +175,7 @@ JS_METHOD(enqueueReadBuffer) { NAPI_ENV;
 	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, clMem, cl_mem);
-	REQ_BOOL_ARG(2, blocking_read);
+	SOFT_BOOL_ARG(2, blocking_read);
 	REQ_OFFS_ARG(3, offset);
 	REQ_OFFS_ARG(4, size);
 	REQ_OBJ_ARG(5, buffer);
@@ -225,7 +225,7 @@ JS_METHOD(enqueueReadBufferRect) { NAPI_ENV;
 	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, clMem, cl_mem);
-	REQ_BOOL_ARG(2, blocking_read);
+	SOFT_BOOL_ARG(2, blocking_read);
 	REQ_ARRAY_ARG(3, bufferOffsetArray);
 	REQ_ARRAY_ARG(4, hostOffsetArray);
 	REQ_ARRAY_ARG(5, regionArray);
@@ -293,21 +293,19 @@ JS_METHOD(enqueueReadBufferRect) { NAPI_ENV;
 //                      cl_uint            /* num_events_in_wait_list */,
 //                      const cl_event *   /* event_wait_list */,
 //                      cl_event *         /* event */) CL_API_SUFFIX__VERSION_1_0;
-#include <iostream>
 JS_METHOD(enqueueWriteBuffer) { NAPI_ENV;
 	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, clMem, cl_mem);
-	REQ_BOOL_ARG(2, blocking_write);
+	SOFT_BOOL_ARG(2, blocking_write);
 	REQ_OFFS_ARG(3, offset);
 	REQ_OFFS_ARG(4, size);
 	REQ_OBJ_ARG(5, buffer);
 	
-	std::cout << "enqueueWriteBuffer1 " << buffer << " " << std::endl;
 	void *ptr = nullptr;
 	size_t len = 0;
 	getPtrAndLen(buffer, &ptr, &len);
-	std::cout << "enqueueWriteBuffer " << ptr << " " << len << std::endl;
+	
 	if(!ptr || !len) {
 		JS_THROW("Could not read buffer data.");
 		RET_UNDEFINED;
@@ -350,7 +348,7 @@ JS_METHOD(enqueueWriteBufferRect) { NAPI_ENV;
 	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, clMem, cl_mem);
-	REQ_BOOL_ARG(2, blocking_write);
+	SOFT_BOOL_ARG(2, blocking_write);
 	REQ_ARRAY_ARG(3, bufferOffsetArray);
 	REQ_ARRAY_ARG(4, hostOffsetArray);
 	REQ_ARRAY_ARG(5, regionArray);
@@ -580,7 +578,7 @@ JS_METHOD(enqueueReadImage) { NAPI_ENV;
 	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, image, cl_mem);
-	REQ_BOOL_ARG(2, blocking_read);
+	SOFT_BOOL_ARG(2, blocking_read);
 	REQ_ARRAY_ARG(3, srcOriginArray);
 	REQ_ARRAY_ARG(4, regionArray);
 	REQ_OFFS_ARG(5, row_pitch);
@@ -644,7 +642,7 @@ JS_METHOD(enqueueWriteImage) { NAPI_ENV;
 	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, image, cl_mem);
-	REQ_BOOL_ARG(2, blocking_write);
+	SOFT_BOOL_ARG(2, blocking_write);
 	REQ_ARRAY_ARG(3, srcOriginArray);
 	REQ_ARRAY_ARG(4, regionArray);
 	REQ_OFFS_ARG(5, row_pitch);
@@ -924,11 +922,10 @@ JS_METHOD(enqueueMapBuffer) { NAPI_ENV;
 	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, mem, cl_mem);
-	REQ_BOOL_ARG(2, blocking_map);
-	REQ_UINT32_ARG(3, map_flags);
+	SOFT_BOOL_ARG(2, blocking_map);
+	REQ_OFFS_ARG(3, map_flags);
 	REQ_OFFS_ARG(4, offset);
 	REQ_OFFS_ARG(5, size);
-	
 	GET_WAIT_LIST_AND_EVENT(6);
 	
 	void* mPtr = nullptr;
@@ -937,7 +934,8 @@ JS_METHOD(enqueueMapBuffer) { NAPI_ENV;
 	mPtr = clEnqueueMapBuffer(
 		clQueue,
 		mem,
-		blocking_map,map_flags,
+		blocking_map,
+		map_flags,
 		offset,
 		size,
 		(cl_uint)cl_events.size(),
@@ -986,8 +984,8 @@ JS_METHOD(enqueueMapImage) { NAPI_ENV;
 	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, mem, cl_mem);
-	REQ_BOOL_ARG(2, blocking_map);
-	REQ_UINT32_ARG(3, map_flags);
+	SOFT_BOOL_ARG(2, blocking_map);
+	REQ_OFFS_ARG(3, map_flags);
 	REQ_ARRAY_ARG(4, srcOriginArray);
 	REQ_ARRAY_ARG(5, regionArray);
 	

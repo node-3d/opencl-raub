@@ -81,6 +81,9 @@ private:
 	REQ_WRAP_ARG(I, _wrap_##VAR);                                             \
 	TYPE VAR = _wrap_##VAR->as<TYPE>();
 
+#define SOFT_BOOL_ARG(I, VAR)                                                 \
+	bool VAR = info.Length() >= (I) && info[I].ToBoolean().Value() || false;
+
 }
 
 #endif

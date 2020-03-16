@@ -194,12 +194,12 @@ JS_METHOD(getEventProfilingInfo) { NAPI_ENV;
 
 
 class EventWorker : public Napi::AsyncWorker {
+	
 public:
 	EventWorker(Napi::Function callback, Napi::Object userData, Napi::Object wrapper):
 	Napi::AsyncWorker(callback, "CL::EventWorker") {
 		_refEvent.Reset(wrapper, 1);
 		_refData.Reset(userData, 1);
-		
 		this->async = new uv_async_t();
 		this->async->data = (void*) this;
 		uv_async_init(
@@ -270,9 +270,15 @@ JS_METHOD(setEventCallback) { NAPI_ENV;
 	REQ_CL_ARG(0, ev, cl_event);
 	REQ_UINT32_ARG(1, callbackStatusType);
 	REQ_FUN_ARG(2, callback);
-	LET_OBJ_ARG(3, userData);
+	// FIXME bug in AT5
+	// LET_OBJ_ARG(3, userData);
+	USE_OBJ_ARG(3, userData, Napi::Object::New(env));
 	
-	EventWorker* asyncCB = new EventWorker(callback, userData, info[0].As<Napi::Object>());
+	EventWorker* asyncCB = new EventWorker(
+		callback,
+		userData,
+		info[0].As<Napi::Object>()
+	);
 	
 	CHECK_ERR(clSetEventCallback(ev, callbackStatusType, notifyCB, asyncCB));
 	

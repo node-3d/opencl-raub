@@ -39,9 +39,8 @@ void Wrapper::init(Napi::Env env, Napi::Object exports) {
 	exports.Set("Wrapper", ctor);
 }
 
-#include <iostream>
+
 Napi::Object Wrapper::fromRaw(Napi::Env env, cl_platform_id raw) {
-	std::cout << "fromRaw " << env.IsExceptionPending() << " " << _ctorEs5.Value() << std::endl;
 	return _ctorEs5.Value().New({ JS_EXT(raw), JS_NUM(1) });
 }
 Napi::Object Wrapper::fromRaw(Napi::Env env, cl_device_id raw) {
@@ -77,7 +76,7 @@ Napi::Object Wrapper::fromRaw(Napi::Env env, cl_mapped_ptr raw) {
 
 
 Wrapper::Wrapper(const Napi::CallbackInfo& info) { NAPI_ENV;
-	std::cout << "ctor1 " << env.IsExceptionPending() << std::endl;
+	
 	super(info);
 	
 	if (!info[0].IsExternal() || !info[1].IsNumber()) {
@@ -89,7 +88,7 @@ Wrapper::Wrapper(const Napi::CallbackInfo& info) { NAPI_ENV;
 		JS_THROW("Failed to construct a Wrapper.");
 		return;
 	}
-	std::cout << "ctor2 " << env.IsExceptionPending() << std::endl;
+	
 	Napi::External<void> extParam = info[0].As< Napi::External<void> >();
 	int32_t infoIdx = info[1].ToNumber().Int32Value();
 	
@@ -98,7 +97,7 @@ Wrapper::Wrapper(const Napi::CallbackInfo& info) { NAPI_ENV;
 	_acquire = typeInfo[infoIdx].acquire;
 	_release = typeInfo[infoIdx].release;
 	_typeName = typeInfo[infoIdx].typeName;
-	std::cout << "ctor3 " << env.IsExceptionPending() << std::endl;
+	
 }
 
 

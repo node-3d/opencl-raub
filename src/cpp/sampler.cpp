@@ -14,7 +14,7 @@ JS_METHOD(createSampler) { NAPI_ENV;
 	
 	REQ_CL_ARG(0, context, cl_context);
 	
-	REQ_BOOL_ARG(1, normalized_coords);
+	SOFT_BOOL_ARG(1, normalized_coords);
 	REQ_UINT32_ARG(2, addressing_mode);
 	REQ_UINT32_ARG(3, filter_mode);
 	

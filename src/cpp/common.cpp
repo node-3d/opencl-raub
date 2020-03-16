@@ -1,20 +1,16 @@
 #include "common.hpp"
 
-#include <iostream>
+
 namespace opencl {
 
 void getPtrAndLen(Napi::Object obj, void** ptr, size_t *len) {
 	*ptr = nullptr;
 	int intSize = 0;
-	std::cout << "getPtrAndLen1 " << obj.IsTypedArray() << " " << obj.IsArrayBuffer() << std::endl;
 	if (obj.IsTypedArray() || obj.IsArrayBuffer()) {
-		std::cout << "gad11" << std::endl;
 		*ptr = getArrayData<uint8_t>(obj.Env(), obj, &intSize);
-		std::cout << "w1" << std::endl;
 	} else if (obj.IsBuffer()) {
 		*ptr = getBufferData<uint8_t>(obj.Env(), obj, &intSize);
 	}
-	std::cout << "getPtrAndLen2 " << std::endl;
 	if (len) {
 		*len = intSize;
 	}
