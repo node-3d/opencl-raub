@@ -8,9 +8,10 @@ let fs = require('fs');
 console.log('Using Buffer');
 
 let platform = cl.getPlatformIDs()[0];
-let ctx = cl.createContext(
+const ctx = cl.createContext(
 	[cl.CONTEXT_PLATFORM, platform],
-	[cl.getDeviceIDs(platform, cl.DEVICE_TYPE_ALL)[0]]);
+	[cl.getDeviceIDs(platform, cl.DEVICE_TYPE_ALL)[0]]
+);
 
 let NVALUES = 100;
 let BYTES_PER_ELEMENT = Uint32Array.BYTES_PER_ELEMENT;

@@ -582,6 +582,8 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
 	// cl_khr_gl_sharing - use GL VBOs
 	JS_CL_CONSTANT(GL_CONTEXT_KHR);
 	JS_CL_CONSTANT(WGL_HDC_KHR);
+	JS_CL_CONSTANT(GLX_DISPLAY_KHR);
+	JS_CL_CONSTANT(CGL_SHAREGROUP_KHR);
 	
 	// cl_khr_icd extension
 	#if !defined (__APPLE__)
