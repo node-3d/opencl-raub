@@ -48,6 +48,7 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
 	JS_CL_SET_METHOD(getSupportedImageFormats);
 	JS_CL_SET_METHOD(getMemObjectInfo);
 	JS_CL_SET_METHOD(getImageInfo);
+	JS_CL_SET_METHOD(createFromGLBuffer);
 	
 	JS_CL_SET_METHOD(getPlatformIDs);
 	JS_CL_SET_METHOD(getPlatformInfo);
@@ -97,6 +98,8 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
 	JS_CL_SET_METHOD(enqueueFillBuffer);
 	JS_CL_SET_METHOD(enqueueFillImage);
 	JS_CL_SET_METHOD(enqueueMigrateMemObjects);
+	JS_CL_SET_METHOD(enqueueAcquireGLObjects);
+	JS_CL_SET_METHOD(enqueueReleaseGLObjects);
 	
 	JS_CL_SET_METHOD(createContext);
 	JS_CL_SET_METHOD(retainContext);
@@ -575,6 +578,10 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
 	
 	// cl_khr_fp16 extension - no extension exports.since it has no functions
 	JS_CL_CONSTANT(DEVICE_HALF_FP_CONFIG);
+	
+	// cl_khr_gl_sharing - use GL VBOs
+	JS_CL_CONSTANT(GL_CONTEXT_KHR);
+	JS_CL_CONSTANT(WGL_HDC_KHR);
 	
 	// cl_khr_icd extension
 	#if !defined (__APPLE__)

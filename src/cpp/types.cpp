@@ -119,7 +119,7 @@ int Wrapper::acquire() const {
 
 
 int Wrapper::release() {
-	if(_released) {
+	if (_released) {
 		return CL_SUCCESS;
 	}
 	_released = true;

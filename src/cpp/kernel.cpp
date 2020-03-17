@@ -234,7 +234,7 @@ JS_METHOD(setKernelArg) { NAPI_ENV;
 	// - CL_KERNEL_ARG_ADDRESS_LOCAL
 	// - CL_KERNEL_ARG_ADDRESS_CONSTANT
 	// - CL_KERNEL_ARG_ADDRESS_PRIVATE
-	if(IS_ARG_EMPTY(2)) {
+	if (IS_ARG_EMPTY(2)) {
 		cl_kernel_arg_address_qualifier adrqual;
 		CHECK_ERR(clGetKernelArgInfo(
 			kernel,

@@ -65,6 +65,7 @@ JS_METHOD(releaseMemObject);
 JS_METHOD(getSupportedImageFormats);
 JS_METHOD(getMemObjectInfo);
 JS_METHOD(getImageInfo);
+JS_METHOD(createFromGLBuffer);
 
 JS_METHOD(getPlatformIDs);
 JS_METHOD(getPlatformInfo);
@@ -114,6 +115,8 @@ JS_METHOD(enqueueBarrierWithWaitList);
 JS_METHOD(enqueueFillBuffer);
 JS_METHOD(enqueueFillImage);
 JS_METHOD(enqueueMigrateMemObjects);
+JS_METHOD(enqueueAcquireGLObjects);
+JS_METHOD(enqueueReleaseGLObjects);
 
 JS_METHOD(createContext);
 JS_METHOD(retainContext);

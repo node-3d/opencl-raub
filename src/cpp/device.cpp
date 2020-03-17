@@ -79,7 +79,7 @@ JS_METHOD(getDeviceInfo) { NAPI_ENV;
 			nullptr
 		));
 		
-		if(param_value) {
+		if (param_value) {
 			RET_WRAPPER(param_value);
 		}
 		RET_UNDEFINED;

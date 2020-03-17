@@ -13,17 +13,19 @@ namespace opencl {
 //                 cl_int *                /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(createContext) { NAPI_ENV;
 	
-	REQ_ARRAY_ARG(0, properties);
+	REQ_ARRAY_ARG(0, js_properties);
 	std::vector<cl_context_properties> cl_properties;
-	size_t propLen = properties.Length();
+	size_t propLen = js_properties.Length();
 	for (size_t i = 0; i < propLen; i++) {
-		cl_uint prop_id = properties.Get(i).ToNumber().Uint32Value();
+		cl_uint prop_id = js_properties.Get(i).ToNumber().Uint32Value();
 		cl_properties.push_back(prop_id);
-		if(prop_id == CL_CONTEXT_PLATFORM) {
-			Wrapper *platform = Wrapper::unwrap(properties.Get(++i).As<Napi::Object>());
+		if (prop_id == CL_CONTEXT_PLATFORM) {
+			Wrapper *platform = Wrapper::unwrap(js_properties.Get(++i).As<Napi::Object>());
 			cl_properties.push_back(
 				(cl_context_properties) platform->as<cl_platform_id>()
 			);
+		} else if (prop_id == CL_GL_CONTEXT_KHR || prop_id == CL_WGL_HDC_KHR) {
+			cl_properties.push_back(js_properties.Get(++i).ToNumber().Int64Value());
 		}
 	}
 	cl_properties.push_back(0);
@@ -55,17 +57,19 @@ JS_METHOD(createContext) { NAPI_ENV;
 //                         cl_int *                /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(createContextFromType) { NAPI_ENV;
 	
-	REQ_ARRAY_ARG(0, properties);
+	REQ_ARRAY_ARG(0, js_properties);
 	std::vector<cl_context_properties> cl_properties;
-	size_t propLen = properties.Length();
+	size_t propLen = js_properties.Length();
 	for (size_t i = 0; i < propLen; i++) {
-		cl_uint prop_id = properties.Get(i).ToNumber().Uint32Value();
+		cl_uint prop_id = js_properties.Get(i).ToNumber().Uint32Value();
 		cl_properties.push_back(prop_id);
-		if(prop_id == CL_CONTEXT_PLATFORM) {
-			Wrapper *platform = Wrapper::unwrap(properties.Get(++i).As<Napi::Object>());
+		if (prop_id == CL_CONTEXT_PLATFORM) {
+			Wrapper *platform = Wrapper::unwrap(js_properties.Get(++i).As<Napi::Object>());
 			cl_properties.push_back(
 				(cl_context_properties) platform->as<cl_platform_id>()
 			);
+		} else if (prop_id == CL_GL_CONTEXT_KHR || prop_id == CL_WGL_HDC_KHR) {
+			cl_properties.push_back(js_properties.Get(++i).ToNumber().Int64Value());
 		}
 	}
 	cl_properties.push_back(0);

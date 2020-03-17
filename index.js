@@ -1,7 +1,11 @@
 'use strict';
 
+const { inspect } = require('util');
+
 const opencl = require('./core');
 
+
+opencl.Wrapper.prototype[inspect.custom] = opencl.Wrapper.prototype.toString;
 
 global.WebCLPlatform = opencl.WebCLPlatform = function (_) { this._ = _; };
 global.WebCLDevice = opencl.WebCLDevice = function (_) { this._ = _; };

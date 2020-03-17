@@ -183,7 +183,7 @@ JS_METHOD(enqueueReadBuffer) { NAPI_ENV;
 	void *ptr = nullptr;
 	size_t len = 0;
 	getPtrAndLen(buffer, &ptr, &len);
-	if(!ptr || !len) {
+	if (!ptr || !len) {
 		JS_THROW("Could not read buffer data.");
 		RET_UNDEFINED;
 	}
@@ -256,7 +256,7 @@ JS_METHOD(enqueueReadBufferRect) { NAPI_ENV;
 	size_t len = 0;
 	getPtrAndLen(buffer, &ptr, &len);
 	
-	if(!ptr || !len) {
+	if (!ptr || !len) {
 		JS_THROW("Could not read buffer data.");
 		RET_UNDEFINED;
 	}
@@ -306,7 +306,7 @@ JS_METHOD(enqueueWriteBuffer) { NAPI_ENV;
 	size_t len = 0;
 	getPtrAndLen(buffer, &ptr, &len);
 	
-	if(!ptr || !len) {
+	if (!ptr || !len) {
 		JS_THROW("Could not read buffer data.");
 		RET_UNDEFINED;
 	}
@@ -379,7 +379,7 @@ JS_METHOD(enqueueWriteBufferRect) { NAPI_ENV;
 	size_t len = 0;
 	getPtrAndLen(buffer, &ptr, &len);
 	
-	if(!ptr || !len) {
+	if (!ptr || !len) {
 		JS_THROW("Could not read buffer data.");
 		RET_UNDEFINED;
 	}
@@ -433,7 +433,7 @@ JS_METHOD(enqueueFillBuffer) { NAPI_ENV;
 		getPtrAndLen(buffer, &pattern, &len);
 	}
 	
-	if(!pattern || !len) {
+	if (!pattern || !len) {
 		JS_THROW("Could not read buffer data.");
 		RET_UNDEFINED;
 	}
@@ -601,7 +601,7 @@ JS_METHOD(enqueueReadImage) { NAPI_ENV;
 	size_t len = 0;
 	getPtrAndLen(buffer, &ptr, &len);
 	
-	if(!ptr || !len) {
+	if (!ptr || !len) {
 		JS_THROW("Could not read buffer data.");
 		RET_UNDEFINED;
 	}
@@ -665,7 +665,7 @@ JS_METHOD(enqueueWriteImage) { NAPI_ENV;
 	size_t len = 0;
 	getPtrAndLen(buffer, &ptr, &len);
 	
-	if(!ptr || !len) {
+	if (!ptr || !len) {
 		JS_THROW("Could not read buffer data.");
 		RET_UNDEFINED;
 	}
@@ -712,7 +712,7 @@ JS_METHOD(enqueueFillImage) { NAPI_ENV;
 	size_t len = 0;
 	getPtrAndLen(buffer, &ptr, &len);
 	
-	if(!ptr || !len) {
+	if (!ptr || !len) {
 		JS_THROW("Could not read buffer data.");
 		RET_UNDEFINED;
 	}
@@ -903,7 +903,7 @@ JS_METHOD(enqueueCopyBufferToImage) { NAPI_ENV;
 void CL_CALLBACK notifyMapCB (cl_event event, cl_int event_command_exec_status, void *user_data)
 {
 	// NoCLMapCB* asyncCB = static_cast<NoCLMapCB*>(user_data);
-	// if(asyncCB!=nullptr)
+	// if (asyncCB!=nullptr)
 	//     asyncCB->CallBackIsDone();
 }
 
@@ -948,11 +948,11 @@ JS_METHOD(enqueueMapBuffer) { NAPI_ENV;
 	
 	Napi::ArrayBuffer obj = Napi::ArrayBuffer::New(env, mPtr, size);
 	
-	if(eventPtr) {
+	if (eventPtr) {
 		obj.Set("event", Wrapper::fromRaw(env, event));
 	}
 	
-	if(!blocking_map) {
+	if (!blocking_map) {
 		// TODO? buf->SetIndexedPropertiesToExternalArrayData(
 		// 	nullptr,
 		// 	buf->GetIndexedPropertiesExternalArrayDataType(),
@@ -1035,11 +1035,11 @@ JS_METHOD(enqueueMapImage) { NAPI_ENV;
 	obj.Set("image_row_pitch", JS_NUM(image_row_pitch));
 	obj.Set("image_slice_pitch", JS_NUM(image_slice_pitch));
 	
-	if(eventPtr) {
+	if (eventPtr) {
 		obj.Set("event", Wrapper::fromRaw(env, event));
 	}
 	
-	if(!blocking_map) {
+	if (!blocking_map) {
 		//TODO? buf->SetIndexedPropertiesToExternalArrayData(nullptr, buf->GetIndexedPropertiesExternalArrayDataType(), 0);
 		// NoCLMapCB* cb = new NoCLMapCB(buf,size,mPtr);
 		// err = clSetEventCallback(event,CL_COMPLETE,notifyMapCB,cb);
@@ -1049,7 +1049,7 @@ JS_METHOD(enqueueMapImage) { NAPI_ENV;
 	RET_VALUE(obj);
 //
 //  cl_event event = nullptr;
-//  if(!IS_ARG_EMPTY(9)) {
+//  if (!IS_ARG_EMPTY(9)) {
 //    NOCL_UNWRAP(evt, NoCLEvent, info[9]);
 //    event = evt->getRaw();
 //  }
@@ -1084,7 +1084,7 @@ JS_METHOD(enqueueUnmapMemObject) { NAPI_ENV;
 	size_t len = 0;
 	getPtrAndLen(buffer, &ptr, &len);
 	
-	if(!ptr || !len) {
+	if (!ptr || !len) {
 		JS_THROW("Could not read buffer data.");
 		RET_UNDEFINED;
 	}
@@ -1314,5 +1314,30 @@ JS_METHOD(enqueueBarrierWithWaitList) { NAPI_ENV;
 	
 	RET_EVENT;
 }
+
+
+JS_METHOD(enqueueAcquireGLObjects) { NAPI_ENV;
+	
+	REQ_CL_ARG(0, queue, cl_command_queue);
+	REQ_CL_ARG(1, mem, cl_mem);
+	
+	CHECK_ERR(clEnqueueAcquireGLObjects(queue, 1, &mem, 0, 0, 0));
+	
+	RET_NUM(CL_SUCCESS);
+	
+}
+
+
+JS_METHOD(enqueueReleaseGLObjects) { NAPI_ENV;
+	
+	REQ_CL_ARG(0, queue, cl_command_queue);
+	REQ_CL_ARG(1, mem, cl_mem);
+	
+	CHECK_ERR(clEnqueueReleaseGLObjects(queue, 1, &mem, 0,0,0 ) );
+	
+	RET_NUM(CL_SUCCESS);
+	
+}
+
 
 } // namespace opencl
