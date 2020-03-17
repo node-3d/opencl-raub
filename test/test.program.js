@@ -1,9 +1,13 @@
-var cl = require('../lib/opencl');
-var assert = require('chai').assert;
+'use strict';
+
 var fs = require('fs');
-var U = require('./utils/utils');
-var skip = require('./utils/diagnostic');
-var versions = require('./utils/versions');
+let assert = require('chai').assert;
+
+const cl = require('../');
+let U = require('./utils/utils');
+let versions = require('./utils/versions');
+let skip = require('./utils/diagnostic');
+
 
 var squareKern = fs.readFileSync(__dirname + '/kernels/square.cl').toString();
 var squareCpyKern = fs.readFileSync(__dirname + '/kernels/square_cpy.cl').toString();

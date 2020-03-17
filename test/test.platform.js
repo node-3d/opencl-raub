@@ -30,9 +30,9 @@ describe('Platform', function () {
 		describe(
 			(
 				'#getPlatformInfo() for ' +
-        cl.getPlatformInfo(p,cl.PLATFORM_VENDOR) +
-        ' ' +
-        cl.getPlatformInfo(p,cl.PLATFORM_NAME)
+				cl.getPlatformInfo(p,cl.PLATFORM_VENDOR) +
+				' ' +
+				cl.getPlatformInfo(p,cl.PLATFORM_NAME)
 			),
 			function () {
 				testString(p, 'PLATFORM_VERSION');
@@ -43,36 +43,85 @@ describe('Platform', function () {
 
 				// negative test cases
 				it('should throw cl.INVALID_VALUE with name=cl.DEVICE_TYPE_CPU',function () {
-					cl.getPlatformInfo.bind(cl.getPlatformInfo,p,cl.DEVICE_TYPE_CPU).should.throw(cl.INVALID_VALUE.message);
+					const getInfoBound = cl.getPlatformInfo.bind(
+						cl.getPlatformInfo,
+						p,
+						cl.DEVICE_TYPE_CPU
+					);
+					getInfoBound.should.throw(cl.INVALID_VALUE.message);
 				});
 				it('should throw cl.INVALID_VALUE with name=0x2000',function () {
-					cl.getPlatformInfo.bind(cl.getPlatformInfo,p,0x2000).should.throw(cl.INVALID_VALUE.message);
+					const getInfoBound = cl.getPlatformInfo.bind(
+						cl.getPlatformInfo,
+						p,
+						0x2000
+					);
+					getInfoBound.should.throw(cl.INVALID_VALUE.message);
 				});
 				it('should throw cl.INVALID_VALUE with name=\'a string\'',function () {
-					cl.getPlatformInfo.bind(cl.getPlatformInfo,p,'a string').should.throw(cl.INVALID_VALUE.message);
+					const getInfoBound = cl.getPlatformInfo.bind(
+						cl.getPlatformInfo,
+						p,
+						'a string'
+					);
+					getInfoBound.should.throw(cl.INVALID_VALUE.message);
 				});
 				it('should throw cl.INVALID_VALUE with name=-123.56',function () {
-					cl.getPlatformInfo.bind(cl.getPlatformInfo,p,-123.56).should.throw(cl.INVALID_VALUE.message);
+					const getInfoBound = cl.getPlatformInfo.bind(
+						cl.getPlatformInfo,
+						p,
+						-123.56
+					);
+					getInfoBound.should.throw(cl.INVALID_VALUE.message);
 				});
 				it('should throw cl.INVALID_PLATFORM with platform = null',function () {
-					cl.getPlatformInfo.bind(cl.getPlatformInfo,null,123).should.throw(cl.INVALID_PLATFORM.message);
+					const getInfoBound = cl.getPlatformInfo.bind(
+						cl.getPlatformInfo,
+						null,
+						123
+					);
+					getInfoBound.should.throw(cl.INVALID_PLATFORM.message);
 				});
-				it('should throw cl.INVALID_PLATFORM with platform = \'a string\'',function () {
-					cl.getPlatformInfo.bind(cl.getPlatformInfo,'a string',123).should.throw(cl.INVALID_PLATFORM.message);
-				});
+				it(
+					'should throw cl.INVALID_PLATFORM with platform = \'a string\'',
+					function () {
+						const getInfoBound = cl.getPlatformInfo.bind(
+							cl.getPlatformInfo,
+							'a string',
+							123
+						);
+						getInfoBound.should.throw(cl.INVALID_PLATFORM.message);
+					}
+				);
 				it('should throw cl.INVALID_PLATFORM with platform = 123',function () {
-					cl.getPlatformInfo.bind(cl.getPlatformInfo,123,123).should.throw(cl.INVALID_PLATFORM.message);
+					const getInfoBound = cl.getPlatformInfo.bind(
+						cl.getPlatformInfo,
+						123,
+						123
+					);
+					getInfoBound.should.throw(cl.INVALID_PLATFORM.message);
 				});
 				it('should throw cl.INVALID_PLATFORM with platform = [1,2,3]',function () {
-					cl.getPlatformInfo.bind(cl.getPlatformInfo,[1,2,3],123).should.throw(cl.INVALID_PLATFORM.message);
+					const getInfoBound = cl.getPlatformInfo.bind(
+						cl.getPlatformInfo,
+						[1, 2, 3],
+						123
+					);
+					getInfoBound.should.throw(cl.INVALID_PLATFORM.message);
 				});
 				it('should throw cl.INVALID_PLATFORM with platform = new Array()',function () {
-					cl.getPlatformInfo.bind(cl.getPlatformInfo,[],123).should.throw(cl.INVALID_PLATFORM.message);
+					const getInfoBound = cl.getPlatformInfo.bind(
+						cl.getPlatformInfo,
+						[],
+						123
+					);
+					getInfoBound.should.throw(cl.INVALID_PLATFORM.message);
 				});
 			}
 		);
 	}
 
-	for (let i = 0;i < platforms.length;i++)
+	for (let i = 0; i < platforms.length; i++) {
 		testPlatform(platforms[i]);
+	}
 });
