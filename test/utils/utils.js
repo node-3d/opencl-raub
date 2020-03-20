@@ -1,6 +1,6 @@
 'use strict';
 
-const cl = require('../');
+const cl = require('../../');
 
 let { vendors } = require('./diagnostic');
 

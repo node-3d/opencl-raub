@@ -2,7 +2,7 @@
 
 let os = require('os');
 
-const cl = require('../');
+const cl = require('../../');
 
 
 if (global.MAIN_DEVICE_ID !== null && global.MAIN_DEVICE_ID !== undefined) {

@@ -2,7 +2,7 @@
 
 let os = require('os');
 
-const cl = require('../');
+const cl = require('../../');
 
 
 let vendors = {

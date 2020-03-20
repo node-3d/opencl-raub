@@ -1,6 +1,6 @@
 'use strict';
 
-let assert = require('chai').assert;
+const { expect, assert } = require('chai');
 
 const cl = require('../');
 let U = require('./utils/utils');
@@ -13,12 +13,18 @@ describe('Context', function () {
 	let properties = [cl.CONTEXT_PLATFORM, platform];
 	let devices = [cl.getDeviceIDs(platform)[global.MAIN_DEVICE_IDX]];
 
-	versions(['1.2']).describe('#createContext', function () {
+	describe('#createContext', function () {
 
 		it('should throw if devices = null', function () {
-			const ex = cl.INVALID_VALUE.message;
-			cl.createContext.bind(cl.createContext, null, null, null, null)
-				.should.throw(ex);
+			const ex = 'Argument 0 must be of type `Object`';
+			const createBound = cl.createContext.bind(
+				cl.createContext,
+				null,
+				null,
+				null,
+				null
+			);
+			expect(createBound).to.throw(ex);
 		});
 
 		it('should create a context with default properties for a platform', function () {
