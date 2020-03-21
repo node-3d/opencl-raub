@@ -1,9 +1,9 @@
 'use strict';
 
-let assert = require('chai').assert;
+const { assert, expect } = require('chai');
 
 const cl = require('../');
-let U = require('./utils/utils');
+let U = require('./utils');
 let skip = require('./utils/diagnostic');
 
 
@@ -44,7 +44,7 @@ describe('Event', function () {
 				U.withContext(function (ctx, device) {
 					U.withCQ(ctx, device, function () {
 						let uEvent = cl.createUserEvent(ctx);
-            
+						
 						let val = cl.getEventInfo(uEvent, cl[name]);
 						assert.isObject(val);
 						console.console.log(name + ' = ' + val);
@@ -53,9 +53,9 @@ describe('Event', function () {
 				});
 			});
 		}
-    
+		
 		testNumber('event status to cl.SUBMITTED','EVENT_COMMAND_EXECUTION_STATUS',cl.SUBMITTED);
-
+		
 		// AMD It returns 2
 		skip().vendor('AMD').vendor('nVidia').it(
 			'should return the good value for EVENT_REFERENCE_COUNT',
@@ -88,16 +88,17 @@ describe('Event', function () {
 				cl.releaseEvent(uEvent);
 			});
 		});
-    
+		
 		//bug in amd driver?
 		skip().it('should throw an error for invalid value',function () {
 			U.withContext(function (ctx) {
 				let uEvent = cl.createUserEvent(ctx);
-				cl.setUserEventStatus.bind(cl.setUserEvent,uEvent,-1).should.throw(cl.INVALID_VALUE.message);
+				const setStatusBound = cl.setUserEventStatus.bind(cl.setUserEvent,uEvent,-1);
+				expect(setStatusBound).to.throw(cl.INVALID_VALUE.message);
 				cl.releaseEvent(uEvent);
 			});
 		});
-
+		
 		skip().it('should throw an error because 2 change of the values for the same user event',function () {
 			U.withContext(function (ctx) {
 				let uEvent = cl.createUserEvent(ctx);
@@ -107,7 +108,7 @@ describe('Event', function () {
 					uEvent,
 					cl.COMPLETE
 				);
-				setStatusBound.should.throw(cl.INVALID_VALUE.message);
+				expect(setStatusBound).to.throw(cl.INVALID_VALUE.message);
 				cl.releaseEvent(uEvent);
 			});
 		});

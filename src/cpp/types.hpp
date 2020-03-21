@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-#include <iostream>
 #include <sstream>
 
 #include "common.hpp"
@@ -49,7 +48,11 @@ public:
 	static std::vector<T> fromJsArray(Napi::Array &src) {
 		std::vector<T> out;
 		for (size_t i = 0; i < src.Length(); i++) {
-			Wrapper *wrapper = Wrapper::unwrap(src.Get(i).As<Napi::Object>());
+			Napi::Value value = src.Get(i);
+			if (!value.IsObject()) {
+				continue;
+			}
+			Wrapper *wrapper = Wrapper::unwrap(value.As<Napi::Object>());
 			out.push_back(wrapper->as<T>());
 		}
 		return out;
@@ -75,14 +78,15 @@ private:
 
 #define REQ_WRAP_ARG(I, VAR)                                                  \
 	REQ_OBJ_ARG(I, _obj_##VAR);                                               \
-	Wrapper *VAR = Wrapper::unwrap(_obj_##VAR);
+	Wrapper *VAR = Wrapper::unwrap(_obj_##VAR);                               \
+	if (!VAR) {                                                               \
+		JS_THROW("Argument " #I " must be a CL Wrapper.");                    \
+		RET_UNDEFINED;                                                        \
+	}
 
 #define REQ_CL_ARG(I, VAR, TYPE)                                              \
 	REQ_WRAP_ARG(I, _wrap_##VAR);                                             \
 	TYPE VAR = _wrap_##VAR->as<TYPE>();
-
-#define SOFT_BOOL_ARG(I, VAR)                                                 \
-	bool VAR = info.Length() >= (I) && info[I].ToBoolean().Value() || false;
 
 }
 

@@ -1,6 +1,6 @@
 'use strict';
 
-let assert = require('chai').assert;
+const { assert, expect } = require('chai');
 
 const cl = require('../');
 let U = require('./utils/utils');

@@ -21,8 +21,8 @@ module.exports = function () {
 	let _vendors = [];
 	let _oss = [];
 	let _devices = [];
-	let platformVendor = vendors[cl.getPlatformInfo(global.MAIN_PLATFORM_ID, cl.PLATFORM_VENDOR)];
-	let deviceVendor = vendors[cl.getDeviceInfo(global.MAIN_DEVICE_ID,cl.DEVICE_VENDOR)];
+	let platformVendor = vendors[cl.getPlatformInfo(global.MAIN_PLATFORM, cl.PLATFORM_VENDOR)];
+	let deviceVendor = vendors[cl.getDeviceInfo(global.MAIN_DEVICE, cl.DEVICE_VENDOR)];
 	let osName = os.platform();
 
 	let match = function () {
@@ -60,9 +60,9 @@ module.exports = function () {
 			return obj;
 		},
 
-		it : function (desc) {
+		it : function () {
 			if (checks === undefined || (checks > 0 && match())) {
-				console.warn('Cancelling ' + desc + ' because of known driver issue');
+				// console.warn('Cancelling ' + desc + ' because of known driver issue');
 				it.skip.apply(it, arguments);
 			} else {
 				it.apply(it, arguments);

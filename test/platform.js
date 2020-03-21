@@ -1,6 +1,6 @@
 'use strict';
 
-let assert = require('chai').assert;
+const { assert, expect } = require('chai');
 
 const cl = require('../');
 
@@ -8,7 +8,7 @@ const cl = require('../');
 describe('Platform', function () {
 
 	// let platforms = cl.getPlatformIDs();
-	let platforms = [global.MAIN_PLATFORM_ID];
+	let platforms = [global.MAIN_PLATFORM];
 
 	describe('#getPlatformIDs()',function () {
 		it('should return an array',function () {

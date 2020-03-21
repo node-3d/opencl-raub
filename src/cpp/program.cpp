@@ -240,7 +240,7 @@ JS_METHOD(buildProgram) { NAPI_ENV;
 			p,
 			(cl_uint) cl_devices.size(),
 			&cl_devices.front(),
-			options.length() == 0 ? options.c_str() : nullptr,
+			options.length() > 0 ? options.c_str() : nullptr,
 			notifyPCB,
 			cb
 		);
@@ -249,7 +249,7 @@ JS_METHOD(buildProgram) { NAPI_ENV;
 			p,
 			(cl_uint) cl_devices.size(),
 			&cl_devices.front(),
-			options.length() == 0 ? options.c_str() : nullptr,
+			options.length() > 0 ? options.c_str() : nullptr,
 			nullptr,
 			nullptr
 		);
@@ -326,7 +326,7 @@ JS_METHOD(compileProgram) { NAPI_ENV;
 			p,
 			(cl_uint) cl_devices.size(),
 			&cl_devices.front(),
-			options.length() == 0 ? options.c_str() : nullptr,
+			options.length() > 0 ? options.c_str() : nullptr,
 			(cl_uint) program_headers.size(),
 			&program_headers.front(),
 			&names.front(),
@@ -338,7 +338,7 @@ JS_METHOD(compileProgram) { NAPI_ENV;
 			p,
 			(cl_uint) cl_devices.size(),
 			&cl_devices.front(),
-			options.length() == 0 ? options.c_str() : nullptr,
+			options.length() > 0 ? options.c_str() : nullptr,
 			(cl_uint) program_headers.size(),
 			&program_headers.front(),
 			&names.front(),
@@ -402,7 +402,7 @@ JS_METHOD(linkProgram) { NAPI_ENV;
 			ctx,
 			(cl_uint) cl_devices.size(),
 			&cl_devices.front(),
-			options.length() == 0 ? options.c_str() : nullptr,
+			options.length() > 0 ? options.c_str() : nullptr,
 			(cl_uint) cl_programs.size(),
 			&cl_programs.front(),
 			notifyPCB,
@@ -414,7 +414,7 @@ JS_METHOD(linkProgram) { NAPI_ENV;
 			ctx,
 			(cl_uint) cl_devices.size(),
 			&cl_devices.front(),
-			options.length() == 0 ? options.c_str() : nullptr,
+			options.length() > 0 ? options.c_str() : nullptr,
 			(cl_uint) cl_programs.size(),
 			&cl_programs.front(),
 			nullptr,

@@ -13,7 +13,7 @@ namespace opencl {
 //                 cl_int *                /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(createContext) { NAPI_ENV;
 	
-	REQ_ARRAY_ARG(0, js_properties);
+	LET_ARRAY_ARG(0, js_properties);
 	std::vector<cl_context_properties> cl_properties;
 	size_t propLen = js_properties.Length();
 	for (size_t i = 0; i < propLen; i++) {

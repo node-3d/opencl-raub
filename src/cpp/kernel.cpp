@@ -244,7 +244,7 @@ JS_METHOD(setKernelArg) { NAPI_ENV;
 			&adrqual,
 			nullptr
 		));
-
+		
 		// get typename (for conversion of the JS parameter)
 		size_t nchars = 0;
 		CHECK_ERR(clGetKernelArgInfo(
@@ -284,15 +284,11 @@ JS_METHOD(setKernelArg) { NAPI_ENV;
 	if (local_arg) {
 		REQ_OFFS_ARG(3, local_size);
 		err = clSetKernelArg(kernel, arg_idx, local_size, nullptr);
-	} else if ('*' == type_name[type_name.length() - 1] || type_name == "cl_mem"){
-		REQ_OBJ_ARG(3, memWrapper);
-		Wrapper *mem = Wrapper::unwrap(memWrapper);
-		cl_mem clMem = mem->as<cl_mem>();
+	} else if ('*' == type_name[type_name.length() - 1] || type_name == "cl_mem") {
+		REQ_CL_ARG(3, clMem, cl_mem);
 		err = clSetKernelArg(kernel, arg_idx, sizeof(cl_mem), &clMem);
 	} else if (type_name == "sampler_t") {
-		REQ_OBJ_ARG(3, samplerWrapper);
-		Wrapper *sampler = Wrapper::unwrap(samplerWrapper);
-		cl_sampler clSampler = sampler->as<cl_sampler>();
+		REQ_CL_ARG(3, clSampler, cl_sampler);
 		err = clSetKernelArg(kernel, arg_idx, sizeof(cl_sampler), &clSampler);
 	} else if (type_converter.hasType(type_name)) {
 		// convert primitive types using the conversion

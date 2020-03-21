@@ -6,6 +6,6 @@
 		"build": "node-gyp rebuild && node -e \"require('addon-tools-raub/cpbin')('opencl')\""
 	},
 	"dependencies": {
-		"addon-tools-raub": "5.0.0"
+		"addon-tools-raub": "https://github.com/node-3d/addon-tools-raub.git"
 	}
 }

@@ -122,7 +122,6 @@ JS_METHOD(retainEvent) { NAPI_ENV;
 JS_METHOD(releaseEvent) { NAPI_ENV;
 	
 	REQ_WRAP_ARG(0, eventWrapper);
-	
 	cl_int err = eventWrapper->release();
 	CHECK_ERR(err);
 	

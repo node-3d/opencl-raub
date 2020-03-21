@@ -18,13 +18,41 @@ TypeInfo typeInfo[] = {
 	{ "ERROR", noop, noop },
 	{ "cl_platform_id", noop, noop },
 	{ "cl_device_id", noop, noop },
-	{ "cl_context", reinterpret_cast<cl_func>(clReleaseContext), reinterpret_cast<cl_func>(clRetainContext) },
-	{ "cl_program", reinterpret_cast<cl_func>(clReleaseProgram), reinterpret_cast<cl_func>(clRetainProgram) },
-	{ "cl_kernel", reinterpret_cast<cl_func>(clReleaseKernel), reinterpret_cast<cl_func>(clRetainKernel) },
-	{ "cl_mem", reinterpret_cast<cl_func>(clReleaseMemObject), reinterpret_cast<cl_func>(clRetainMemObject) },
-	{ "cl_sampler", reinterpret_cast<cl_func>(clReleaseSampler), reinterpret_cast<cl_func>(clRetainSampler) },
-	{ "cl_command_queue", reinterpret_cast<cl_func>(clReleaseCommandQueue), reinterpret_cast<cl_func>(clRetainCommandQueue) },
-	{ "cl_event", reinterpret_cast<cl_func>(clReleaseEvent), reinterpret_cast<cl_func>(clRetainEvent) },
+	{
+		"cl_context",
+		reinterpret_cast<cl_func>(clReleaseContext),
+		reinterpret_cast<cl_func>(clRetainContext)
+	},
+	{
+		"cl_program",
+		reinterpret_cast<cl_func>(clReleaseProgram),
+		reinterpret_cast<cl_func>(clRetainProgram)
+	},
+	{
+		"cl_kernel",
+		reinterpret_cast<cl_func>(clReleaseKernel),
+		reinterpret_cast<cl_func>(clRetainKernel)
+	},
+	{
+		"cl_mem",
+		reinterpret_cast<cl_func>(clReleaseMemObject),
+		reinterpret_cast<cl_func>(clRetainMemObject)
+	},
+	{
+		"cl_sampler",
+		reinterpret_cast<cl_func>(clReleaseSampler),
+		reinterpret_cast<cl_func>(clRetainSampler)
+	},
+	{
+		"cl_command_queue",
+		reinterpret_cast<cl_func>(clReleaseCommandQueue),
+		reinterpret_cast<cl_func>(clRetainCommandQueue)
+	},
+	{
+		"cl_event",
+		reinterpret_cast<cl_func>(clReleaseEvent),
+		reinterpret_cast<cl_func>(clRetainEvent)
+	},
 	{ "cl_program_binary", noop, noop },
 	{ "cl_mapped_ptr", noop, noop }
 };

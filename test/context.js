@@ -3,20 +3,18 @@
 const { expect, assert } = require('chai');
 
 const cl = require('../');
-let U = require('./utils/utils');
-let versions = require('./utils/versions');
+let U = require('./utils');
 
 
 describe('Context', function () {
 
-	let platform = global.MAIN_PLATFORM_ID;
-	let properties = [cl.CONTEXT_PLATFORM, platform];
-	let devices = [cl.getDeviceIDs(platform)[global.MAIN_DEVICE_IDX]];
+	let properties = [cl.CONTEXT_PLATFORM, global.MAIN_PLATFORM];
+	let devices = [global.MAIN_DEVICE];
 
 	describe('#createContext', function () {
 
 		it('should throw if devices = null', function () {
-			const ex = 'Argument 0 must be of type `Object`';
+			const ex = 'Argument 1 must be of type `Array`';
 			const createBound = cl.createContext.bind(
 				cl.createContext,
 				null,
@@ -48,8 +46,8 @@ describe('Context', function () {
 			it('should return the good type for ' + clKey, function () {
 				U.withContext(function (ctx) {
 					let val = cl.getContextInfo(ctx, cl[clKey]);
+					// console.log(`${clKey} = ${typeof val} ${val}`);
 					_assert(val);
-					console.console.log(clKey + ' = ' + val);
 				});
 			});
 		};
@@ -69,8 +67,8 @@ describe('Context', function () {
 
 		it('should throw cl.INVALID_VALUE if an unknown param is given', function () {
 			let ctx = U.newContext({ type: cl.DEVICE_TYPE_ALL });
-			cl.getContextInfo.bind(cl.getContextInfo, ctx, -1)
-				.should.throw(cl.INVALID_VALUE.message);
+			const getInfoBound = cl.getContextInfo.bind(cl.getContextInfo, ctx, -1);
+			expect(getInfoBound).to.throw(cl.INVALID_VALUE.message);
 			cl.releaseContext(ctx);
 		});
 

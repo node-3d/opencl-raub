@@ -1,10 +1,10 @@
 'use strict';
 
 let fs = require('fs');
-let assert = require('chai').assert;
+const { assert, expect } = require('chai');
 
 const cl = require('../');
-let U = require('./utils/utils');
+let U = require('./utils');
 
 
 let squareKern = fs.readFileSync(__dirname + '/kernels/square.cl').toString();
@@ -19,7 +19,6 @@ describe('Kernel', function () {
 			U.withContext(function (ctx) {
 				U.withProgram(ctx, squareKern, function (prg) {
 					let k = cl.createKernel(prg, 'square');
-
 					assert.isNotNull(k);
 					assert.isDefined(k);
 					cl.releaseKernel(k);
@@ -27,10 +26,12 @@ describe('Kernel', function () {
 			});
 		});
 
-		it('should fail as kernel does not exists', function () {
+		it('should fail as kernel does not exist', function () {
 			U.withContext(function (ctx) {
 				U.withProgram(ctx, squareKern, function (prg) {
-					U.bind(cl.createKernel, prg, 'i_do_not_exist').should.throw();
+					expect(
+						() => cl.createKernel(prg, 'i_do_not_exist')
+					).to.throw();
 				});
 			});
 		});
@@ -108,54 +109,52 @@ describe('Kernel', function () {
 				U.withProgram(ctx, squareKern, function (prg) {
 					let k = cl.createKernel(prg, 'square');
 					let mem = cl.createBuffer(ctx, 0, 8, null);
-
-					if (cl.VERSION_1_2) {
-						assert.equal(
-							cl.setKernelArg(k, 0, null, mem),
-							cl.SUCCESS,
-							'setKernelArg should succeed'
-						);
-					}
+					
+					assert.equal(
+						cl.setKernelArg(k, 0, null, mem),
+						cl.SUCCESS,
+						'setKernelArg should succeed with null'
+					);
 					assert.equal(
 						cl.setKernelArg(k, 0, 'float*', mem),
 						cl.SUCCESS,
 						'setKernelArg should succeed'
 					);
-
+					
 					cl.releaseMemObject(mem);
 					cl.releaseKernel(k);
 				});
 			});
 		});
 
-		it('should fail when passed a scalar type as first argument (expected : memobject)', function () {
+		it('should fail when passed a scalar type as first argument', function () {
 			U.withContext(function (ctx) {
 				U.withProgram(ctx, squareKern, function (prg) {
 					let k = cl.createKernel(prg, 'square');
 
-					if (cl.VERSION_1_2) {
-						U.bind(cl.setKernelArg, k, 0, null, 5)
-							.should.throw(cl.INVALID_MEM_OBJECT.message);
-					}
-					U.bind(cl.setKernelArg, k, 0, 'float*', 5)
-						.should.throw(cl.INVALID_MEM_OBJECT.message);
+					expect(
+						() => cl.setKernelArg(k, 0, null, 5)
+					).to.throw('Argument 3 must be of type `Object`');
+					expect(
+						() => cl.setKernelArg(k, 0, 'float*', 5)
+					).to.throw('Argument 3 must be of type `Object`');
 
 					cl.releaseKernel(k);
 				});
 			});
 		});
 
-		it('should fail when passed a vector type as first argument (expected : memobject)', function () {
+		it('should fail when passed a vector type as first argument', function () {
 			U.withContext(function (ctx) {
 				U.withProgram(ctx, squareKern, function (prg) {
 					let k = cl.createKernel(prg, 'square');
 
-					if (cl.VERSION_1_2) {
-						U.bind(cl.setKernelArg, k, 0, null, [5, 10, 15])
-							.should.throw(cl.INVALID_MEM_OBJECT.message);
-					}
-					U.bind(cl.setKernelArg, k, 0, 'float*', [5, 10, 15])
-						.should.throw(cl.INVALID_MEM_OBJECT.message);
+					expect(
+						() => cl.setKernelArg(k, 0, null, [5, 10, 15])
+					).to.throw('Argument 3 must be a CL Wrapper.');
+					expect(
+						() => cl.setKernelArg(k, 0, 'float*', [5, 10, 15])
+					).to.throw('Argument 3 must be a CL Wrapper.');
 
 					cl.releaseKernel(k);
 				});
@@ -167,9 +166,7 @@ describe('Kernel', function () {
 				U.withProgram(ctx, squareKern, function (prg) {
 					let k = cl.createKernel(prg, 'square');
 
-					if (cl.VERSION_1_2) {
-						assert(cl.setKernelArg(k, 2, null, 5) == cl.SUCCESS);
-					}
+					assert(cl.setKernelArg(k, 2, null, 5) == cl.SUCCESS);
 					assert(cl.setKernelArg(k, 2, 'uint', 5) == cl.SUCCESS);
 
 					cl.releaseKernel(k);
@@ -182,12 +179,12 @@ describe('Kernel', function () {
 				U.withProgram(ctx, squareKern, function (prg) {
 					let k = cl.createKernel(prg, 'square');
 
-					if (cl.VERSION_1_2) {
-						U.bind(cl.setKernelArg, k, 2, null, 'a')
-							.should.throw(cl.INVALID_ARG_VALUE.message);
-					}
-					U.bind(cl.setKernelArg, k, 2, 'char', 'a')
-						.should.throw(cl.INVALID_ARG_VALUE.message);
+					expect(
+						() => cl.setKernelArg(k, 2, null, 'a')
+					).to.throw(cl.INVALID_ARG_VALUE.message);
+					expect(
+						() => cl.setKernelArg(k, 2, 'char', 'a')
+					).to.throw(cl.INVALID_ARG_VALUE.message);
 
 					cl.releaseKernel(k);
 				});
@@ -199,12 +196,12 @@ describe('Kernel', function () {
 				U.withProgram(ctx, squareKern, function (prg) {
 					let k = cl.createKernel(prg, 'square');
 
-					if (cl.VERSION_1_2) {
-						U.bind(cl.setKernelArg, k, 2, null, [5, 10, 15])
-							.should.throw(cl.INVALID_ARG_VALUE.message);
-					}
-					U.bind(cl.setKernelArg, k, 2, 'int', [5, 10, 15])
-						.should.throw(cl.INVALID_ARG_VALUE.message);
+					expect(
+						() => cl.setKernelArg(k, 2, null, [5, 10, 15])
+					).to.throw(cl.INVALID_ARG_VALUE.message);
+					expect(
+						() => cl.setKernelArg(k, 2, 'int', [5, 10, 15])
+					).to.throw(cl.INVALID_ARG_VALUE.message);
 
 					cl.releaseKernel(k);
 				});
@@ -218,12 +215,12 @@ describe('Kernel', function () {
 					let k = cl.createKernel(prg, 'square');
 					let mem = cl.createBuffer(ctx, 0, 8, null);
 
-					if (cl.VERSION_1_2) {
-						U.bind(cl.setKernelArg, k, 2, null, mem)
-							.should.throw(cl.INVALID_ARG_VALUE.message);
-					}
-					U.bind(cl.setKernelArg, k, 2, 'int', mem)
-						.should.throw(cl.INVALID_ARG_VALUE.message);
+					expect(
+						() => cl.setKernelArg(k, 2, null, mem)
+					).to.throw(cl.INVALID_ARG_VALUE.message);
+					expect(
+						() => cl.setKernelArg(k, 2, 'int', mem)
+					).to.throw(cl.INVALID_ARG_VALUE.message);
 
 					cl.releaseKernel(k);
 				});
@@ -237,12 +234,12 @@ describe('Kernel', function () {
 				U.withProgram(ctx, squareKern, function (prg) {
 					let k = cl.createKernel(prg, 'square');
 
-					if (cl.VERSION_1_2) {
-						U.bind(cl.setKernelArg, k, 3, null, 5)
-							.should.throw(cl.INVALID_ARG_INDEX.message);
-					}
-					U.bind(cl.setKernelArg, k, 3, 'int', 5)
-						.should.throw(cl.INVALID_ARG_INDEX.message);
+					expect(
+						() => cl.setKernelArg(k, 3, null, 5)
+					).to.throw(cl.INVALID_ARG_INDEX.message);
+					expect(
+						() => cl.setKernelArg(k, 3, 'int', 5)
+					).to.throw(cl.INVALID_ARG_INDEX.message);
 
 					cl.releaseKernel(k);
 				});
@@ -261,7 +258,7 @@ describe('Kernel', function () {
 						let val = cl.getKernelInfo(k, cl[clKey]);
 						cl.releaseKernel(k);
 						_assert(val);
-						console.console.log(clKey + ' = ' + val);
+						console.log(clKey + ' = ' + val);
 					});
 				});
 			});
@@ -334,7 +331,7 @@ describe('Kernel', function () {
 						let val = cl.getKernelArgInfo(k, 0, cl[clKey]);
 						cl.releaseKernel(k);
 						_assert(val);
-						console.console.log(clKey + ' = ' + val);
+						console.log(clKey + ' = ' + val);
 					});
 				});
 			});
@@ -387,7 +384,7 @@ describe('Kernel', function () {
 						let val = cl.getKernelWorkGroupInfo(k, device, cl[clKey]);
 						cl.releaseKernel(k);
 						_assert(val);
-						console.console.log(clKey + ' = ' + val);
+						console.log(clKey + ' = ' + val);
 					});
 				});
 			});

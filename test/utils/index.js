@@ -7,23 +7,17 @@ let { vendors } = require('./diagnostic');
 require('./device_selection');
 
 
-let defaultDeviceId = global.MAIN_DEVICE_ID;
-let defaultPlatformId = global.MAIN_PLATFORM_ID;
-let defaultDeviceVendor = vendors[cl.getDeviceInfo(global.MAIN_DEVICE_ID, cl.DEVICE_VENDOR)];
-let defaultPlatformVendor = vendors[cl.getPlatformInfo(global.MAIN_PLATFORM_ID, cl.PLATFORM_VENDOR)];
-let defaultOptions = { device: defaultDeviceId, platform: defaultPlatformId };
+let defaultDeviceVendor = vendors[cl.getDeviceInfo(global.MAIN_DEVICE, cl.DEVICE_VENDOR)];
+let defaultPlatformVendor = vendors[cl.getPlatformInfo(global.MAIN_PLATFORM, cl.PLATFORM_VENDOR)];
+let defaultOptions = { device: global.MAIN_DEVICE, platform: global.MAIN_PLATFORM };
 
 let deviceIdToType = id => cl.getDeviceInfo(id, cl.DEVICE_TYPE);
 let deviceTypesAsBitmask = xs => xs.reduce((x, y) => x | y, 0);
 
-afterEach(function () {
-	cl.releaseAll();
-});
-
 
 let Utils = {
 	newContext(opts = defaultOptions) {
-		let platformId = ('platform' in opts) ? opts.platform : defaultPlatformId;
+		let platformId = ('platform' in opts) ? opts.platform : global.MAIN_PLATFORM;
 		let types = ('type' in opts) ? [opts.type] : ('types' in opts) ? opts.types : null;
 		let devices = ('device' in opts) ? [opts.device] : ('devices' in opts) ? opts.devices : null;
 		let properties = ('properties' in opts) ? opts.properties : [cl.CONTEXT_PLATFORM, platformId];
@@ -34,7 +28,7 @@ let Utils = {
 				.filter(id => ~types.indexOf(deviceIdToType(id)));
 		}
 
-		devices = devices && devices.length ? devices : [defaultDeviceId];
+		devices = devices && devices.length ? devices : [global.MAIN_DEVICE];
 		types = deviceTypesAsBitmask(types || devices.map(deviceIdToType));
 
 		return cl.createContext ?
@@ -43,14 +37,14 @@ let Utils = {
 	},
 	withContext: function (exec) {
 		let ctx = Utils.newContext(defaultOptions);
-		try { exec(ctx, defaultDeviceId, defaultPlatformId); }
+		try { exec(ctx, global.MAIN_DEVICE, global.MAIN_PLATFORM); }
 		finally { cl.releaseContext(ctx); }
 	},
 
 	withAsyncContext: function (exec) {
 		let ctx = Utils.newContext(defaultOptions);
 		try {
-			exec(ctx, defaultDeviceId, defaultPlatformId, function () {
+			exec(ctx, global.MAIN_DEVICE, global.MAIN_PLATFORM, function () {
 				cl.releaseContext(ctx);
 			});
 		} catch (e) {

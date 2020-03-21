@@ -1,11 +1,11 @@
 'use strict';
 
-let os = require('os');
+// let os = require('os');
 
-const cl = require('../../');
+const cl = require('../..');
 
 
-if (global.MAIN_DEVICE_ID !== null && global.MAIN_DEVICE_ID !== undefined) {
+if (global.MAIN_DEVICE_IDX !== null && global.MAIN_DEVICE_IDX !== undefined) {
 	return;
 }
 
@@ -39,26 +39,27 @@ for (let index in process.argv) {
 	}
 }
 
-global.MAIN_DEVICE_ID = devices[deviceIdx];
-global.MAIN_PLATFORM_ID = platforms[deviceIdx];
+global.MAIN_DEVICE_IDX = deviceIdx;
+global.MAIN_DEVICE = devices[deviceIdx];
+global.MAIN_PLATFORM = platforms[deviceIdx];
 global.MAIN_DEVICE_TYPE = deviceTypes[deviceIdx];
 
-console.log('\n-----------------------------');
-console.log('AVAILABLE DEVICES :');
+// console.log('\n-----------------------------');
+// console.log('AVAILABLE DEVICES :');
 
-devices.forEach(function (d, idx) {
-	let vendor = devicesDisplayName[idx];
-	console.log(idx + '. ' + vendor);
-});
+// devices.forEach(function (d, idx) {
+// 	let vendor = devicesDisplayName[idx];
+// 	console.log(idx + '. ' + vendor);
+// });
 
 
-console.log('\nENABLED DEVICE :');
+// console.log('\nENABLED DEVICE :');
 
-console.log('Currently using device ' + deviceIdx + ':');
-console.log(devicesDisplayName[deviceIdx]);
-console.log('\nTo use another device, add --device=<idx> to your mocha call');
+// console.log('Currently using device ' + deviceIdx + ':');
+// console.log(devicesDisplayName[deviceIdx]);
+// console.log('\nTo use another device, add --device=<idx> to your mocha call');
 
-console.log('\n');
-console.log('OS : ' + os.platform());
+// console.log('\n');
+// console.log('OS : ' + os.platform());
 
-console.log('-----------------------------\n');
+// console.log('-----------------------------\n');
