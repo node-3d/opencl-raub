@@ -229,14 +229,13 @@ describe('Kernel', function () {
 
 
 
-		it('should fail when passed a fourth argument on a kernel that only have three', function () {
+		it('should fail when passed a fourth argument on a kernel that only has three', function () {
 			U.withContext(function (ctx) {
 				U.withProgram(ctx, squareKern, function (prg) {
 					let k = cl.createKernel(prg, 'square');
-
 					expect(
 						() => cl.setKernelArg(k, 3, null, 5)
-					).to.throw(cl.INVALID_ARG_INDEX.message);
+					).to.throw(cl.INVALID_VALUE.message);
 					expect(
 						() => cl.setKernelArg(k, 3, 'int', 5)
 					).to.throw(cl.INVALID_ARG_INDEX.message);
@@ -258,7 +257,6 @@ describe('Kernel', function () {
 						let val = cl.getKernelInfo(k, cl[clKey]);
 						cl.releaseKernel(k);
 						_assert(val);
-						console.log(clKey + ' = ' + val);
 					});
 				});
 			});
@@ -331,7 +329,6 @@ describe('Kernel', function () {
 						let val = cl.getKernelArgInfo(k, 0, cl[clKey]);
 						cl.releaseKernel(k);
 						_assert(val);
-						console.log(clKey + ' = ' + val);
 					});
 				});
 			});
@@ -384,7 +381,6 @@ describe('Kernel', function () {
 						let val = cl.getKernelWorkGroupInfo(k, device, cl[clKey]);
 						cl.releaseKernel(k);
 						_assert(val);
-						console.log(clKey + ' = ' + val);
 					});
 				});
 			});
@@ -401,13 +397,13 @@ describe('Kernel', function () {
 			U.withContext(function (ctx, device) {
 				U.withProgram(ctx, squareKern, function (prg) {
 					let k = cl.createKernel(prg, 'square');
-					const getInfoBound = cl.getKernelWorkGroupInfo.bind(
-						cl.getKernelWorkGroupInfo,
-						k,
-						device,
-						cl.KERNEL_GLOBAL_WORK_SIZE
-					);
-					getInfoBound.should.throw(cl.INVALID_VALUE.message);
+					expect(
+						() => cl.getKernelWorkGroupInfo(
+							k,
+							device,
+							cl.KERNEL_GLOBAL_WORK_SIZE
+						)
+					).to.throw(cl.INVALID_VALUE.message);
 					cl.releaseKernel(k);
 				});
 			});

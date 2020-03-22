@@ -135,9 +135,16 @@ Wrapper::~Wrapper() {
 
 
 JS_IMPLEMENT_METHOD(Wrapper, toString) { NAPI_ENV;
-	std::stringstream ss;
-	ss << "{ " << _typeName << " @" << _data << " }";
-	RET_STR(ss.str());
+	std::stringstream out;
+	out << "{ " << _typeName << " @" << _data << " }";
+	RET_STR(out.str());
+}
+
+
+void Wrapper::throwArrayEx(Napi::Env env, int i, const char* msg) {
+	std::stringstream out;
+	out << "Array item #" << i << " " << msg;
+	JS_THROW(out.str());
 }
 
 

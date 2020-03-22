@@ -44,18 +44,25 @@ public:
 	
 	template <typename T> T as() { return reinterpret_cast<T>(_data); }
 	
+	static void throwArrayEx(Napi::Env env, int i, const char* msg);
+	
+	// return 0 === success
 	template <typename T>
-	static std::vector<T> fromJsArray(Napi::Array &src) {
-		std::vector<T> out;
+	static int fromJsArray(Napi::Array src, std::vector<T> *out) {
 		for (size_t i = 0; i < src.Length(); i++) {
 			Napi::Value value = src.Get(i);
 			if (!value.IsObject()) {
-				continue;
+				throwArrayEx(src.Env(), i, "is not an Object.");
+				return -1;
 			}
 			Wrapper *wrapper = Wrapper::unwrap(value.As<Napi::Object>());
-			out.push_back(wrapper->as<T>());
+			if (!wrapper) {
+				throwArrayEx(src.Env(), i, "is not a CL Wrapper.");
+				return -1;
+			}
+			out->push_back(wrapper->as<T>());
 		}
-		return out;
+		return 0;
 	}
 	
 private:
@@ -71,7 +78,9 @@ private:
 	std::vector<cl_event> cl_events;                                          \
 	if (!IS_ARG_EMPTY(n)) {                                                   \
 		REQ_ARRAY_ARG(n, js_events);                                          \
-		cl_events = Wrapper::fromJsArray<cl_event>(js_events);                \
+		if (Wrapper::fromJsArray(js_events, &cl_events)) {                    \
+			RET_UNDEFINED;                                                    \
+		}                                                                     \
 	}
 
 #define RET_WRAPPER(W) RET_VALUE(Wrapper::fromRaw(env, W));

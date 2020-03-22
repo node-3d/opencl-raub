@@ -1,7 +1,7 @@
 #include <uv.h>
 
 #include "types.hpp"
-
+#include <iostream>
 
 namespace opencl {
 
@@ -43,7 +43,10 @@ JS_METHOD(createProgramWithBinary) { NAPI_ENV;
 	REQ_ARRAY_ARG(2, js_sizes);
 	REQ_ARRAY_ARG(3, js_binaries);
 	
-	std::vector<cl_device_id> cl_devices = Wrapper::fromJsArray<cl_device_id>(js_devices);
+	std::vector<cl_device_id> cl_devices;
+	if (Wrapper::fromJsArray(js_devices, &cl_devices)) {
+		RET_UNDEFINED;
+	}
 	
 	const size_t n = js_sizes.Length();
 	if (js_sizes.Length() == 0) {
@@ -53,7 +56,7 @@ JS_METHOD(createProgramWithBinary) { NAPI_ENV;
 	std::vector<size_t> cl_binary_lengths;
 	std::unique_ptr<size_t[]> originalLengths(new size_t[n]);
 	
-	for (size_t i = 0; i < n; ++ i) {
+	for (size_t i = 0; i < n; i++) {
 		size_t len = js_sizes.Get(i).ToNumber().Int64Value();
 		originalLengths[i] = len;
 		if (len > 0) {
@@ -65,15 +68,17 @@ JS_METHOD(createProgramWithBinary) { NAPI_ENV;
 		THROW_ERR(CL_INVALID_PROGRAM_EXECUTABLE)
 	}
 	
-	std::vector<cl_program_binary> cl_binaries =
-		Wrapper::fromJsArray<cl_program_binary>(js_binaries);
-
+	std::vector<cl_program_binary> cl_binaries;
+	if (Wrapper::fromJsArray(js_binaries, &cl_binaries)) {
+		RET_UNDEFINED;
+	}
+	
 	if (js_sizes.Length() != js_binaries.Length()) {
 		THROW_ERR(CL_INVALID_VALUE)
 	}
-
-	std::vector<unsigned const char *> cl_binaries_str;
-	for (size_t i = 0; i < n; ++ i) {
+std::cout << "dwda" << n << " " << cl_binaries.size() << std::endl;
+	std::vector<const unsigned char *> cl_binaries_str;
+	for (size_t i = 0; i < n; i++) {
 		int32_t len = originalLengths[i];
 		if (len > 0) {
 			cl_binaries_str.push_back(cl_binaries[i]);
@@ -124,7 +129,10 @@ JS_METHOD(createProgramWithBuiltInKernels) { NAPI_ENV;
 		names.push_back(strNames[i].c_str());
 	}
 	
-	std::vector<cl_device_id> cl_devices = Wrapper::fromJsArray<cl_device_id>(js_devices);
+	std::vector<cl_device_id> cl_devices;
+	if (Wrapper::fromJsArray(js_devices, &cl_devices)) {
+		RET_UNDEFINED;
+	}
 	
 	cl_int err = CL_SUCCESS;
 	cl_program prg = clCreateProgramWithBuiltInKernels(
@@ -216,7 +224,9 @@ JS_METHOD(buildProgram) { NAPI_ENV;
 	std::vector<cl_device_id> cl_devices;
 	if (!IS_ARG_EMPTY(1)){
 		REQ_ARRAY_ARG(1, js_devices);
-		cl_devices = Wrapper::fromJsArray<cl_device_id>(js_devices);
+		if (Wrapper::fromJsArray(js_devices, &cl_devices)) {
+			RET_UNDEFINED;
+		}
 	}
 	
 	std::string options;
@@ -279,7 +289,9 @@ JS_METHOD(compileProgram) { NAPI_ENV;
 	std::vector<cl_device_id> cl_devices;
 	if (!IS_ARG_EMPTY(1)){
 		REQ_ARRAY_ARG(1, js_devices);
-		cl_devices = Wrapper::fromJsArray<cl_device_id>(js_devices);
+		if (Wrapper::fromJsArray(js_devices, &cl_devices)) {
+			RET_UNDEFINED;
+		}
 	}
 	
 	std::string options;
@@ -291,7 +303,9 @@ JS_METHOD(compileProgram) { NAPI_ENV;
 	std::vector<cl_program> program_headers;
 	if (!IS_ARG_EMPTY(3)){
 		REQ_ARRAY_ARG(3, js_programs);
-		program_headers = Wrapper::fromJsArray<cl_program>(js_programs);
+		if (Wrapper::fromJsArray(js_programs, &program_headers)) {
+			RET_UNDEFINED;
+		}
 	}
 	
 	std::vector<std::string> strNames;
@@ -370,7 +384,9 @@ JS_METHOD(linkProgram) { NAPI_ENV;
 	std::vector<cl_device_id> cl_devices;
 	if (!IS_ARG_EMPTY(1)){
 		REQ_ARRAY_ARG(1, js_devices);
-		cl_devices = Wrapper::fromJsArray<cl_device_id>(js_devices);
+		if (Wrapper::fromJsArray(js_devices, &cl_devices)) {
+			RET_UNDEFINED;
+		}
 	}
 	
 
@@ -383,7 +399,9 @@ JS_METHOD(linkProgram) { NAPI_ENV;
 	std::vector<cl_program> cl_programs;
 	if (!IS_ARG_EMPTY(3)){
 		REQ_ARRAY_ARG(3, js_programs);
-		cl_programs = Wrapper::fromJsArray<cl_program>(js_programs);
+		if (Wrapper::fromJsArray(js_programs, &cl_programs)) {
+			RET_UNDEFINED;
+		}
 	}
 	
 	// OSX ISSUE: ret is always equals to CL_SUCCESS

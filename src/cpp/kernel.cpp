@@ -244,7 +244,6 @@ JS_METHOD(setKernelArg) { NAPI_ENV;
 			&adrqual,
 			nullptr
 		));
-		
 		// get typename (for conversion of the JS parameter)
 		size_t nchars = 0;
 		CHECK_ERR(clGetKernelArgInfo(
@@ -295,7 +294,9 @@ JS_METHOD(setKernelArg) { NAPI_ENV;
 		// function map (indexed by OpenCL type name)
 		void* data;
 		size_t size;
+		
 		std::tie(size, data, err) = type_converter.convert(type_name, info[3]);
+		
 		CHECK_ERR(err);
 		err = clSetKernelArg(kernel, arg_idx, size, data);
 		free(data);

@@ -31,7 +31,10 @@ JS_METHOD(createContext) { NAPI_ENV;
 	cl_properties.push_back(0);
 	
 	REQ_ARRAY_ARG(1, js_devices);
-	std::vector<cl_device_id> cl_devices = Wrapper::fromJsArray<cl_device_id>(js_devices);
+	std::vector<cl_device_id> cl_devices;
+	if (Wrapper::fromJsArray(js_devices, &cl_devices)) {
+		RET_UNDEFINED;
+	}
 	int err = CL_SUCCESS;
 	cl_context ctx = clCreateContext(
 		&cl_properties.front(),

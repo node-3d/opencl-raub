@@ -4,8 +4,7 @@ var fs = require('fs');
 const { assert, expect } = require('chai');
 
 const cl = require('../');
-let U = require('./utils/utils');
-let versions = require('./utils/versions');
+let U = require('./utils');
 let skip = require('./utils/diagnostic');
 
 
@@ -28,8 +27,9 @@ describe('Program', function () {
 		});
 
 		it('should throw as context is invalid', function () {
-			U.bind(cl.createProgramWithSource, null, squareKern)
-				.should.throw(cl.INVALID_CONTEXT.message);
+			expect(
+				() => cl.createProgramWithSource( null, squareKern)
+			).to.throw('Argument 0 must be of type `Object`');
 		});
 
 	});
@@ -58,7 +58,7 @@ describe('Program', function () {
 
 		it('should build and call the callback using a valid program', function (done) {
 			U.withAsyncContext(function (ctx,device,platform,ctxDone) {
-				var mCB = function (userData, prg) {
+				var mCB = function (prg, userData) {
 					assert.isNotNull(prg);
 					assert.isDefined(prg);
 					cl.releaseProgram(prg);
@@ -83,16 +83,18 @@ describe('Program', function () {
 
 		it('should throw if program is nullptr', function () {
 			U.withContext(function () {
-				U.bind(cl.buildProgram, null)
-					.should.throw(cl.INVALID_PROGRAM.message);
+				expect(
+					() => cl.buildProgram( null)
+				).to.throw('Argument 0 must be of type `Object`');
 			});
 		});
 
 		it('should throw if program is INVALID', function () {
 			U.withContext(function (ctx) {
 				var prg = cl.createProgramWithSource(ctx, squareKern + '$bad_inst');
-				U.bind(cl.buildProgram, prg)
-					.should.throw(cl.BUILD_PROGRAM_FAILURE.message);
+				expect(
+					() => cl.buildProgram( prg)
+				).to.throw(cl.BUILD_PROGRAM_FAILURE.message);
 			});
 		});
 
@@ -124,9 +126,10 @@ describe('Program', function () {
 			U.withContext(function (ctx, device) {
 				var prg = cl.createProgramWithSource(ctx, squareKern);
 				cl.buildProgram(prg, [device]);
-				var bin = cl.getProgramInfo(prg, cl.PROGRAM_BINARIES).map(({ buffer }) => buffer);
+				var bin = cl.getProgramInfo(prg, cl.PROGRAM_BINARIES);
 				var sizes = cl.getProgramInfo(prg, cl.PROGRAM_BINARY_SIZES);
 				//
+				console.log('bin', bin);
 				var prg2 = cl.createProgramWithBinary(ctx, [device], sizes, bin);
 
 				assert.isNotNull(prg2);
@@ -139,8 +142,9 @@ describe('Program', function () {
 
 		it('should fail as binaries list is empty', function () {
 			U.withContext(function (ctx, device) {
-				U.bind(cl.createProgramWithBinary, ctx, [device], [], [])
-					.should.throw(cl.INVALID_VALUE.message);
+				expect(
+					() => cl.createProgramWithBinary( ctx, [device], [], [])
+				).to.throw(cl.INVALID_VALUE.message);
 			});
 		});
 
@@ -154,7 +158,9 @@ describe('Program', function () {
 				var sizes = cl.getProgramInfo(prg, cl.PROGRAM_BINARY_SIZES);
 				sizes.push(100);
 
-				U.bind(cl.createProgramWithBinary, ctx, [device], sizes, bin);
+				expect(
+					() => cl.createProgramWithBinary( ctx, [device], sizes, bin)
+				).to.throw(cl.INVALID_VALUE.message);
 				cl.releaseProgram(prg);
 			});
 		});
@@ -162,42 +168,47 @@ describe('Program', function () {
 	});
 
 
-	versions(['1.2','2.0']).describe('#createProgramWithBuiltInKernels', function () {
+	describe('#createProgramWithBuiltInKernels', function () {
 
 		var f = cl.createProgramWithBuiltInKernels;
 
 		it('should fail as context is invalid', function () {
 			U.withContext(function (context, device) {
-				U.bind(f, null, [device], ['a'])
-					.should.throw(cl.INVALID_CONTEXT.message);
+				expect(
+					() => f,(null, [device], ['a'])
+				).to.throw(cl.INVALID_CONTEXT.message);
 			});
 		});
 
 		it('should fail as device list is empty', function () {
 			U.withContext(function (context) {
-				U.bind(f, context, [], ['a'])
-					.should.throw(cl.INVALID_VALUE.message);
+				expect(
+					() => f,(context, [], ['a'])
+				).to.throw(cl.INVALID_VALUE.message);
 			});
 		});
 
 		it('should fail as names list is empty', function () {
 			U.withContext(function (context, device) {
-				U.bind(f, context, [device], [])
-					.should.throw(cl.INVALID_VALUE.message);
+				expect(
+					() => f,(context, [device], [])
+				).to.throw(cl.INVALID_VALUE.message);
 			});
 		});
 
 		it('should fail as names list contains non string values', function () {
 			U.withContext(function (context, device) {
-				U.bind(f, context, [device], [function () {}])
-					.should.throw(cl.INVALID_VALUE.message);
+				expect(
+					() => f,(context, [device], [function () {}])
+				).to.throw(cl.INVALID_VALUE.message);
 			});
 		});
 
 		it('should fail as kernel name is unknown', function () {
 			U.withContext(function (context, device) {
-				U.bind(f, context, [device], ['nocl_test'])
-					.should.throw(cl.INVALID_VALUE.message);
+				expect(
+					() => f,(context, [device], ['nocl_test'])
+				).to.throw(cl.INVALID_VALUE.message);
 			});
 		});
 	});
@@ -229,7 +240,7 @@ describe('Program', function () {
 		});
 	});
 
-	versions(['1.2', '2.0']).describe('#compileProgram', function () {
+	describe('#compileProgram', function () {
 		it('should build a program with no input headers', function () {
 			U.withContext(function (ctx) {
 				var prg = cl.createProgramWithSource(ctx, squareKern);
@@ -270,8 +281,9 @@ describe('Program', function () {
 				var prg = cl.createProgramWithSource(ctx, squareKern);
 				var prg2 = cl.createProgramWithSource(ctx, squareKern);
 
-				U.bind(cl.compileProgram, prg, null, null, [prg2], [])
-					.should.throw();
+				expect(
+					() => cl.compileProgram( prg, null, null, [prg2], [])
+				).to.throw();
 
 				cl.releaseProgram(prg);
 				cl.releaseProgram(prg2);
@@ -279,15 +291,16 @@ describe('Program', function () {
 		});
 	});
 
-	versions(['1.2', '2.0']).describe('#linkProgram', function () {
+	describe('#linkProgram', function () {
 
 
 		it('should fail as context is invalid', function () {
 			U.withContext(function (ctx) {
 				U.withProgram(ctx, squareKern, function (prg) {
 
-					U.bind(cl.linkProgram, null, null, null, [prg])
-						.should.throw(cl.INVALID_CONTEXT.message);
+					expect(
+						() => cl.linkProgram( null, null, null, [prg])
+					).to.throw(cl.INVALID_CONTEXT.message);
 
 				});
 			});
@@ -297,8 +310,9 @@ describe('Program', function () {
 			U.withContext(function (ctx) {
 				U.withProgram(ctx, squareKern, function () {
 
-					U.bind(cl.linkProgram,ctx, null, null, [ctx])
-						.should.throw(cl.INVALID_PROGRAM.message);
+					expect(
+						() => cl.linkProgram(ctx, null, null, [ctx])
+					).to.throw(cl.INVALID_PROGRAM.message);
 
 				});
 			});
@@ -309,8 +323,9 @@ describe('Program', function () {
 				U.withProgram(ctx, squareKern, function (prg) {
 					cl.compileProgram(prg);
 
-					U.bind(cl.linkProgram,ctx, null, '-DnoCLtest=5', [prg])
-						.should.throw(cl.INVALID_LINKER_OPTIONS.message);
+					expect(
+						() => cl.linkProgram(ctx, null, '-DnoCLtest=5', [prg])
+					).to.throw(cl.INVALID_LINKER_OPTIONS.message);
 
 				});
 			});
@@ -373,7 +388,7 @@ describe('Program', function () {
 
 
 
-	versions(['1.2', '2.0']).describe('#unloadPlatformCompiler', function () {
+	describe('#unloadPlatformCompiler', function () {
 		it('should work when using a valid platform', function () {
 			U.withContext(function (ctx, device, platform) {
 				cl.unloadPlatformCompiler(platform);

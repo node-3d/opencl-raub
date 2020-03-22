@@ -87,37 +87,37 @@ JS_METHOD(createImage) { NAPI_ENV;
 	
 	cl_image_format image_format;
 	image_format.image_channel_order = formatObj.Has("channel_order")
-		? 0
-		: formatObj.Get("channel_order").ToNumber().Uint32Value();
+		? formatObj.Get("channel_order").ToNumber().Uint32Value()
+		: 0;
 	image_format.image_channel_data_type = formatObj.Has("channel_data_type")
-		? 0
-		: formatObj.Get("channel_data_type").ToNumber().Uint32Value();
+		? formatObj.Get("channel_data_type").ToNumber().Uint32Value()
+		: 0;
 	
 	REQ_OBJ_ARG(3, descObj);
 	cl_image_desc desc;
 	memset(&desc, 0, sizeof(cl_image_desc));
 	
 	desc.image_type = descObj.Has("type")
-		? 0
-		: descObj.Get("type").ToNumber().Uint32Value();
+		? descObj.Get("type").ToNumber().Uint32Value()
+		: 0;
 	desc.image_width = descObj.Has("width")
-		? 0
-		: descObj.Get("width").ToNumber().Int64Value();
+		? descObj.Get("width").ToNumber().Int64Value()
+		: 0;
 	desc.image_height = descObj.Has("height")
-		? 0
-		: descObj.Get("height").ToNumber().Int64Value();
+		? descObj.Get("height").ToNumber().Int64Value()
+		: 0;
 	desc.image_depth = descObj.Has("depth")
-		? 0
-		: descObj.Get("depth").ToNumber().Int64Value();
+		? descObj.Get("depth").ToNumber().Int64Value()
+		: 0;
 	desc.image_array_size = descObj.Has("array_size")
-		? 0
-		: descObj.Get("array_size").ToNumber().Int64Value();
+		? descObj.Get("array_size").ToNumber().Int64Value()
+		: 0;
 	desc.image_row_pitch = descObj.Has("row_pitch")
-		? 0
-		: descObj.Get("row_pitch").ToNumber().Int64Value();
+		? descObj.Get("row_pitch").ToNumber().Int64Value()
+		: 0;
 	desc.image_slice_pitch = descObj.Has("slice_pitch")
-		? 0
-		: descObj.Get("slice_pitch").ToNumber().Int64Value();
+		? descObj.Get("slice_pitch").ToNumber().Int64Value()
+		: 0;
 	
 	Napi::Value buffer_value = descObj.Get("buffer");
 	if (buffer_value.IsObject()) {

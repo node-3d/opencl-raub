@@ -3,6 +3,7 @@
 const { assert, expect } = require('chai');
 
 const cl = require('../');
+require('./utils');
 
 
 describe('Platform', function () {
@@ -20,9 +21,9 @@ describe('Platform', function () {
 
 	function testString(platform, name) {
 		it(name + ' should return a string',function (done) {
-			let val = cl.getPlatformInfo(platform,eval('cl.' + name));
+			let val = cl.getPlatformInfo(platform, eval('cl.' + name));
 			assert.isString(val);
-			done(console.log(name + ' = ' + val));
+			done();
 		});
 	}
 
@@ -48,7 +49,7 @@ describe('Platform', function () {
 						p,
 						cl.DEVICE_TYPE_CPU
 					);
-					getInfoBound.should.throw(cl.INVALID_VALUE.message);
+					expect(getInfoBound).to.throw(cl.INVALID_VALUE.message);
 				});
 				it('should throw cl.INVALID_VALUE with name=0x2000',function () {
 					const getInfoBound = cl.getPlatformInfo.bind(
@@ -56,7 +57,7 @@ describe('Platform', function () {
 						p,
 						0x2000
 					);
-					getInfoBound.should.throw(cl.INVALID_VALUE.message);
+					expect(getInfoBound).to.throw(cl.INVALID_VALUE.message);
 				});
 				it('should throw cl.INVALID_VALUE with name=\'a string\'',function () {
 					const getInfoBound = cl.getPlatformInfo.bind(
@@ -64,7 +65,7 @@ describe('Platform', function () {
 						p,
 						'a string'
 					);
-					getInfoBound.should.throw(cl.INVALID_VALUE.message);
+					expect(getInfoBound).to.throw('Argument 1 must be of type `Number`');
 				});
 				it('should throw cl.INVALID_VALUE with name=-123.56',function () {
 					const getInfoBound = cl.getPlatformInfo.bind(
@@ -72,7 +73,7 @@ describe('Platform', function () {
 						p,
 						-123.56
 					);
-					getInfoBound.should.throw(cl.INVALID_VALUE.message);
+					expect(getInfoBound).to.throw(cl.INVALID_VALUE.message);
 				});
 				it('should throw cl.INVALID_PLATFORM with platform = null',function () {
 					const getInfoBound = cl.getPlatformInfo.bind(
@@ -80,7 +81,7 @@ describe('Platform', function () {
 						null,
 						123
 					);
-					getInfoBound.should.throw(cl.INVALID_PLATFORM.message);
+					expect(getInfoBound).to.throw('Argument 0 must be of type `Object`');
 				});
 				it(
 					'should throw cl.INVALID_PLATFORM with platform = \'a string\'',
@@ -90,7 +91,7 @@ describe('Platform', function () {
 							'a string',
 							123
 						);
-						getInfoBound.should.throw(cl.INVALID_PLATFORM.message);
+						expect(getInfoBound).to.throw('Argument 0 must be of type `Object`');
 					}
 				);
 				it('should throw cl.INVALID_PLATFORM with platform = 123',function () {
@@ -99,7 +100,7 @@ describe('Platform', function () {
 						123,
 						123
 					);
-					getInfoBound.should.throw(cl.INVALID_PLATFORM.message);
+					expect(getInfoBound).to.throw('Argument 0 must be of type `Object`');
 				});
 				it('should throw cl.INVALID_PLATFORM with platform = [1,2,3]',function () {
 					const getInfoBound = cl.getPlatformInfo.bind(
@@ -107,7 +108,7 @@ describe('Platform', function () {
 						[1, 2, 3],
 						123
 					);
-					getInfoBound.should.throw(cl.INVALID_PLATFORM.message);
+					expect(getInfoBound).to.throw('Argument 0 must be a CL Wrapper.');
 				});
 				it('should throw cl.INVALID_PLATFORM with platform = new Array()',function () {
 					const getInfoBound = cl.getPlatformInfo.bind(
@@ -115,7 +116,7 @@ describe('Platform', function () {
 						[],
 						123
 					);
-					getInfoBound.should.throw(cl.INVALID_PLATFORM.message);
+					expect(getInfoBound).to.throw('Argument 0 must be a CL Wrapper.');
 				});
 			}
 		);
