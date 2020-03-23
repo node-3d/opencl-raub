@@ -33,7 +33,7 @@
 					'OS=="linux"',
 					{
 						'libraries': [
-							# "-Wl,-rpath,'$$ORIGIN'",
+							"-Wl,-rpath,'$$ORIGIN'",
 							# 'libOpenCL.so',
 							'<(cl_bin)/libOpenCL.so',
 						],
