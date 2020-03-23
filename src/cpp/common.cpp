@@ -6,10 +6,10 @@ namespace opencl {
 void getPtrAndLen(Napi::Object obj, void** ptr, size_t *len) {
 	*ptr = nullptr;
 	int intSize = 0;
-	if (obj.IsTypedArray() || obj.IsArrayBuffer()) {
-		*ptr = getArrayData<uint8_t>(obj.Env(), obj, &intSize);
-	} else if (obj.IsBuffer()) {
+	if (obj.IsBuffer()) {
 		*ptr = getBufferData<uint8_t>(obj.Env(), obj, &intSize);
+	} else if (obj.IsTypedArray() || obj.IsArrayBuffer()) {
+		*ptr = getArrayData<uint8_t>(obj.Env(), obj, &intSize);
 	}
 	if (len) {
 		*len = intSize;

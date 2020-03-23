@@ -9,7 +9,7 @@
 			'target_name': 'opencl',
 			'sources': [
 				'cpp/bindings.cpp',
-				'cpp/commandqueue.cpp',
+				'cpp/queue.cpp',
 				'cpp/common.cpp',
 				'cpp/context.cpp',
 				'cpp/device.cpp',

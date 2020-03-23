@@ -128,8 +128,7 @@ describe('Program', function () {
 				cl.buildProgram(prg, [device]);
 				var bin = cl.getProgramInfo(prg, cl.PROGRAM_BINARIES);
 				var sizes = cl.getProgramInfo(prg, cl.PROGRAM_BINARY_SIZES);
-				//
-				console.log('bin', bin);
+				
 				var prg2 = cl.createProgramWithBinary(ctx, [device], sizes, bin);
 
 				assert.isNotNull(prg2);
@@ -175,15 +174,15 @@ describe('Program', function () {
 		it('should fail as context is invalid', function () {
 			U.withContext(function (context, device) {
 				expect(
-					() => f,(null, [device], ['a'])
-				).to.throw(cl.INVALID_CONTEXT.message);
+					() => f(null, [device], ['a'])
+				).to.throw('Argument 0 must be of type `Object`');
 			});
 		});
 
 		it('should fail as device list is empty', function () {
 			U.withContext(function (context) {
 				expect(
-					() => f,(context, [], ['a'])
+					() => f(context, [], ['a'])
 				).to.throw(cl.INVALID_VALUE.message);
 			});
 		});
@@ -191,7 +190,7 @@ describe('Program', function () {
 		it('should fail as names list is empty', function () {
 			U.withContext(function (context, device) {
 				expect(
-					() => f,(context, [device], [])
+					() => f(context, [device], [])
 				).to.throw(cl.INVALID_VALUE.message);
 			});
 		});
@@ -199,7 +198,7 @@ describe('Program', function () {
 		it('should fail as names list contains non string values', function () {
 			U.withContext(function (context, device) {
 				expect(
-					() => f,(context, [device], [function () {}])
+					() => f(context, [device], [function () {}])
 				).to.throw(cl.INVALID_VALUE.message);
 			});
 		});
@@ -207,7 +206,7 @@ describe('Program', function () {
 		it('should fail as kernel name is unknown', function () {
 			U.withContext(function (context, device) {
 				expect(
-					() => f,(context, [device], ['nocl_test'])
+					() => f(context, [device], ['nocl_test'])
 				).to.throw(cl.INVALID_VALUE.message);
 			});
 		});
@@ -252,7 +251,7 @@ describe('Program', function () {
 
 		it('should build and call the callback with no input header', function (done) {
 			U.withAsyncContext(function (ctx,device,platform,ctxDone) {
-				var mCB = function (userData, prg) {
+				var mCB = function (prg, userData) {
 					assert.isNotNull(prg);
 					assert.isDefined(prg);
 					cl.releaseProgram(prg);
@@ -260,7 +259,15 @@ describe('Program', function () {
 					userData.done();
 				};
 				var prg = cl.createProgramWithSource(ctx, squareKern);
-				var ret = cl.compileProgram(prg,undefined,undefined,undefined,undefined,mCB,{done:done});
+				var ret = cl.compileProgram(
+					prg,
+					undefined,
+					undefined,
+					undefined,
+					undefined,
+					mCB,
+					{ done }
+				);
 				assert(ret == cl.SUCCESS);
 			});
 		});
@@ -299,8 +306,8 @@ describe('Program', function () {
 				U.withProgram(ctx, squareKern, function (prg) {
 
 					expect(
-						() => cl.linkProgram( null, null, null, [prg])
-					).to.throw(cl.INVALID_CONTEXT.message);
+						() => cl.linkProgram(null, null, null, [prg])
+					).to.throw('Argument 0 must be of type `Object`');
 
 				});
 			});
@@ -312,7 +319,7 @@ describe('Program', function () {
 
 					expect(
 						() => cl.linkProgram(ctx, null, null, [ctx])
-					).to.throw(cl.INVALID_PROGRAM.message);
+					).to.throw('Link program failure');
 
 				});
 			});
@@ -344,7 +351,7 @@ describe('Program', function () {
     
 		it('should success in linking one program and call the callback', function (done) {
 			U.withAsyncContext(function (ctx,device,platform,ctxDone) {
-				var mCB = function (userData) {
+				var mCB = function (p, userData) {
 					assert.isNotNull(userData.prg);
 					assert.isDefined(userData.prg);
 					cl.releaseProgram(userData.prg);
@@ -401,10 +408,8 @@ describe('Program', function () {
 			it('should return the good type for ' + clKey, function () {
 				U.withContext(function (ctx) {
 					U.withProgram(ctx, squareKern, function (prg) {
-
 						var val = cl.getProgramInfo(prg, cl[clKey]);
 						_assert(val);
-						console.log(clKey + ' = ' + val);
 					});
 				});
 			});
@@ -438,10 +443,8 @@ describe('#getProgramBuildInfo', function () {
 		it('should return the good type for ' + clKey, function () {
 			U.withContext(function (ctx, device) {
 				U.withProgram(ctx, squareKern, function (prg) {
-
 					var val = cl.getProgramBuildInfo(prg, device, cl[clKey]);
 					_assert(val);
-					console.log(clKey + ' = ' + val);
 				});
 			});
 		});
