@@ -578,7 +578,7 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
 	
 	// cl_khr_fp16 extension - no extension exports.since it has no functions
 	JS_CL_CONSTANT(DEVICE_HALF_FP_CONFIG);
-	
+	CL_GL_CONTEXT_KHR
 	// cl_khr_gl_sharing - use GL VBOs
 	JS_CL_CONSTANT(GL_CONTEXT_KHR);
 	JS_CL_CONSTANT(WGL_HDC_KHR);

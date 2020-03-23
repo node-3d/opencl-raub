@@ -9,21 +9,13 @@
 
 #define CL_TARGET_OPENCL_VERSION 120
 
+#include <CL/opencl.h>
+
 #if defined (__APPLE__)
-	#ifdef __ECLIPSE__
-		#include <cl_platform.h>
-		#include <cl.h>
-		#include <cl_ext.h>
-	#else
-		#include <OpenCL/opencl.h>
-	#endif
 	#define HAS_clGetContextInfo
 #elif defined(_WIN32)
-	#include <CL/opencl.h>
 	#define strcasecmp _stricmp
 	#define strncasecmp _strnicmp
-#else
-	#include <CL/opencl.h>
 #endif
 
 #ifndef CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR
