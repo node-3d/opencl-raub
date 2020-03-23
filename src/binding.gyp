@@ -2,7 +2,7 @@
 	'variables': {
 		'bin'        : '<!(node -p "require(\'addon-tools-raub\').bin")',
 		'cl_include' : 'include',
-		'cl_bin'     : 'lib',
+		'cl_bin'     : '<(module_root_dir)/src/lib',
 	},
 	'targets': [
 		{
@@ -33,7 +33,7 @@
 					'OS=="linux"',
 					{
 						'libraries': [
-							"-Wl,-rpath,'$$ORIGIN'",
+							# "-Wl,-rpath,'$$ORIGIN'",
 							'libOpenCL.so',
 						],
 						'cflags_cc': ['-std=c++11', '-Wall', '-O3', '-Wno-ignored-attributes'],
