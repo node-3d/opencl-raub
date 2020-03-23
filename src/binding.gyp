@@ -34,7 +34,8 @@
 					{
 						'libraries': [
 							# "-Wl,-rpath,'$$ORIGIN'",
-							'libOpenCL.so',
+							# 'libOpenCL.so',
+							'<(cl_bin)/libOpenCL.so',
 						],
 						'cflags_cc': ['-std=c++11', '-Wall', '-O3', '-Wno-ignored-attributes'],
 						'defines': ['__linux__'],
