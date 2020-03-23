@@ -2,7 +2,7 @@
 	'variables': {
 		'bin'        : '<!(node -p "require(\'addon-tools-raub\').bin")',
 		'cl_include' : 'include',
-		'cl_bin'     : '<(module_root_dir)/src/lib',
+		'cl_bin'     : '<(module_root_dir)/lib',
 	},
 	'targets': [
 		{
