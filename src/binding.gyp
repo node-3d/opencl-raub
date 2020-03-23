@@ -37,7 +37,7 @@
 							# 'libOpenCL.so',
 							'<(cl_bin)/libOpenCL.so',
 						],
-						'cflags_cc': ['-std=c++11', '-Wall', '-O3', '-Wno-ignored-attributes'],
+						'cflags_cc': ['-std=c++11', '-Wall', '-O3'],
 						'defines': ['__linux__'],
 					}
 				],
