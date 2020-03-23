@@ -34,14 +34,14 @@
 		"install": "v1.0.0"
 	},
 	"scripts": {
-		"postinstall": "echo node install"
+		"postinstall": "node install"
 	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/node-3d/opencl-raub.git"
 	},
 	"dependencies": {
-		"addon-tools-raub": "5.0.0",
+		"addon-tools-raub": "https://github.com/node-3d/addon-tools-raub.git",
 		"segfault-raub": "1.1.0"
 	}
 }
