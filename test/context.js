@@ -4,6 +4,7 @@ const { expect, assert } = require('chai');
 
 const cl = require('../');
 let U = require('./utils');
+let skip = require('./utils/diagnostic');
 
 
 describe('Context', function () {
@@ -32,7 +33,7 @@ describe('Context', function () {
 			cl.releaseContext(ctx);
 		});
 
-		it('should return a device even if properties are null', function () {
+		skip().vendor('Apple').it('should return a device even if properties are null', function () {
 			let ctx = cl.createContext(null, devices, null, null);
 			assert.isNotNull(ctx);
 			assert.isDefined(ctx);

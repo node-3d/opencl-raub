@@ -391,7 +391,7 @@ describe('MemObj', function () {
 			function () {
 				U.withContext(context => {
 					const fBound = f.bind(f, context, 0, -1, imageDesc, null);
-					expect(fBound).to.throw(cl.INVALID_IMAGE_FORMAT_DESCRIPTOR.message);
+					expect(fBound).to.throw('Argument 2 must be of type `Object`');
 				});
 			}
 		);

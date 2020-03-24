@@ -3,7 +3,7 @@
 const { assert, expect } = require('chai');
 
 const cl = require('../');
-// let U = require('./utils');
+require('./utils/device_selection');
 let skip = require('./utils/diagnostic');
 
 

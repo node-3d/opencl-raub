@@ -5,7 +5,7 @@
 const cl = require('../..');
 
 
-if (global.MAIN_DEVICE_IDX !== null && global.MAIN_DEVICE_IDX !== undefined) {
+if (global.MAIN_DEVICE) {
 	return;
 }
 

@@ -15,7 +15,7 @@ matrix:
       dist: xenial
       sudo: false
       before_script:
-        - ls OCL_ICD_VENDORS=/home/travis/build/node-3d/opencl-raub/ci
+        - ls /home/travis/build/node-3d/opencl-raub/ci
         - export OCL_ICD_FILENAMES=intel64.icd
         - export OCL_ICD_VENDORS=/home/travis/build/node-3d/opencl-raub/ci
     - name: "OSX Test"

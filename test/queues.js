@@ -1764,7 +1764,7 @@ describe('CommandQueue', function () {
 	});
 
 	describe('# enqueueUnmapMemObject', function () {
-		it('should throw as we are unmapping a non mapped memobject', function () {
+		skip().vendor('Apple').it('should throw as we are unmapping a non mapped memobject', function () {
 			U.withContext(function (ctx, device) {
 				U.withCQ(ctx, device, function (cq) {
 					let buf = cl.createBuffer(ctx, 0, 8, null);

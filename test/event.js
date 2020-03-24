@@ -33,7 +33,6 @@ describe('Event', function () {
 					let val = cl.getEventInfo(uEvent, cl[name]);
 					assert.isNumber(val);
 					assert.strictEqual(expected, val);
-					console.console.log(name + ' = ' + val);
 					cl.releaseEvent(uEvent);
 				});
 			});
@@ -47,7 +46,6 @@ describe('Event', function () {
 						
 						let val = cl.getEventInfo(uEvent, cl[name]);
 						assert.isObject(val);
-						console.console.log(name + ' = ' + val);
 						cl.releaseEvent(uEvent);
 					});
 				});
@@ -65,7 +63,6 @@ describe('Event', function () {
 					let val = cl.getEventInfo(uEvent, cl.EVENT_REFERENCE_COUNT);
 					assert.isNumber(val);
 					assert.strictEqual(1, val);
-					console.console.log('EVENT_REFERENCE_COUNT' + ' = ' + val);
 					cl.releaseEvent(uEvent);
 				});
 			}

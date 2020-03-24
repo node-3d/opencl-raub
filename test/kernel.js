@@ -235,7 +235,7 @@ describe('Kernel', function () {
 					let k = cl.createKernel(prg, 'square');
 					expect(
 						() => cl.setKernelArg(k, 3, null, 5)
-					).to.throw(cl.INVALID_VALUE.message);
+					).to.throw();
 					expect(
 						() => cl.setKernelArg(k, 3, 'int', 5)
 					).to.throw(cl.INVALID_ARG_INDEX.message);

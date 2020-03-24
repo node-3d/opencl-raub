@@ -1,7 +1,7 @@
 #include <uv.h>
 
 #include "types.hpp"
-#include <iostream>
+
 
 namespace opencl {
 
@@ -76,7 +76,7 @@ JS_METHOD(createProgramWithBinary) { NAPI_ENV;
 	if (js_sizes.Length() != js_binaries.Length()) {
 		THROW_ERR(CL_INVALID_VALUE)
 	}
-std::cout << "dwda" << n << " " << cl_binaries.size() << std::endl;
+
 	std::vector<const unsigned char *> cl_binaries_str;
 	for (size_t i = 0; i < n; i++) {
 		int32_t len = originalLengths[i];
