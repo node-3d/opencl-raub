@@ -15,6 +15,8 @@ matrix:
       dist: xenial
       sudo: false
       before_script:
+        - ls OCL_ICD_VENDORS=/home/travis/build/node-3d/opencl-raub/ci
+        - export OCL_ICD_FILENAMES=intel64.icd
         - export OCL_ICD_VENDORS=/home/travis/build/node-3d/opencl-raub/ci
     - name: "OSX Test"
       os: osx
@@ -44,6 +46,16 @@ matrix:
       script:
         - npm ci
 
+script:
+  - npm test context
+  - npm test device
+  - npm test event
+  - npm test kernel
+  - npm test memobj
+  - npm test platform
+  - npm test program
+  - npm test queues
+  - npm test sampler
 
 deploy:
   on:
