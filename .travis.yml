@@ -14,11 +14,13 @@ matrix:
       if: NOT commit_message =~ /^:hammer:/
       dist: xenial
       sudo: false
+      before_script:
+        - export OCL_ICD_VENDORS=/home/travis/build/node-3d/opencl-raub/ci
     - name: "OSX Test"
       os: osx
       if: NOT commit_message =~ /^:hammer:/
-      script:
-        - echo OK.
+      # script:
+      #   - echo OK.
     - name: "Linux Build"
       os: linux
       dist: xenial
