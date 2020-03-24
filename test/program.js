@@ -1,6 +1,6 @@
 'use strict';
 
-var fs = require('fs');
+let fs = require('fs');
 const { assert, expect } = require('chai');
 
 const cl = require('../');
@@ -8,8 +8,8 @@ let U = require('./utils');
 let skip = require('./utils/diagnostic');
 
 
-var squareKern = fs.readFileSync(__dirname + '/kernels/square.cl').toString();
-var squareCpyKern = fs.readFileSync(__dirname + '/kernels/square_cpy.cl').toString();
+let squareKern = fs.readFileSync(__dirname + '/kernels/square.cl').toString();
+let squareCpyKern = fs.readFileSync(__dirname + '/kernels/square_cpy.cl').toString();
 
 describe('Program', function () {
 
@@ -17,7 +17,7 @@ describe('Program', function () {
 
 		it('should return a valid program', function () {
 			U.withContext(function (ctx) {
-				var prg = cl.createProgramWithSource(ctx, squareKern);
+				let prg = cl.createProgramWithSource(ctx, squareKern);
 
 				assert.isNotNull(prg);
 				assert.isDefined(prg);
@@ -38,8 +38,8 @@ describe('Program', function () {
 
 		it('should build using a valid program and a given device', function () {
 			U.withContext(function (ctx, device) {
-				var prg = cl.createProgramWithSource(ctx, squareKern);
-				var ret = cl.buildProgram(prg, [device]);
+				let prg = cl.createProgramWithSource(ctx, squareKern);
+				let ret = cl.buildProgram(prg, [device]);
 				assert(ret == cl.SUCCESS);
 
 				cl.releaseProgram(prg);
@@ -48,8 +48,8 @@ describe('Program', function () {
 
 		it('should build using a valid program', function () {
 			U.withContext(function (ctx) {
-				var prg = cl.createProgramWithSource(ctx, squareKern);
-				var ret = cl.buildProgram(prg);
+				let prg = cl.createProgramWithSource(ctx, squareKern);
+				let ret = cl.buildProgram(prg);
 				assert(ret == cl.SUCCESS);
 
 				cl.releaseProgram(prg);
@@ -58,22 +58,22 @@ describe('Program', function () {
 
 		it('should build and call the callback using a valid program', function (done) {
 			U.withAsyncContext(function (ctx,device,platform,ctxDone) {
-				var mCB = function (prg, userData) {
+				let mCB = function (prg, userData) {
 					assert.isNotNull(prg);
 					assert.isDefined(prg);
 					cl.releaseProgram(prg);
 					ctxDone();
 					userData.done();
 				};
-				var prg = cl.createProgramWithSource(ctx, squareKern);
-				var ret = cl.buildProgram(prg,undefined,undefined,mCB,{done:done});
+				let prg = cl.createProgramWithSource(ctx, squareKern);
+				let ret = cl.buildProgram(prg,undefined,undefined,mCB,{done:done});
 				assert(ret == cl.SUCCESS);
 			});
 		});
 		it('should build using a valid program and options', function () {
 			U.withContext(function (ctx) {
-				var prg = cl.createProgramWithSource(ctx, squareKern);
-				var ret = cl.buildProgram(prg, null, '-D NOCL_TEST=5');
+				let prg = cl.createProgramWithSource(ctx, squareKern);
+				let ret = cl.buildProgram(prg, null, '-D NOCL_TEST=5');
 				assert(ret == cl.SUCCESS);
 
 				cl.releaseProgram(prg);
@@ -91,7 +91,7 @@ describe('Program', function () {
 
 		it('should throw if program is INVALID', function () {
 			U.withContext(function (ctx) {
-				var prg = cl.createProgramWithSource(ctx, squareKern + '$bad_inst');
+				let prg = cl.createProgramWithSource(ctx, squareKern + '$bad_inst');
 				expect(
 					() => cl.buildProgram( prg)
 				).to.throw(cl.BUILD_PROGRAM_FAILURE.message);
@@ -106,12 +106,12 @@ describe('Program', function () {
 		it('should create a valid program from a binary', function () {
 
 			U.withContext(function (ctx, device) {
-				var prg = cl.createProgramWithSource(ctx, squareKern);
+				let prg = cl.createProgramWithSource(ctx, squareKern);
 				cl.buildProgram(prg, [device]);
-				var bin = cl.getProgramInfo(prg, cl.PROGRAM_BINARIES);
-				var sizes = cl.getProgramInfo(prg, cl.PROGRAM_BINARY_SIZES);
+				let bin = cl.getProgramInfo(prg, cl.PROGRAM_BINARIES);
+				let sizes = cl.getProgramInfo(prg, cl.PROGRAM_BINARY_SIZES);
 				//
-				var prg2 = cl.createProgramWithBinary(ctx, [device], sizes, bin);
+				let prg2 = cl.createProgramWithBinary(ctx, [device], sizes, bin);
 
 				assert.isNotNull(prg2);
 				assert.isDefined(prg2);
@@ -124,12 +124,12 @@ describe('Program', function () {
 		skip().vendor('Intel').it('should create a valid program from a buffer', function () {
 
 			U.withContext(function (ctx, device) {
-				var prg = cl.createProgramWithSource(ctx, squareKern);
+				let prg = cl.createProgramWithSource(ctx, squareKern);
 				cl.buildProgram(prg, [device]);
-				var bin = cl.getProgramInfo(prg, cl.PROGRAM_BINARIES);
-				var sizes = cl.getProgramInfo(prg, cl.PROGRAM_BINARY_SIZES);
+				let bin = cl.getProgramInfo(prg, cl.PROGRAM_BINARIES);
+				let sizes = cl.getProgramInfo(prg, cl.PROGRAM_BINARY_SIZES);
 				
-				var prg2 = cl.createProgramWithBinary(ctx, [device], sizes, bin);
+				let prg2 = cl.createProgramWithBinary(ctx, [device], sizes, bin);
 
 				assert.isNotNull(prg2);
 				assert.isDefined(prg2);
@@ -151,10 +151,10 @@ describe('Program', function () {
 		it('should fail as lists are not of the same length', function () {
 
 			U.withContext(function (ctx, device) {
-				var prg = cl.createProgramWithSource(ctx, squareKern);
+				let prg = cl.createProgramWithSource(ctx, squareKern);
 				cl.buildProgram(prg);
-				var bin = cl.getProgramInfo(prg, cl.PROGRAM_BINARIES);
-				var sizes = cl.getProgramInfo(prg, cl.PROGRAM_BINARY_SIZES);
+				let bin = cl.getProgramInfo(prg, cl.PROGRAM_BINARIES);
+				let sizes = cl.getProgramInfo(prg, cl.PROGRAM_BINARY_SIZES);
 				sizes.push(100);
 
 				expect(
@@ -169,7 +169,7 @@ describe('Program', function () {
 
 	describe('#createProgramWithBuiltInKernels', function () {
 
-		var f = cl.createProgramWithBuiltInKernels;
+		let f = cl.createProgramWithBuiltInKernels;
 
 		it('should fail as context is invalid', function () {
 			U.withContext(function (context, device) {
@@ -215,10 +215,10 @@ describe('Program', function () {
 	describe('#retainProgram', function () {
 		it('should increment the reference count', function () {
 			U.withContext(function (ctx) {
-				var prg = cl.createProgramWithSource(ctx, squareKern);
-				var before = cl.getProgramInfo(prg, cl.PROGRAM_REFERENCE_COUNT);
+				let prg = cl.createProgramWithSource(ctx, squareKern);
+				let before = cl.getProgramInfo(prg, cl.PROGRAM_REFERENCE_COUNT);
 				cl.retainProgram(prg);
-				var after = cl.getProgramInfo(prg, cl.PROGRAM_REFERENCE_COUNT);
+				let after = cl.getProgramInfo(prg, cl.PROGRAM_REFERENCE_COUNT);
 				assert(before + 1 == after);
 				cl.releaseProgram(prg);
 			});
@@ -228,11 +228,11 @@ describe('Program', function () {
 	describe('#releaseProgram', function () {
 		it('should decrement the reference count', function () {
 			U.withContext(function (ctx) {
-				var prg = cl.createProgramWithSource(ctx, squareKern);
-				var before = cl.getProgramInfo(prg, cl.PROGRAM_REFERENCE_COUNT);
+				let prg = cl.createProgramWithSource(ctx, squareKern);
+				let before = cl.getProgramInfo(prg, cl.PROGRAM_REFERENCE_COUNT);
 				cl.retainProgram(prg);
 				cl.releaseProgram(prg);
-				var after = cl.getProgramInfo(prg, cl.PROGRAM_REFERENCE_COUNT);
+				let after = cl.getProgramInfo(prg, cl.PROGRAM_REFERENCE_COUNT);
 				assert(before == after);
 				cl.releaseProgram(prg);
 			});
@@ -242,8 +242,8 @@ describe('Program', function () {
 	describe('#compileProgram', function () {
 		it('should build a program with no input headers', function () {
 			U.withContext(function (ctx) {
-				var prg = cl.createProgramWithSource(ctx, squareKern);
-				var ret = cl.compileProgram(prg);
+				let prg = cl.createProgramWithSource(ctx, squareKern);
+				let ret = cl.compileProgram(prg);
 				assert(ret == cl.SUCCESS);
 				cl.releaseProgram(prg);
 			});
@@ -251,15 +251,15 @@ describe('Program', function () {
 
 		it('should build and call the callback with no input header', function (done) {
 			U.withAsyncContext(function (ctx,device,platform,ctxDone) {
-				var mCB = function (prg, userData) {
+				let mCB = function (prg, userData) {
 					assert.isNotNull(prg);
 					assert.isDefined(prg);
 					cl.releaseProgram(prg);
 					ctxDone();
 					userData.done();
 				};
-				var prg = cl.createProgramWithSource(ctx, squareKern);
-				var ret = cl.compileProgram(
+				let prg = cl.createProgramWithSource(ctx, squareKern);
+				let ret = cl.compileProgram(
 					prg,
 					undefined,
 					undefined,
@@ -274,10 +274,10 @@ describe('Program', function () {
 
 		it('should build a program with an input header', function () {
 			U.withContext(function (ctx) {
-				var prg = cl.createProgramWithSource(ctx, squareKern);
-				var prg2 = cl.createProgramWithSource(ctx, squareKern);
+				let prg = cl.createProgramWithSource(ctx, squareKern);
+				let prg2 = cl.createProgramWithSource(ctx, squareKern);
 
-				var ret = cl.compileProgram(prg, null, null, [prg2], ['prg2.h']);
+				let ret = cl.compileProgram(prg, null, null, [prg2], ['prg2.h']);
 				assert(ret == cl.SUCCESS);
 				cl.releaseProgram(prg);
 			});
@@ -285,8 +285,8 @@ describe('Program', function () {
 
 		it('should fail as ain\'t no name for header', function () {
 			U.withContext(function (ctx) {
-				var prg = cl.createProgramWithSource(ctx, squareKern);
-				var prg2 = cl.createProgramWithSource(ctx, squareKern);
+				let prg = cl.createProgramWithSource(ctx, squareKern);
+				let prg2 = cl.createProgramWithSource(ctx, squareKern);
 
 				expect(
 					() => cl.compileProgram( prg, null, null, [prg2], [])
@@ -342,26 +342,26 @@ describe('Program', function () {
 			U.withContext(function (ctx) {
 				U.withProgram(ctx, squareKern, function (prg) {
 					cl.compileProgram(prg);
-					var nprg = cl.linkProgram(ctx, null, null, [prg]);
+					let nprg = cl.linkProgram(ctx, null, null, [prg]);
 
 					assert.isObject(nprg);
 				});
 			});
 		});
-    
+		
 		it('should success in linking one program and call the callback', function (done) {
 			U.withAsyncContext(function (ctx,device,platform,ctxDone) {
-				var mCB = function (p, userData) {
+				let mCB = function (p, userData) {
 					assert.isNotNull(userData.prg);
 					assert.isDefined(userData.prg);
 					cl.releaseProgram(userData.prg);
 					ctxDone();
 					userData.done();
 				};
-				var prg = cl.createProgramWithSource(ctx, squareKern);
-				var ret = cl.compileProgram(prg);
+				let prg = cl.createProgramWithSource(ctx, squareKern);
+				let ret = cl.compileProgram(prg);
 				assert(ret == cl.SUCCESS);
-				var nprg = cl.linkProgram(ctx, null, null, [prg], mCB, { done, prg });
+				let nprg = cl.linkProgram(ctx, null, null, [prg], mCB, { done, prg });
 				assert.isObject(nprg);
 
 			});
@@ -371,7 +371,7 @@ describe('Program', function () {
 			U.withContext(function (ctx, device) {
 				U.withProgram(ctx, squareKern, function (prg) {
 					cl.compileProgram(prg);
-					var nprg = cl.linkProgram(ctx, [device], null, [prg]);
+					let nprg = cl.linkProgram(ctx, [device], null, [prg]);
 
 					assert.isObject(nprg);
 				});
@@ -385,7 +385,7 @@ describe('Program', function () {
 						cl.compileProgram(prg);
 						cl.compileProgram(prg2);
 
-						var nprg = cl.linkProgram(ctx, null, null, [prg, prg2]);
+						let nprg = cl.linkProgram(ctx, null, null, [prg, prg2]);
 						assert.isObject(nprg);
 					});
 				});
@@ -404,11 +404,11 @@ describe('Program', function () {
 	});
 
 	describe('#getProgramInfo', function () {
-		var testForType = function (clKey, _assert) {
+		let testForType = function (clKey, _assert) {
 			it('should return the good type for ' + clKey, function () {
 				U.withContext(function (ctx) {
 					U.withProgram(ctx, squareKern, function (prg) {
-						var val = cl.getProgramInfo(prg, cl[clKey]);
+						let val = cl.getProgramInfo(prg, cl[clKey]);
 						_assert(val);
 					});
 				});
@@ -427,7 +427,7 @@ describe('Program', function () {
 
 		it('should have the same program source as the one given', function () {
 			U.withContext(function (ctx) {
-				var prg = cl.createProgramWithSource(ctx, squareKern);
+				let prg = cl.createProgramWithSource(ctx, squareKern);
 				assert(cl.getProgramInfo(prg, cl.PROGRAM_SOURCE) == squareKern);
 				cl.releaseProgram(prg);
 			});
@@ -439,11 +439,11 @@ describe('Program', function () {
 
 describe('#getProgramBuildInfo', function () {
 
-	var testForType = function (clKey, _assert) {
+	let testForType = function (clKey, _assert) {
 		it('should return the good type for ' + clKey, function () {
 			U.withContext(function (ctx, device) {
 				U.withProgram(ctx, squareKern, function (prg) {
-					var val = cl.getProgramBuildInfo(prg, device, cl[clKey]);
+					let val = cl.getProgramBuildInfo(prg, device, cl[clKey]);
 					_assert(val);
 				});
 			});
@@ -459,11 +459,11 @@ describe('#getProgramBuildInfo', function () {
 
 	it('should return the same options string that was passed before', function () {
 		U.withContext(function (ctx, device) {
-			var prg = cl.createProgramWithSource(ctx, squareKern);
-			var buildOpts = '-D NOCL_TEST=5';
+			let prg = cl.createProgramWithSource(ctx, squareKern);
+			let buildOpts = '-D NOCL_TEST=5';
 			cl.buildProgram(prg, null, buildOpts);
 
-			var opt = cl.getProgramBuildInfo(prg, device, cl.PROGRAM_BUILD_OPTIONS);
+			let opt = cl.getProgramBuildInfo(prg, device, cl.PROGRAM_BUILD_OPTIONS);
 			assert(opt.indexOf(buildOpts) !== -1); // there is an extra space in get info output
 			cl.releaseProgram(prg);
 		});
