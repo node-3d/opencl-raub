@@ -179,7 +179,7 @@ describe('Program', function () {
 			});
 		});
 
-		it('should fail as device list is empty', function () {
+		skip().vendor('Apple').it('should fail as device list is empty', function () {
 			U.withContext(function (context) {
 				expect(
 					() => f(context, [], ['a'])
