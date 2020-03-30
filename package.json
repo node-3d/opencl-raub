@@ -18,7 +18,6 @@
 		"gyp"
 	],
 	"files": [
-		"js",
 		"core.js",
 		"index.js",
 		"install.js",
@@ -41,7 +40,7 @@
 		"url": "https://github.com/node-3d/opencl-raub.git"
 	},
 	"dependencies": {
-		"addon-tools-raub": "https://github.com/node-3d/addon-tools-raub.git",
-		"segfault-raub": "1.1.0"
+		"addon-tools-raub": "5.1.0",
+		"segfault-raub": "1.1.1"
 	}
 }
