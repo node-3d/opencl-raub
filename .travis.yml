@@ -47,15 +47,15 @@ matrix:
         - npm ci
 
 script:
-  - npm test context
-  - npm test device
-  - npm test event
-  - npm test kernel
-  - npm test memobj
-  - npm test platform
-  - npm test program
-  - npm test queues
-  - npm test sampler
+  - LD_DEBUG=all npm test context
+  # - npm test device
+  # - npm test event
+  # - npm test kernel
+  # - npm test memobj
+  # - npm test platform
+  # - npm test program
+  # - npm test queues
+  # - npm test sampler
 
 deploy:
   on:
