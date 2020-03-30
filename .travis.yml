@@ -47,7 +47,7 @@ matrix:
         - npm ci
 
 script:
-  - LD_DEBUG=lib npm test context
+  - LD_DEBUG=libs npm test context
   # - npm test device
   # - npm test event
   # - npm test kernel
