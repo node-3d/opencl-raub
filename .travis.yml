@@ -14,15 +14,15 @@ matrix:
       if: NOT commit_message =~ /^:hammer:/
       dist: xenial
       sudo: false
-      before_script:
-        - export OCL_ICD_FILENAMES=libintelocl.so
-        - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/travis/build/node-3d/opencl-raub/ci
-        - export OCL_ICD_VENDORS=/home/travis/build/node-3d/opencl-raub/ci
+      script:
+        - echo OK.
+      # before_script:
+      #   - export OCL_ICD_FILENAMES=libintelocl.so
+      #   - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/travis/build/node-3d/opencl-raub/ci
+      #   - export OCL_ICD_VENDORS=/home/travis/build/node-3d/opencl-raub/ci
     - name: "OSX Test"
       os: osx
       if: NOT commit_message =~ /^:hammer:/
-      # script:
-      #   - echo OK.
     - name: "Linux Build"
       os: linux
       dist: xenial
@@ -47,15 +47,15 @@ matrix:
         - npm ci
 
 script:
-  - LD_DEBUG=libs npm test context
-  # - npm test device
-  # - npm test event
-  # - npm test kernel
-  # - npm test memobj
-  # - npm test platform
-  # - npm test program
-  # - npm test queues
-  # - npm test sampler
+  - npm test context
+  - npm test device
+  - npm test event
+  - npm test kernel
+  - npm test memobj
+  - npm test platform
+  - npm test program
+  - npm test queues
+  - npm test sampler
 
 deploy:
   on:
