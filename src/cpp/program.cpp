@@ -472,8 +472,7 @@ JS_METHOD(getProgramInfo) { NAPI_ENV;
 	
 	switch(param_name) {
 		case CL_PROGRAM_REFERENCE_COUNT:
-		case CL_PROGRAM_NUM_DEVICES:
-		{
+		case CL_PROGRAM_NUM_DEVICES: {
 			cl_uint val;
 			CHECK_ERR(clGetProgramInfo(
 				prog,
@@ -484,8 +483,7 @@ JS_METHOD(getProgramInfo) { NAPI_ENV;
 			));
 			RET_NUM(val);
 		}
-		case CL_PROGRAM_CONTEXT:
-		{
+		case CL_PROGRAM_CONTEXT: {
 			cl_context val;
 			CHECK_ERR(clGetProgramInfo(
 				prog,
@@ -497,8 +495,7 @@ JS_METHOD(getProgramInfo) { NAPI_ENV;
 			CHECK_ERR(clRetainContext(val))
 			RET_WRAPPER(val);
 		}
-		case CL_PROGRAM_DEVICES:
-		{
+		case CL_PROGRAM_DEVICES: {
 			size_t n = 0;
 			CHECK_ERR(clGetProgramInfo(prog, param_name, 0, nullptr, &n));
 			n /= sizeof(cl_device_id);
@@ -521,9 +518,9 @@ JS_METHOD(getProgramInfo) { NAPI_ENV;
 			RET_VALUE(arr);
 		}
 		// DRIVER ISSUE : Segfault if program has not been compiled
-		case CL_PROGRAM_BINARY_SIZES:
-		{
-			cl_uint nsizes;CHECK_ERR(clGetProgramInfo(
+		case CL_PROGRAM_BINARY_SIZES: {
+			cl_uint nsizes;
+			CHECK_ERR(clGetProgramInfo(
 				prog,
 				CL_PROGRAM_NUM_DEVICES,
 				sizeof(cl_uint),
@@ -547,8 +544,7 @@ JS_METHOD(getProgramInfo) { NAPI_ENV;
 			RET_VALUE(arr);
 		}
 		// DRIVER ISSUE : segfault if program has not been compiled
-		case CL_PROGRAM_BINARIES:
-		{
+		case CL_PROGRAM_BINARIES: {
 			cl_uint nsizes;
 			CHECK_ERR(clGetProgramInfo(
 				prog,
@@ -568,7 +564,7 @@ JS_METHOD(getProgramInfo) { NAPI_ENV;
 			));
 			
 			unsigned char** bn = new unsigned char* [nsizes];
-			for(size_t i = 0; i < nsizes;i++)  {
+			for(size_t i = 0; i < nsizes; i++)  {
 				bn[i] = new unsigned char[sizes[i]];
 			}
 			
@@ -591,15 +587,13 @@ JS_METHOD(getProgramInfo) { NAPI_ENV;
 			}
 			RET_VALUE(arr);
 		}
-		case CL_PROGRAM_NUM_KERNELS:
-		{
+		case CL_PROGRAM_NUM_KERNELS: {
 			size_t val;
 			CHECK_ERR(clGetProgramInfo(prog, param_name, sizeof(size_t), &val, nullptr))
 			RET_NUM(val);
 		}
 		case CL_PROGRAM_KERNEL_NAMES:
-		case CL_PROGRAM_SOURCE:
-		{
+		case CL_PROGRAM_SOURCE: {
 			size_t nchars;
 			CHECK_ERR(clGetProgramInfo(prog, param_name, 0, nullptr, &nchars));
 			std::unique_ptr<char[]> names(new char[nchars]);
@@ -632,8 +626,7 @@ JS_METHOD(getProgramBuildInfo) { NAPI_ENV;
 	REQ_UINT32_ARG(2, param_name);
 	
 	switch(param_name) {
-		case CL_PROGRAM_BUILD_STATUS:
-		{
+		case CL_PROGRAM_BUILD_STATUS: {
 			cl_build_status val;
 			CHECK_ERR(clGetProgramBuildInfo(
 				prog,
@@ -646,8 +639,7 @@ JS_METHOD(getProgramBuildInfo) { NAPI_ENV;
 			RET_NUM(val);
 		}
 		case CL_PROGRAM_BUILD_OPTIONS:
-		case CL_PROGRAM_BUILD_LOG:
-		{
+		case CL_PROGRAM_BUILD_LOG: {
 			size_t param_value_size_ret = 0;
 			CHECK_ERR(clGetProgramBuildInfo(
 				prog,
@@ -668,8 +660,7 @@ JS_METHOD(getProgramBuildInfo) { NAPI_ENV;
 			));
 			RET_STR(param_value.get());
 		}
-		case CL_PROGRAM_BINARY_TYPE:
-		{
+		case CL_PROGRAM_BINARY_TYPE: {
 			cl_program_binary_type val;
 			CHECK_ERR(clGetProgramBuildInfo(
 				prog,

@@ -100,20 +100,23 @@ public:
 		
 		/* convert primitive types */
 		
-		#define CONVERT_NUMBER(NAME, TYPE, CONV)                              \
-		 {                                                                          \
-			func_t f = [](Napi::Value val)                                       \
-				-> std::tuple<size_t, void*, cl_int> {                                  \
-				if (!val.IsNumber()){                                                      \
-				 return std::tuple<size_t, void*, cl_int>(0, nullptr, CL_INVALID_ARG_VALUE);\
-				}                                                                       \
-				void* ptr_data = new TYPE;                                              \
-				size_t ptr_size = sizeof(TYPE);                                         \
-				*((TYPE *)ptr_data) = (TYPE) val.ToNumber().DoubleValue();              \
-				return std::tuple<size_t, void*, cl_int>(ptr_size, ptr_data, 0);         \
+		#define CONVERT_NUMBER(NAME, TYPE, CONV)                                      \
+		{                                                                             \
+			func_t f = [](Napi::Value val) -> std::tuple<size_t, void*, cl_int> {     \
+				if ( ! val.IsNumber() ) {                                             \
+					return std::tuple<size_t, void*, cl_int>(                         \
+						0,                                                            \
+						nullptr,                                                      \
+						CL_INVALID_ARG_VALUE                                          \
+					);                                                                \
+				}                                                                     \
+				void* ptr_data = new TYPE;                                            \
+				size_t ptr_size = sizeof(TYPE);                                       \
+				*((TYPE *)ptr_data) = (TYPE) val.ToNumber().DoubleValue();            \
+				return std::tuple<size_t, void*, cl_int>(ptr_size, ptr_data, 0);      \
 			};                                                                        \
 			m_converters[NAME] = f;                                                   \
-		 }
+		}
 		
 		CONVERT_NUMBER("char", cl_char, int32_t);
 		CONVERT_NUMBER("uchar", cl_uchar, uint32_t);
@@ -132,38 +135,50 @@ public:
 		/* convert vector types (e.g. float4, int16, etc) */
 		
 		#define CONVERT_VECT(NAME, TYPE, I, COND)                                     \
-			{                                                                                 \
-			 func_t f = [](Napi::Value val) -> std::tuple<size_t, void*, cl_int> {       \
-				if (!val.IsArray()) {                                                           \
-					/*THROW_ERR(CL_INVALID_ARG_VALUE);  */                                        \
-					return std::tuple<size_t, void*, cl_int>(0, nullptr, CL_INVALID_ARG_VALUE);     \
-				}                                                                               \
-				Napi::Array arr = val.As<Napi::Array>();                                        \
-				if (arr.Length() != I) {                                                        \
-					/*THROW_ERR(CL_INVALID_ARG_SIZE);*/                                           \
-					return std::tuple<size_t, void*, cl_int>(0, nullptr, CL_INVALID_ARG_SIZE);      \
-				}                                                                               \
-				TYPE * vvc = new TYPE[I];                                                       \
-				size_t ptr_size = sizeof(TYPE) * I;                                             \
-				void* ptr_data = vvc;                                                           \
-				for (unsigned int i = 0; i < I; ++ i) {                                         \
-					if (!arr.Get(i).IsNumber()) {                                                     \
-						/*THROW_ERR(CL_INVALID_ARG_VALUE);*/                                        \
-						/*THROW_ERR(CL_INVALID_ARG_VALUE);*/                                        \
-						return std::tuple<size_t, void*, cl_int>(0, nullptr, CL_INVALID_ARG_VALUE);   \
-					}                                                                             \
-					vvc[i] = (TYPE) arr.Get(i).ToNumber().DoubleValue();                          \
-				}                                                                               \
-				return std::tuple<size_t, void*, cl_int>(ptr_size, ptr_data, 0);                  \
-			};                                                                                \
-			m_converters[NAME #I ] = f;                                                       \
-			}
+		{                                                                             \
+			func_t f = [](Napi::Value val) -> std::tuple<size_t, void*, cl_int> {     \
+				if ( ! val.IsArray() ) {                                              \
+					/*THROW_ERR(CL_INVALID_ARG_VALUE);  */                            \
+					return std::tuple<size_t, void*, cl_int>(                         \
+						0,                                                            \
+						nullptr,                                                      \
+						CL_INVALID_ARG_VALUE                                          \
+					);                                                                \
+				}                                                                     \
+				Napi::Array arr = val.As<Napi::Array>();                              \
+				if (arr.Length() != I) {                                              \
+					/*THROW_ERR(CL_INVALID_ARG_SIZE);*/                               \
+					return std::tuple<size_t, void*, cl_int>(                         \
+						0,                                                            \
+						nullptr,                                                      \
+						CL_INVALID_ARG_SIZE                                           \
+					);                                                                \
+				}                                                                     \
+				TYPE * vvc = new TYPE[I];                                             \
+				size_t ptr_size = sizeof(TYPE) * I;                                   \
+				void* ptr_data = vvc;                                                 \
+				for (unsigned int i = 0; i < I; ++ i) {                               \
+					if ( ! arr.Get(i).IsNumber() ) {                                  \
+						/*THROW_ERR(CL_INVALID_ARG_VALUE);*/                          \
+						/*THROW_ERR(CL_INVALID_ARG_VALUE);*/                          \
+						return std::tuple<size_t, void*, cl_int>(                     \
+							0,                                                        \
+							nullptr,                                                  \
+							CL_INVALID_ARG_VALUE                                      \
+						);                                                            \
+					}                                                                 \
+					vvc[i] = (TYPE) arr.Get(i).ToNumber().DoubleValue();              \
+				}                                                                     \
+				return std::tuple<size_t, void*, cl_int>(ptr_size, ptr_data, 0);      \
+			};                                                                        \
+			m_converters[NAME #I ] = f;                                               \
+		}
 		
-		#define CONVERT_VECTS(NAME, TYPE, COND) \
-			CONVERT_VECT(NAME, TYPE, 2, COND);\
-			CONVERT_VECT(NAME, TYPE, 3, COND);\
-			CONVERT_VECT(NAME, TYPE, 4, COND);\
-			CONVERT_VECT(NAME, TYPE, 8, COND);\
+		#define CONVERT_VECTS(NAME, TYPE, COND)                                       \
+			CONVERT_VECT(NAME, TYPE, 2, COND);                                        \
+			CONVERT_VECT(NAME, TYPE, 3, COND);                                        \
+			CONVERT_VECT(NAME, TYPE, 4, COND);                                        \
+			CONVERT_VECT(NAME, TYPE, 8, COND);                                        \
 			CONVERT_VECT(NAME, TYPE, 16, COND);
 		
 		CONVERT_VECTS("char", cl_char, int32_t);
@@ -183,16 +198,16 @@ public:
 		
 		// add boolean conversion
 		m_converters["bool"] = [](Napi::Value val) {
-				size_t ptr_size = sizeof(cl_bool);
-				void* ptr_data = new cl_bool;
-				*((cl_bool *)ptr_data) = val.ToBoolean().Value() ? 1 : 0;
-				return std::tuple<size_t, void*, cl_int>(ptr_size, ptr_data, 0);
+			size_t ptr_size = sizeof(cl_bool);
+			void* ptr_data = new cl_bool;
+			*((cl_bool *)ptr_data) = val.ToBoolean().Value() ? 1 : 0;
+			return std::tuple<size_t, void*, cl_int>(ptr_size, ptr_data, 0);
 		};
 	}
 	
 	/// Returns wheather the type given is in the map, i.e. if it is a
 	/// primitive type
-	bool hasType(const std::string& name){
+	bool hasType(const std::string& name) {
 		return m_converters.find(name) != m_converters.end();
 	}
 	

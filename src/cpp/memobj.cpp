@@ -362,8 +362,7 @@ JS_METHOD(getImageInfo) { NAPI_ENV;
 		case CL_IMAGE_WIDTH:
 		case CL_IMAGE_HEIGHT:
 		case CL_IMAGE_DEPTH:
-		case CL_IMAGE_ARRAY_SIZE:
-		{
+		case CL_IMAGE_ARRAY_SIZE: {
 			size_t val;
 			CHECK_ERR(clGetImageInfo(
 				mem,
@@ -387,8 +386,7 @@ JS_METHOD(getImageInfo) { NAPI_ENV;
 			RET_WRAPPER(val);
 		}
 		case CL_IMAGE_NUM_MIP_LEVELS:
-		case CL_IMAGE_NUM_SAMPLES:
-		{
+		case CL_IMAGE_NUM_SAMPLES: {
 			cl_uint val;
 			CHECK_ERR(clGetImageInfo(
 				mem,

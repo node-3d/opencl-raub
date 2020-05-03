@@ -1043,7 +1043,12 @@ JS_METHOD(enqueueMapImage) { NAPI_ENV;
 	}
 	
 	if (!blocking_map) {
-		// TODO buf->SetIndexedPropertiesToExternalArrayData(nullptr, buf->GetIndexedPropertiesExternalArrayDataType(), 0);
+		// TODO
+		// buf->SetIndexedPropertiesToExternalArrayData(
+		// 	nullptr,
+		// 	buf->GetIndexedPropertiesExternalArrayDataType(),
+		// 	0
+		// );
 		// NoCLMapCB* cb = new NoCLMapCB(buf, size, mPtr);
 		// err = clSetEventCallback(event, CL_COMPLETE, notifyMapCB, cb);
 		// CHECK_ERR(err)

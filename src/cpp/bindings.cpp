@@ -121,12 +121,11 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
 	JS_CL_SET_METHOD(setEventCallback);
 	JS_CL_SET_METHOD(getEventProfilingInfo);
 	
-	
-	// Platform-dependent byte sizes
+	// Byte sizes
 	JS_CONSTANT("size_CHAR", sizeof(char));
-	JS_CONSTANT("size_SHORT", sizeof(short));
+	JS_CONSTANT("size_SHORT", sizeof(int16_t));
 	JS_CONSTANT("size_INT", sizeof(int));
-	JS_CONSTANT("size_LONG", sizeof(long));
+	JS_CONSTANT("size_LONG", sizeof(int32_t));
 	JS_CONSTANT("size_FLOAT", sizeof(float));
 	JS_CONSTANT("size_DOUBLE", sizeof(double));
 	JS_CONSTANT("size_HALF", sizeof(float) >> 1);
