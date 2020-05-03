@@ -7,12 +7,10 @@ This is a part of [Node3D](https://github.com/node-3d) project.
 [![Build Status](https://api.travis-ci.com/node-3d/opencl-raub.svg?branch=master)](https://travis-ci.com/node-3d/opencl-raub)
 [![CodeFactor](https://www.codefactor.io/repository/github/node-3d/opencl-raub/badge)](https://www.codefactor.io/repository/github/node-3d/opencl-raub)
 
-> IMPORTANT: THIS IS WIP npm i opencl-raub
+> npm i opencl-raub
 
 
 ## Synopsis
-
-**IMPORTANT: THIS IS WIP**
 
 **Node.js** addon with **OpenCL** bindings.
 
