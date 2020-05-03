@@ -264,8 +264,7 @@ JS_METHOD(getMemObjectInfo) { NAPI_ENV;
 			RET_NUM(val);
 		}
 		case CL_MEM_SIZE:
-		case CL_MEM_OFFSET:
-		{
+		case CL_MEM_OFFSET: {
 			size_t val;
 			CHECK_ERR(clGetMemObjectInfo(
 				mem,
@@ -277,8 +276,7 @@ JS_METHOD(getMemObjectInfo) { NAPI_ENV;
 			RET_NUM(val);
 		}
 		case CL_MEM_MAP_COUNT:
-		case CL_MEM_REFERENCE_COUNT:
-		{
+		case CL_MEM_REFERENCE_COUNT: {
 			cl_uint val;
 			CHECK_ERR(clGetMemObjectInfo(
 				mem,

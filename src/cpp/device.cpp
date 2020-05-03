@@ -38,6 +38,201 @@ JS_METHOD(getDeviceIDs) { NAPI_ENV;
 	
 }
 
+inline Napi::Value getDeviceInfoString(Napi::Env env, cl_device_id device_id, uint32_t param_name) {
+	char param_value[1024];
+	size_t param_value_size_ret = 0;
+	CHECK_ERR(clGetDeviceInfo(
+		device_id,
+		param_name,
+		sizeof(char) * 1024,
+		param_value,
+		&param_value_size_ret
+	));
+	RET_STR(param_value);
+}
+
+inline Napi::Value getDeviceInfoPlatform(Napi::Env env, cl_device_id device_id, uint32_t param_name) {
+	cl_platform_id param_value;
+	
+	CHECK_ERR(clGetDeviceInfo(
+		device_id,
+		param_name,
+		sizeof(cl_platform_id),
+		&param_value,
+		nullptr
+	));
+	
+	if (param_value) {
+		RET_WRAPPER(param_value);
+	}
+	RET_UNDEFINED;
+}
+
+inline Napi::Value getDeviceInfoType(Napi::Env env, cl_device_id device_id, uint32_t param_name) {
+	cl_device_type param_value;
+	CHECK_ERR(clGetDeviceInfo(
+		device_id,
+		param_name,
+		sizeof(cl_device_type),
+		&param_value,
+		nullptr
+	));
+	RET_NUM(param_value);
+}
+
+inline Napi::Value getDeviceInfoMemType(Napi::Env env, cl_device_id device_id, uint32_t param_name) {
+	cl_device_local_mem_type param_value;
+	CHECK_ERR(clGetDeviceInfo(
+		device_id,
+		param_name,
+		sizeof(cl_device_local_mem_type),
+		&param_value,
+		nullptr
+	));
+	RET_NUM(param_value);
+}
+
+inline Napi::Value getDeviceInfoCacheType(Napi::Env env, cl_device_id device_id, uint32_t param_name) {
+	cl_device_mem_cache_type param_value;
+	CHECK_ERR(clGetDeviceInfo(
+		device_id,
+		param_name,
+		sizeof(cl_device_mem_cache_type),
+		&param_value,
+		nullptr
+	));
+	RET_NUM(param_value);
+}
+
+inline Napi::Value getDeviceInfoCaps(Napi::Env env, cl_device_id device_id, uint32_t param_name) {
+	cl_device_exec_capabilities param_value;
+	CHECK_ERR(clGetDeviceInfo(
+		device_id,
+		param_name,
+		sizeof(cl_device_exec_capabilities),
+		&param_value,
+		nullptr
+	));
+	RET_NUM(param_value);
+}
+
+inline Napi::Value getDeviceInfoQueueProps(Napi::Env env, cl_device_id device_id, uint32_t param_name) {
+	cl_command_queue_properties param_value;
+	CHECK_ERR(clGetDeviceInfo(
+		device_id,
+		param_name,
+		sizeof(cl_command_queue_properties),
+		&param_value,
+		nullptr
+	));
+	RET_NUM(param_value);
+}
+
+inline Napi::Value getDeviceInfoFpConfig(Napi::Env env, cl_device_id device_id, uint32_t param_name) {
+	cl_device_fp_config param_value;
+	CHECK_ERR(clGetDeviceInfo(
+		device_id,
+		param_name,
+		sizeof(cl_device_fp_config),
+		&param_value,
+		nullptr
+	));
+	RET_NUM(param_value);
+}
+
+inline Napi::Value getDeviceInfoMaxWorkItem(Napi::Env env, cl_device_id device_id, uint32_t param_name) {
+	// get CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS param
+	cl_uint max_work_item_dimensions;
+	CHECK_ERR(clGetDeviceInfo(
+		device_id,
+		CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS,
+		sizeof(size_t),
+		&max_work_item_dimensions,
+		nullptr
+	));
+	
+	// get CL_DEVICE_MAX_WORK_ITEM_SIZES array param
+	std::unique_ptr<size_t[]> param_value(new size_t[max_work_item_dimensions]);
+	CHECK_ERR(clGetDeviceInfo(
+		device_id,
+		param_name,
+		max_work_item_dimensions * sizeof(size_t),
+		param_value.get(),
+		nullptr
+	));
+	
+	Napi::Array arr = Napi::Array::New(env);
+	for(cl_uint i = 0; i < max_work_item_dimensions; i++) {
+		arr.Set(i, JS_NUM(param_value[i]));
+	}
+	
+	RET_VALUE(arr);
+}
+
+inline Napi::Value getDeviceInfoBool(Napi::Env env, cl_device_id device_id, uint32_t param_name) {
+	cl_bool param_value;
+	CHECK_ERR(clGetDeviceInfo(
+		device_id,
+		param_name,
+		sizeof(cl_bool),
+		&param_value,
+		nullptr
+	));
+	// keeping as Integer vs Boolean so comparisons with cl.TRUE/cl.FALSE work
+	RET_BOOL(param_value == CL_TRUE);
+}
+
+inline Napi::Value getDeviceInfoUint(Napi::Env env, cl_device_id device_id, uint32_t param_name) {
+	cl_uint param_value;
+	CHECK_ERR(clGetDeviceInfo(
+		device_id,
+		param_name,
+		sizeof(cl_uint),
+		&param_value,
+		nullptr
+	));
+	RET_NUM(param_value);
+}
+
+inline Napi::Value getDeviceInfoUlong(Napi::Env env, cl_device_id device_id, uint32_t param_name) {
+	cl_ulong param_value;
+	CHECK_ERR(clGetDeviceInfo(
+		device_id,
+		param_name,
+		sizeof(cl_ulong),
+		&param_value,
+		nullptr
+	));
+	
+	/**
+		JS Compatibility
+		
+		As JS does not support 64 bits integer, we return a 2-integer array with
+			output_values[0] = (input_value >> 32) & 0xffffffff;
+			output_values[1] = input_value & 0xffffffff;
+		
+		and reconstruction as
+			input_value = ((int64_t) output_values[0]) << 32) | output_values[1];
+	*/
+	// TODO: maybe bollox, try modern x64 values
+	Napi::Array arr = Napi::Array::New(env);
+	arr.Set(0u, JS_NUM(param_value>>32)); // hi
+	arr.Set(1u, JS_NUM(param_value & 0xffffffff)); // lo
+	RET_VALUE(arr);
+}
+
+inline Napi::Value getDeviceInfoSize(Napi::Env env, cl_device_id device_id, uint32_t param_name) {
+	size_t param_value;
+	CHECK_ERR(clGetDeviceInfo(
+		device_id,
+		param_name,
+		sizeof(size_t),
+		&param_value,
+		nullptr
+	));
+	RET_NUM(param_value);
+}
+
 // extern CL_API_ENTRY cl_int CL_API_CALL
 // clGetDeviceInfo(cl_device_id    /* device */,
 //                 cl_device_info  /* param_name */,
@@ -56,130 +251,26 @@ JS_METHOD(getDeviceInfo) { NAPI_ENV;
 	case CL_DEVICE_PROFILE:
 	case CL_DEVICE_VERSION:
 	case CL_DEVICE_OPENCL_C_VERSION:
-	case CL_DEVICE_EXTENSIONS: {
-		char param_value[1024];
-		size_t param_value_size_ret = 0;
-		CHECK_ERR(clGetDeviceInfo(
-			device_id,
-			param_name,
-			sizeof(char) * 1024,
-			param_value,
-			&param_value_size_ret
-		));
-		RET_STR(param_value);
-	}
-	case CL_DEVICE_PLATFORM: {
-		cl_platform_id param_value;
-		
-		CHECK_ERR(clGetDeviceInfo(
-			device_id,
-			param_name,
-			sizeof(cl_platform_id),
-			&param_value,
-			nullptr
-		));
-		
-		if (param_value) {
-			RET_WRAPPER(param_value);
-		}
-		RET_UNDEFINED;
-	}
-	case CL_DEVICE_TYPE: {
-		cl_device_type param_value;
-		CHECK_ERR(clGetDeviceInfo(
-			device_id,
-			param_name,
-			sizeof(cl_device_type),
-			&param_value,
-			nullptr
-		));
-		RET_NUM(param_value);
-	}
-	case CL_DEVICE_LOCAL_MEM_TYPE: {
-		cl_device_local_mem_type param_value;
-		CHECK_ERR(clGetDeviceInfo(
-			device_id,
-			param_name,
-			sizeof(cl_device_local_mem_type),
-			&param_value,
-			nullptr
-		));
-		RET_NUM(param_value);
-	}
-	case CL_DEVICE_GLOBAL_MEM_CACHE_TYPE: {
-		cl_device_mem_cache_type param_value;
-		CHECK_ERR(clGetDeviceInfo(
-			device_id,
-			param_name,
-			sizeof(cl_device_mem_cache_type),
-			&param_value,
-			nullptr
-		));
-		RET_NUM(param_value);
-	}
-	case CL_DEVICE_EXECUTION_CAPABILITIES: {
-		cl_device_exec_capabilities param_value;
-		CHECK_ERR(clGetDeviceInfo(
-			device_id,
-			param_name,
-			sizeof(cl_device_exec_capabilities),
-			&param_value,
-			nullptr
-		));
-		RET_NUM(param_value);
-	}
-	case CL_DEVICE_QUEUE_PROPERTIES: {
-		cl_command_queue_properties param_value;
-		CHECK_ERR(clGetDeviceInfo(
-			device_id,
-			param_name,
-			sizeof(cl_command_queue_properties),
-			&param_value,
-			nullptr
-		));
-		RET_NUM(param_value);
-	}
+	case CL_DEVICE_EXTENSIONS:
+		return getDeviceInfoString(env, device_id, param_name);
+	case CL_DEVICE_PLATFORM:
+		return getDeviceInfoPlatform(env, device_id, param_name);
+	case CL_DEVICE_TYPE:
+		return getDeviceInfoType(env, device_id, param_name);
+	case CL_DEVICE_LOCAL_MEM_TYPE:
+		return getDeviceInfoMemType(env, device_id, param_name);
+	case CL_DEVICE_GLOBAL_MEM_CACHE_TYPE:
+		return getDeviceInfoCacheType(env, device_id, param_name);
+	case CL_DEVICE_EXECUTION_CAPABILITIES:
+		return getDeviceInfoCaps(env, device_id, param_name);
+	case CL_DEVICE_QUEUE_PROPERTIES:
+		return getDeviceInfoQueueProps(env, device_id, param_name);
 	case CL_DEVICE_HALF_FP_CONFIG:
 	case CL_DEVICE_SINGLE_FP_CONFIG:
-	case CL_DEVICE_DOUBLE_FP_CONFIG: {
-		cl_device_fp_config param_value;
-		CHECK_ERR(clGetDeviceInfo(
-			device_id,
-			param_name,
-			sizeof(cl_device_fp_config),
-			&param_value,
-			nullptr
-		));
-		RET_NUM(param_value);
-	}
-	case CL_DEVICE_MAX_WORK_ITEM_SIZES: {
-		// get CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS param
-		cl_uint max_work_item_dimensions;
-		CHECK_ERR(clGetDeviceInfo(
-			device_id,
-			CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS,
-			sizeof(size_t),
-			&max_work_item_dimensions,
-			nullptr
-		));
-		
-		// get CL_DEVICE_MAX_WORK_ITEM_SIZES array param
-		std::unique_ptr<size_t[]> param_value(new size_t[max_work_item_dimensions]);
-		CHECK_ERR(clGetDeviceInfo(
-			device_id,
-			param_name,
-			max_work_item_dimensions * sizeof(size_t),
-			param_value.get(),
-			nullptr
-		));
-		
-		Napi::Array arr = Napi::Array::New(env);
-		for(cl_uint i = 0; i < max_work_item_dimensions; i++) {
-			arr.Set(i, JS_NUM(param_value[i]));
-		}
-		
-		RET_VALUE(arr);
-	}
+	case CL_DEVICE_DOUBLE_FP_CONFIG:
+		return getDeviceInfoFpConfig(env, device_id, param_name);
+	case CL_DEVICE_MAX_WORK_ITEM_SIZES:
+		return getDeviceInfoMaxWorkItem(env, device_id, param_name);
 	// cl_bool params
 	case CL_DEVICE_AVAILABLE:
 	case CL_DEVICE_COMPILER_AVAILABLE:
@@ -187,18 +278,7 @@ JS_METHOD(getDeviceInfo) { NAPI_ENV;
 	case CL_DEVICE_ERROR_CORRECTION_SUPPORT:
 	case CL_DEVICE_HOST_UNIFIED_MEMORY:
 	case CL_DEVICE_IMAGE_SUPPORT:
-	{
-		cl_bool param_value;
-		CHECK_ERR(clGetDeviceInfo(
-			device_id,
-			param_name,
-			sizeof(cl_bool),
-			&param_value,
-			nullptr
-		));
-		// keeping as Integer vs Boolean so comparisons with cl.TRUE/cl.FALSE work
-		RET_BOOL(param_value == CL_TRUE);
-	}
+		return getDeviceInfoBool(env, device_id, param_name);
 	// cl_uint params
 	case CL_DEVICE_ADDRESS_BITS:
 	case CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE:
@@ -237,48 +317,14 @@ JS_METHOD(getDeviceInfo) { NAPI_ENV;
 #endif
 	case CL_DEVICE_REFERENCE_COUNT:
 	case CL_DEVICE_PARTITION_MAX_SUB_DEVICES:
-	{
-		cl_uint param_value;
-		CHECK_ERR(clGetDeviceInfo(
-			device_id,
-			param_name,
-			sizeof(cl_uint),
-			&param_value,
-			nullptr
-		));
-		RET_NUM(param_value);
-	}
+		return getDeviceInfoUint(env, device_id, param_name);
 	// cl_ulong params
 	case CL_DEVICE_GLOBAL_MEM_CACHE_SIZE:
 	case CL_DEVICE_GLOBAL_MEM_SIZE:
 	case CL_DEVICE_LOCAL_MEM_SIZE:
 	case CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE:
-	case CL_DEVICE_MAX_MEM_ALLOC_SIZE: {
-		cl_ulong param_value;
-		CHECK_ERR(clGetDeviceInfo(
-			device_id,
-			param_name,
-			sizeof(cl_ulong),
-			&param_value,
-			nullptr
-		));
-		
-		/**
-			JS Compatibility
-			
-			As JS does not support 64 bits integer, we return a 2-integer array with
-				output_values[0] = (input_value >> 32) & 0xffffffff;
-				output_values[1] = input_value & 0xffffffff;
-			
-			and reconstruction as
-				input_value = ((int64_t) output_values[0]) << 32) | output_values[1];
-		*/
-		// TODO: maybe bollox, try modern x64 values
-		Napi::Array arr = Napi::Array::New(env);
-		arr.Set(0u, JS_NUM(param_value>>32)); // hi
-		arr.Set(1u, JS_NUM(param_value & 0xffffffff)); // lo
-		RET_VALUE(arr);
-	}
+	case CL_DEVICE_MAX_MEM_ALLOC_SIZE:
+		return getDeviceInfoUlong(env, device_id, param_name);
 	// size_t params
 	case CL_DEVICE_IMAGE2D_MAX_HEIGHT:
 	case CL_DEVICE_IMAGE2D_MAX_WIDTH:
@@ -290,17 +336,7 @@ JS_METHOD(getDeviceInfo) { NAPI_ENV;
 	case CL_DEVICE_PROFILING_TIMER_RESOLUTION:
 	case CL_DEVICE_IMAGE_MAX_BUFFER_SIZE:
 	case CL_DEVICE_IMAGE_MAX_ARRAY_SIZE:
-	{
-		size_t param_value;
-		CHECK_ERR(clGetDeviceInfo(
-			device_id,
-			param_name,
-			sizeof(size_t),
-			&param_value,
-			nullptr
-		));
-		RET_NUM(param_value);
-	}
+		return getDeviceInfoSize(env, device_id, param_name);
 	default: break;
 	}
 	

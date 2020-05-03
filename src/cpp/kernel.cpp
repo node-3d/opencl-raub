@@ -100,8 +100,7 @@ public:
 		
 		/* convert primitive types */
 		
-		#define CONVERT_NUMBER(NAME, TYPE, CONV)                                      \
-		{                                                                             \
+		#define CONVERT_NUMBER(NAME, TYPE, CONV) {                                    \
 			func_t f = [](Napi::Value val) -> std::tuple<size_t, void*, cl_int> {     \
 				if ( ! val.IsNumber() ) {                                             \
 					return std::tuple<size_t, void*, cl_int>(                         \
@@ -110,10 +109,14 @@ public:
 						CL_INVALID_ARG_VALUE                                          \
 					);                                                                \
 				}                                                                     \
-				void* ptr_data = new TYPE;                                            \
+				TYPE* ptr_data = new TYPE;                                            \
 				size_t ptr_size = sizeof(TYPE);                                       \
-				*((TYPE *)ptr_data) = (TYPE) val.ToNumber().DoubleValue();            \
-				return std::tuple<size_t, void*, cl_int>(ptr_size, ptr_data, 0);      \
+				*ptr_data = static_cast<TYPE>(val.ToNumber().DoubleValue());          \
+				return std::tuple<size_t, void*, cl_int>(                             \
+					ptr_size,                                                         \
+					ptr_data,                                                         \
+					0                                                                 \
+				);                                                                    \
 			};                                                                        \
 			m_converters[NAME] = f;                                                   \
 		}
@@ -134,8 +137,7 @@ public:
 		
 		/* convert vector types (e.g. float4, int16, etc) */
 		
-		#define CONVERT_VECT(NAME, TYPE, I, COND)                                     \
-		{                                                                             \
+		#define CONVERT_VECT(NAME, TYPE, I, COND) {                                   \
 			func_t f = [](Napi::Value val) -> std::tuple<size_t, void*, cl_int> {     \
 				if ( ! val.IsArray() ) {                                              \
 					/*THROW_ERR(CL_INVALID_ARG_VALUE);  */                            \
@@ -199,8 +201,8 @@ public:
 		// add boolean conversion
 		m_converters["bool"] = [](Napi::Value val) {
 			size_t ptr_size = sizeof(cl_bool);
-			void* ptr_data = new cl_bool;
-			*((cl_bool *)ptr_data) = val.ToBoolean().Value() ? 1 : 0;
+			cl_bool* ptr_data = new cl_bool;
+			*ptr_data = static_cast<cl_bool>(val.ToBoolean().Value() ? 1 : 0);
 			return std::tuple<size_t, void*, cl_int>(ptr_size, ptr_data, 0);
 		};
 	}

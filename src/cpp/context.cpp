@@ -38,7 +38,7 @@ JS_METHOD(createContext) { NAPI_ENV;
 	int err = CL_SUCCESS;
 	cl_context ctx = clCreateContext(
 		&cl_properties.front(),
-		(int) cl_devices.size(),
+		static_cast<cl_uint>(cl_devices.size()),
 		&cl_devices.front(),
 		nullptr, // TODO: callback support
 		nullptr,
@@ -54,10 +54,10 @@ JS_METHOD(createContext) { NAPI_ENV;
 
 // extern CL_API_ENTRY cl_context CL_API_CALL
 // clCreateContextFromType(const cl_context_properties * /* properties */,
-//                         cl_device_type          /* device_type */,
-//                         void (CL_CALLBACK *     /* pfn_notify*/ )(const char *, const void *, size_t, void *),
-//                         void *                  /* user_data */,
-//                         cl_int *                /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
+//    cl_device_type      /* device_type */,
+//    void (CL_CALLBACK * /* pfn_notify*/ )(const char *, const void *, size_t, void *),
+//    void *              /* user_data */,
+//    cl_int *            /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(createContextFromType) { NAPI_ENV;
 	
 	REQ_ARRAY_ARG(0, js_properties);
