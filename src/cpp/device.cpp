@@ -362,7 +362,7 @@ JS_METHOD(createSubDevices) { NAPI_ENV;
 	}
 
 	cl_uint capacity = 0;
-	cl_device_partition_property pps [] = {
+	cl_device_partition_property pps[] = {
 		CL_DEVICE_PARTITION_BY_COUNTS,
 		3,
 		1,

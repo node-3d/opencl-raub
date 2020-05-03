@@ -97,6 +97,6 @@ private:
 	REQ_WRAP_ARG(I, _wrap_##VAR);                                             \
 	TYPE VAR = _wrap_##VAR->as<TYPE>();
 
-}
+} // namespace opencl
 
 #endif

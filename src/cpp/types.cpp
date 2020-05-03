@@ -161,4 +161,4 @@ int Wrapper::release() {
 	return _release(_data);
 }
 
-}
+} // namespace opencl

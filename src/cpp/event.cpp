@@ -34,8 +34,7 @@ JS_METHOD(getEventInfo) { NAPI_ENV;
 	REQ_UINT32_ARG(1, param_name);
 	
 	switch(param_name) {
-		case CL_EVENT_COMMAND_QUEUE:
-		{
+		case CL_EVENT_COMMAND_QUEUE: {
 			cl_command_queue val;
 			CHECK_ERR(clGetEventInfo(
 				ev,
@@ -47,8 +46,7 @@ JS_METHOD(getEventInfo) { NAPI_ENV;
 			CHECK_ERR(clRetainCommandQueue(val));
 			RET_WRAPPER(val);
 		}
-		case CL_EVENT_CONTEXT:
-		{
+		case CL_EVENT_CONTEXT: {
 			cl_context val;
 			CHECK_ERR(clGetEventInfo(
 				ev,
@@ -59,8 +57,7 @@ JS_METHOD(getEventInfo) { NAPI_ENV;
 			CHECK_ERR(clRetainContext(val));
 			RET_WRAPPER(val);
 		}
-		case CL_EVENT_COMMAND_TYPE:
-		{
+		case CL_EVENT_COMMAND_TYPE: {
 			cl_command_type val;
 			CHECK_ERR(clGetEventInfo(
 				ev,
@@ -71,14 +68,12 @@ JS_METHOD(getEventInfo) { NAPI_ENV;
 			));
 			RET_NUM(val);
 		}
-		case CL_EVENT_COMMAND_EXECUTION_STATUS:
-		{
+		case CL_EVENT_COMMAND_EXECUTION_STATUS: {
 			cl_int val;
 			CHECK_ERR(clGetEventInfo(ev, param_name, sizeof(cl_int), &val, nullptr));
 			RET_NUM(val);
 		}
-		case CL_EVENT_REFERENCE_COUNT:
-		{
+		case CL_EVENT_REFERENCE_COUNT: {
 			cl_uint val;
 			CHECK_ERR(clGetEventInfo(ev, param_name, sizeof(cl_uint), &val, nullptr));
 			RET_NUM(val);
@@ -159,8 +154,7 @@ JS_METHOD(getEventProfilingInfo) { NAPI_ENV;
 		case CL_PROFILING_COMMAND_QUEUED:
 		case CL_PROFILING_COMMAND_SUBMIT:
 		case CL_PROFILING_COMMAND_START:
-		case CL_PROFILING_COMMAND_END:
-		{
+		case CL_PROFILING_COMMAND_END: {
 			/**
 				JS Compatibility
 				
@@ -200,7 +194,7 @@ public:
 		_refEvent.Reset(wrapper, 1);
 		_refData.Reset(userData, 1);
 		this->async = new uv_async_t();
-		this->async->data = (void*) this;
+		this->async->data = reinterpret_cast<void*>(this);
 		uv_async_init(
 			uv_default_loop(),
 			this->async,
@@ -210,7 +204,7 @@ public:
 	}
 	
 	~EventWorker() {
-		uv_close((uv_handle_t*)this->async, &delete_async_handle);
+		uv_close(reinterpret_cast<uv_handle_t*>(this->async), &delete_async_handle);
 	}
 	
 	uv_async_t *async;
@@ -248,7 +242,7 @@ private:
 };
 
 void EventWorker::delete_async_handle(uv_handle_t *handle) {
-	delete (uv_async_t *) handle;
+	delete reinterpret_cast<uv_async_t*>(handle);
 }
 
 void EventWorker::dispatched_async_uv_callback(uv_async_t *req) {

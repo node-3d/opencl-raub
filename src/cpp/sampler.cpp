@@ -71,8 +71,7 @@ JS_METHOD(getSamplerInfo) { NAPI_ENV;
 	REQ_UINT32_ARG(1, param_name);
 	
 	switch(param_name) {
-		case CL_SAMPLER_REFERENCE_COUNT:
-		{
+		case CL_SAMPLER_REFERENCE_COUNT: {
 			cl_uint val;
 			CHECK_ERR(clGetSamplerInfo(
 				sampler,
@@ -83,8 +82,7 @@ JS_METHOD(getSamplerInfo) { NAPI_ENV;
 			));
 			RET_NUM(val);
 		}
-		case CL_SAMPLER_CONTEXT:
-		{
+		case CL_SAMPLER_CONTEXT: {
 			cl_context val;
 			CHECK_ERR(clGetSamplerInfo(
 				sampler,
@@ -95,8 +93,7 @@ JS_METHOD(getSamplerInfo) { NAPI_ENV;
 			));
 			RET_UNDEFINED;
 		}
-		case CL_SAMPLER_NORMALIZED_COORDS:
-		{
+		case CL_SAMPLER_NORMALIZED_COORDS: {
 			cl_bool val;
 			CHECK_ERR(clGetSamplerInfo(
 				sampler,
@@ -107,8 +104,7 @@ JS_METHOD(getSamplerInfo) { NAPI_ENV;
 			));
 			RET_BOOL(val == CL_TRUE);
 		}
-		case CL_SAMPLER_ADDRESSING_MODE:
-		{
+		case CL_SAMPLER_ADDRESSING_MODE: {
 			cl_addressing_mode val;
 			CHECK_ERR(clGetSamplerInfo(
 				sampler,
@@ -119,8 +115,7 @@ JS_METHOD(getSamplerInfo) { NAPI_ENV;
 			));
 			RET_NUM(val);
 		}
-		case CL_SAMPLER_FILTER_MODE:
-		{
+		case CL_SAMPLER_FILTER_MODE: {
 			cl_filter_mode val;
 			CHECK_ERR(clGetSamplerInfo(
 				sampler,

@@ -81,6 +81,4 @@ const char* getExceptionMessage(const cl_int code) {
 	}
 }
 
-}
-
-// namespace opencl
+} // namespace opencl
