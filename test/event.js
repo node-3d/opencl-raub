@@ -96,7 +96,7 @@ describe('Event', function () {
 			});
 		});
 		
-		skip().it('should throw an error because 2 change of the values for the same user event', function () {
+		skip().it('throws when 2 changes of the values for the same user event', function () {
 			U.withContext(function (ctx) {
 				let uEvent = cl.createUserEvent(ctx);
 				cl.setUserEventStatus(uEvent, cl.COMPLETE);

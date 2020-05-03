@@ -1698,7 +1698,16 @@ describe('CommandQueue', function () {
 			U.withContext(function (ctx, device) {
 				U.withCQ(ctx, device, function (cq) {
 					let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
-					let ret = cl.enqueueMapImage(cq, image, false, cl.MAP_READ, [0, 0, 0], [2, 2, 1], [], true);
+					let ret = cl.enqueueMapImage(
+						cq,
+						image,
+						false,
+						cl.MAP_READ,
+						[0, 0, 0],
+						[2, 2, 1],
+						[],
+						true
+					);
 					let u8s = new Uint8Array(ret);
 					assert.instanceOf(u8s.buffer, ArrayBuffer);
 					assert.isNumber(u8s[0]);
@@ -1711,7 +1720,16 @@ describe('CommandQueue', function () {
 			U.withContext(function (ctx, device) {
 				U.withCQ(ctx, device, function (cq) {
 					let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
-					let ret = cl.enqueueMapImage(cq, image, false, cl.MAP_WRITE, [0, 0, 0], [2, 2, 1], [], true);
+					let ret = cl.enqueueMapImage(
+						cq,
+						image,
+						false,
+						cl.MAP_WRITE,
+						[0, 0, 0],
+						[2, 2, 1],
+						[],
+						true
+					);
 					let u8s = new Uint8Array(ret);
 					assert.instanceOf(u8s.buffer, ArrayBuffer);
 					assert.isNumber(u8s[0]);
@@ -1724,7 +1742,16 @@ describe('CommandQueue', function () {
 			U.withAsyncContext(function (ctx, device, _, ctxDone) {
 				U.withAsyncCQ(ctx, device, function (cq, cqDone) {
 					let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
-					let ret = cl.enqueueMapImage(cq, image, false, cl.MAP_READ, [0, 0, 0], [2, 2, 1], [], true);
+					let ret = cl.enqueueMapImage(
+						cq,
+						image,
+						false,
+						cl.MAP_READ,
+						[0, 0, 0],
+						[2, 2, 1],
+						[],
+						true
+					);
 
 					cl.setEventCallback(ret.event, cl.COMPLETE, function () {
 						let u8s = new Uint8Array(ret);
@@ -1744,8 +1771,17 @@ describe('CommandQueue', function () {
 			U.withAsyncContext(function (ctx, device, _, ctxDone) {
 				U.withAsyncCQ(ctx, device, function (cq, cqDone) {
 					let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
-					let ret = cl.enqueueMapImage(cq, image, false, cl.MAP_WRITE, [0, 0, 0], [2, 2, 1], [], true);
-
+					let ret = cl.enqueueMapImage(
+						cq,
+						image,
+						false,
+						cl.MAP_WRITE,
+						[0, 0, 0],
+						[2, 2, 1],
+						[],
+						true
+					);
+					
 					cl.setEventCallback(ret.event, cl.COMPLETE, function () {
 						let u8s = new Uint8Array(ret);
 						assert.instanceOf(u8s.buffer, ArrayBuffer);

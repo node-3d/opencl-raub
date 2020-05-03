@@ -121,7 +121,7 @@ JS_METHOD(createProgramWithBuiltInKernels) { NAPI_ENV;
 	std::vector<std::string> strNames;
 	std::vector<const char*> names;
 	for (size_t i = 0; i < namesLen; i++) {
-		if (!js_names.Get(i).IsString()) {
+		if ( ! js_names.Get(i).IsString() ) {
 			THROW_ERR(CL_INVALID_VALUE);
 			RET_UNDEFINED;
 		}
@@ -222,7 +222,7 @@ JS_METHOD(buildProgram) { NAPI_ENV;
 	REQ_CL_ARG(0, p, cl_program);
 	
 	std::vector<cl_device_id> cl_devices;
-	if (!IS_ARG_EMPTY(1)){
+	if ( ! IS_ARG_EMPTY(1) ) {
 		REQ_ARRAY_ARG(1, js_devices);
 		if (Wrapper::fromJsArray(js_devices, &cl_devices)) {
 			RET_UNDEFINED;
@@ -230,7 +230,7 @@ JS_METHOD(buildProgram) { NAPI_ENV;
 	}
 	
 	std::string options;
-	if (!IS_ARG_EMPTY(2)){
+	if ( ! IS_ARG_EMPTY(2) ) {
 		REQ_STR_ARG(2, str);
 		options = str;
 	}
@@ -238,7 +238,7 @@ JS_METHOD(buildProgram) { NAPI_ENV;
 	int err;
 	
 	// callback + userdata
-	if (!IS_ARG_EMPTY(3)) {
+	if ( ! IS_ARG_EMPTY(3) ) {
 		REQ_FUN_ARG(3, callback);
 		ProgramWorker* cb = new ProgramWorker(
 			callback,
@@ -287,7 +287,7 @@ JS_METHOD(compileProgram) { NAPI_ENV;
 	REQ_CL_ARG(0, p, cl_program);
 	
 	std::vector<cl_device_id> cl_devices;
-	if (!IS_ARG_EMPTY(1)){
+	if ( ! IS_ARG_EMPTY(1) ) {
 		REQ_ARRAY_ARG(1, js_devices);
 		if (Wrapper::fromJsArray(js_devices, &cl_devices)) {
 			RET_UNDEFINED;
@@ -295,13 +295,13 @@ JS_METHOD(compileProgram) { NAPI_ENV;
 	}
 	
 	std::string options;
-	if (!IS_ARG_EMPTY(2)){
+	if ( ! IS_ARG_EMPTY(2) ) {
 		REQ_STR_ARG(2, str);
 		options = str;
 	}
 	
 	std::vector<cl_program> program_headers;
-	if (!IS_ARG_EMPTY(3)){
+	if ( ! IS_ARG_EMPTY(3) ) {
 		REQ_ARRAY_ARG(3, js_programs);
 		if (Wrapper::fromJsArray(js_programs, &program_headers)) {
 			RET_UNDEFINED;
@@ -310,11 +310,11 @@ JS_METHOD(compileProgram) { NAPI_ENV;
 	
 	std::vector<std::string> strNames;
 	std::vector<const char*> names;
-	if (!IS_ARG_EMPTY(4)){
+	if ( ! IS_ARG_EMPTY(4) ) {
 		REQ_ARRAY_ARG(4, js_names);
 		size_t namesLen = js_names.Length();
 		for (size_t i = 0; i < namesLen; i++) {
-			if (!js_names.Get(i).IsString()) {
+			if ( ! js_names.Get(i).IsString())   {
 				THROW_ERR(CL_INVALID_VALUE);
 				RET_UNDEFINED;
 			}
@@ -329,7 +329,7 @@ JS_METHOD(compileProgram) { NAPI_ENV;
 	
 	int err;
 	
-	if (!IS_ARG_EMPTY(5)) {
+	if ( ! IS_ARG_EMPTY(5) ) {
 		REQ_FUN_ARG(5, callback);
 		ProgramWorker* cb = new ProgramWorker(
 			callback,
@@ -382,7 +382,7 @@ JS_METHOD(linkProgram) { NAPI_ENV;
 	REQ_CL_ARG(0, ctx, cl_context);
 	
 	std::vector<cl_device_id> cl_devices;
-	if (!IS_ARG_EMPTY(1)){
+	if ( ! IS_ARG_EMPTY(1) ) {
 		REQ_ARRAY_ARG(1, js_devices);
 		if (Wrapper::fromJsArray(js_devices, &cl_devices)) {
 			RET_UNDEFINED;
@@ -391,13 +391,13 @@ JS_METHOD(linkProgram) { NAPI_ENV;
 	
 
 	std::string options;
-	if (!IS_ARG_EMPTY(2)){
+	if ( ! IS_ARG_EMPTY(2) ) {
 		REQ_STR_ARG(2, str);
 		options = str;
 	}
 	
 	std::vector<cl_program> cl_programs;
-	if (!IS_ARG_EMPTY(3)){
+	if ( ! IS_ARG_EMPTY(3) ) {
 		REQ_ARRAY_ARG(3, js_programs);
 		if (Wrapper::fromJsArray(js_programs, &cl_programs)) {
 			RET_UNDEFINED;
@@ -409,7 +409,7 @@ JS_METHOD(linkProgram) { NAPI_ENV;
 	
 	cl_program prg;
 	
-	if (!IS_ARG_EMPTY(4)) {
+	if ( ! IS_ARG_EMPTY(4) ) {
 		REQ_FUN_ARG(4, callback);
 		ProgramWorker* cb = new ProgramWorker(
 			callback,

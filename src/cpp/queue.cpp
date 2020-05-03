@@ -900,8 +900,11 @@ JS_METHOD(enqueueCopyBufferToImage) { NAPI_ENV;
 
 // static std::unordered_map<void*, int> mapPointers;
 
-void CL_CALLBACK notifyMapCB (cl_event event, cl_int event_command_exec_status, void *user_data)
-{
+void CL_CALLBACK notifyMapCB (
+	cl_event event,
+	cl_int event_command_exec_status,
+	void *user_data
+) {
 	// NoCLMapCB* asyncCB = static_cast<NoCLMapCB*>(user_data);
 	// if (asyncCB!=nullptr)
 	//     asyncCB->CallBackIsDone();
@@ -953,7 +956,7 @@ JS_METHOD(enqueueMapBuffer) { NAPI_ENV;
 	}
 	
 	if (!blocking_map) {
-		// TODO? buf->SetIndexedPropertiesToExternalArrayData(
+		// TODO buf->SetIndexedPropertiesToExternalArrayData(
 		// 	nullptr,
 		// 	buf->GetIndexedPropertiesExternalArrayDataType(),
 		// 	0
@@ -1040,7 +1043,7 @@ JS_METHOD(enqueueMapImage) { NAPI_ENV;
 	}
 	
 	if (!blocking_map) {
-		//TODO? buf->SetIndexedPropertiesToExternalArrayData(nullptr, buf->GetIndexedPropertiesExternalArrayDataType(), 0);
+		// TODO buf->SetIndexedPropertiesToExternalArrayData(nullptr, buf->GetIndexedPropertiesExternalArrayDataType(), 0);
 		// NoCLMapCB* cb = new NoCLMapCB(buf, size, mPtr);
 		// err = clSetEventCallback(event, CL_COMPLETE, notifyMapCB, cb);
 		// CHECK_ERR(err)
