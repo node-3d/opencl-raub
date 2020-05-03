@@ -11,8 +11,8 @@ describe('Platform', function () {
 	// let platforms = cl.getPlatformIDs();
 	let platforms = [global.MAIN_PLATFORM];
 
-	describe('#getPlatformIDs()',function () {
-		it('should return an array',function () {
+	describe('#getPlatformIDs()', function () {
+		it('should return an array', function () {
 			let platforms = cl.getPlatformIDs();
 			assert.isArray(platforms);
 			assert.isAbove(platforms.length, 0);
@@ -20,7 +20,7 @@ describe('Platform', function () {
 	});
 
 	function testString(platform, name) {
-		it(name + ' should return a string',function (done) {
+		it(name + ' should return a string', function (done) {
 			let val = cl.getPlatformInfo(platform, eval('cl.' + name));
 			assert.isString(val);
 			done();
@@ -31,9 +31,9 @@ describe('Platform', function () {
 		describe(
 			(
 				'#getPlatformInfo() for ' +
-				cl.getPlatformInfo(p,cl.PLATFORM_VENDOR) +
+				cl.getPlatformInfo(p, cl.PLATFORM_VENDOR) +
 				' ' +
-				cl.getPlatformInfo(p,cl.PLATFORM_NAME)
+				cl.getPlatformInfo(p, cl.PLATFORM_NAME)
 			),
 			function () {
 				testString(p, 'PLATFORM_VERSION');
@@ -43,7 +43,7 @@ describe('Platform', function () {
 				testString(p, 'PLATFORM_EXTENSIONS');
 
 				// negative test cases
-				it('should throw cl.INVALID_VALUE with name=cl.DEVICE_TYPE_CPU',function () {
+				it('should throw cl.INVALID_VALUE with name=cl.DEVICE_TYPE_CPU', function () {
 					const getInfoBound = cl.getPlatformInfo.bind(
 						cl.getPlatformInfo,
 						p,
@@ -51,7 +51,7 @@ describe('Platform', function () {
 					);
 					expect(getInfoBound).to.throw(cl.INVALID_VALUE.message);
 				});
-				it('should throw cl.INVALID_VALUE with name=0x2000',function () {
+				it('should throw cl.INVALID_VALUE with name=0x2000', function () {
 					const getInfoBound = cl.getPlatformInfo.bind(
 						cl.getPlatformInfo,
 						p,
@@ -59,7 +59,7 @@ describe('Platform', function () {
 					);
 					expect(getInfoBound).to.throw(cl.INVALID_VALUE.message);
 				});
-				it('should throw cl.INVALID_VALUE with name=\'a string\'',function () {
+				it('should throw cl.INVALID_VALUE with name=\'a string\'', function () {
 					const getInfoBound = cl.getPlatformInfo.bind(
 						cl.getPlatformInfo,
 						p,
@@ -67,7 +67,7 @@ describe('Platform', function () {
 					);
 					expect(getInfoBound).to.throw('Argument 1 must be of type `Number`');
 				});
-				it('should throw cl.INVALID_VALUE with name=-123.56',function () {
+				it('should throw cl.INVALID_VALUE with name=-123.56', function () {
 					const getInfoBound = cl.getPlatformInfo.bind(
 						cl.getPlatformInfo,
 						p,
@@ -75,7 +75,7 @@ describe('Platform', function () {
 					);
 					expect(getInfoBound).to.throw(cl.INVALID_VALUE.message);
 				});
-				it('should throw cl.INVALID_PLATFORM with platform = null',function () {
+				it('should throw cl.INVALID_PLATFORM with platform = null', function () {
 					const getInfoBound = cl.getPlatformInfo.bind(
 						cl.getPlatformInfo,
 						null,
@@ -94,7 +94,7 @@ describe('Platform', function () {
 						expect(getInfoBound).to.throw('Argument 0 must be of type `Object`');
 					}
 				);
-				it('should throw cl.INVALID_PLATFORM with platform = 123',function () {
+				it('should throw cl.INVALID_PLATFORM with platform = 123', function () {
 					const getInfoBound = cl.getPlatformInfo.bind(
 						cl.getPlatformInfo,
 						123,
@@ -102,7 +102,7 @@ describe('Platform', function () {
 					);
 					expect(getInfoBound).to.throw('Argument 0 must be of type `Object`');
 				});
-				it('should throw cl.INVALID_PLATFORM with platform = [1,2,3]',function () {
+				it('should throw cl.INVALID_PLATFORM with platform = [1, 2, 3]', function () {
 					const getInfoBound = cl.getPlatformInfo.bind(
 						cl.getPlatformInfo,
 						[1, 2, 3],
@@ -110,7 +110,7 @@ describe('Platform', function () {
 					);
 					expect(getInfoBound).to.throw('Argument 0 must be a CL Wrapper.');
 				});
-				it('should throw cl.INVALID_PLATFORM with platform = new Array()',function () {
+				it('should throw cl.INVALID_PLATFORM with platform = new Array()', function () {
 					const getInfoBound = cl.getPlatformInfo.bind(
 						cl.getPlatformInfo,
 						[],

@@ -4,7 +4,7 @@ const cl = require('../');
 
 
 const getEventExecTime = event => {
-	// times are 64-bit values in nanoseconds. They are returned as [hi,lo] a 2-integer array
+	// times are 64-bit values in nanoseconds. They are returned as [hi, lo] a 2-integer array
 	// here we use the lo parts since this example is unlikely to go beyond 2^31 nanseconds per event.
 	let startTime = cl.getEventProfilingInfo (event, cl.PROFILING_COMMAND_START);
 	let endTime = cl.getEventProfilingInfo (event, cl.PROFILING_COMMAND_END);
@@ -41,7 +41,7 @@ else {
 	console.info('Found ' + devices.length + ' GPUs: ');
 	let device = devices[0];
 	for (let i = 0;i < devices.length;i++) {
-		let name = cl.getDeviceInfo(devices[i],cl.DEVICE_NAME);
+		let name = cl.getDeviceInfo(devices[i], cl.DEVICE_NAME);
 		console.info('  Devices ' + i + ': ' + name);
 		if (name.indexOf('Intel') == -1) // prefer discrete GPU
 			device = devices[i];
@@ -98,7 +98,7 @@ try {
 	kernel = cl.createKernel(program, 'saxpy_kernel');
 }
 catch (err) {
-	console.console.log(program.getBuildInfo(device,cl.PROGRAM_BUILD_LOG));
+	console.console.log(program.getBuildInfo(device, cl.PROGRAM_BUILD_LOG));
 }
 
 // Set kernel args

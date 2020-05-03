@@ -500,7 +500,7 @@ JS_METHOD(getProgramInfo) { NAPI_ENV;
 		case CL_PROGRAM_DEVICES:
 		{
 			size_t n = 0;
-			CHECK_ERR(clGetProgramInfo(prog,param_name, 0, nullptr, &n));
+			CHECK_ERR(clGetProgramInfo(prog, param_name, 0, nullptr, &n));
 			n /= sizeof(cl_device_id);
 			
 			std::unique_ptr<cl_device_id[]> devices(new cl_device_id[n]);
@@ -594,7 +594,7 @@ JS_METHOD(getProgramInfo) { NAPI_ENV;
 		case CL_PROGRAM_NUM_KERNELS:
 		{
 			size_t val;
-			CHECK_ERR(clGetProgramInfo(prog,param_name,sizeof(size_t), &val, nullptr))
+			CHECK_ERR(clGetProgramInfo(prog, param_name, sizeof(size_t), &val, nullptr))
 			RET_NUM(val);
 		}
 		case CL_PROGRAM_KERNEL_NAMES:

@@ -5,7 +5,7 @@ const cl = require('../');
 
 let BUFFER_SIZE = 10;
 
-const printResults = (A,B,C) => {
+const printResults = (A, B, C) => {
 	//Print input vectors and result vector
 	let output = '\nA = ';
 	for (let i = 0; i < BUFFER_SIZE; i++) {
@@ -47,7 +47,7 @@ else {
 	console.info('Found ' + devices.length + ' GPUs: ');
 	let device = devices[0];
 	for (let i = 0;i < devices.length;i++) {
-		let name = cl.getDeviceInfo(devices[i],cl.DEVICE_NAME);
+		let name = cl.getDeviceInfo(devices[i], cl.DEVICE_NAME);
 		console.info('  Devices ' + i + ': ' + name);
 		if (name.indexOf('Intel') == -1) // prefer discrete GPU
 			device = devices[i];
@@ -87,7 +87,7 @@ try {
 	kernel = cl.createKernel(program, 'vadd');
 }
 catch (err) {
-	console.log(cl.getProgramBuildInfo(program, device,cl.PROGRAM_BUILD_LOG));
+	console.log(cl.getProgramBuildInfo(program, device, cl.PROGRAM_BUILD_LOG));
 }
 
 // Create buffer for A and copy host contents
@@ -157,7 +157,7 @@ console.log(output);
 
 cl.finish(queue); // Finish all the operations
 
-printResults(A,B,C);
+printResults(A, B, C);
 
 // cleanup
 // cl.releaseAll();

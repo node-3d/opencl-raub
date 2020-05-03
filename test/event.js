@@ -15,8 +15,8 @@ let isValid = function (e) {
 
 describe('Event', function () {
 
-	describe('#createUserEvent',function () {
-		skip().vendor('nVidia').it('should create user Event',function () {
+	describe('#createUserEvent', function () {
+		skip().vendor('nVidia').it('should create user Event', function () {
 			U.withContext(function (ctx) {
 				let uEvent = cl.createUserEvent(ctx);
 				isValid(uEvent);
@@ -25,8 +25,8 @@ describe('Event', function () {
 		});
 	});
 
-	describe('#getEventInfo',function () {
-		function testNumber(info,name,expected) {
+	describe('#getEventInfo', function () {
+		function testNumber(info, name, expected) {
 			skip().vendor('nVidia').it('should return the good value for ' + name, function () {
 				U.withContext(function (ctx) {
 					let uEvent = cl.createUserEvent(ctx);
@@ -38,7 +38,7 @@ describe('Event', function () {
 			});
 		}
 
-		function testObject(info,name) {
+		function testObject(info, name) {
 			skip().vendor('nVidia').it('should return the good value for ' + name, function () {
 				U.withContext(function (ctx, device) {
 					U.withCQ(ctx, device, function () {
@@ -52,7 +52,7 @@ describe('Event', function () {
 			});
 		}
 		
-		testNumber('event status to cl.SUBMITTED','EVENT_COMMAND_EXECUTION_STATUS',cl.SUBMITTED);
+		testNumber('event status to cl.SUBMITTED','EVENT_COMMAND_EXECUTION_STATUS', cl.SUBMITTED);
 		
 		// AMD It returns 2
 		skip().vendor('AMD').vendor('nVidia').it(
@@ -68,38 +68,38 @@ describe('Event', function () {
 			}
 		);
 
-		testNumber('event type to UserEvent','EVENT_COMMAND_TYPE',cl.COMMAND_USER);
+		testNumber('event type to UserEvent','EVENT_COMMAND_TYPE', cl.COMMAND_USER);
 		testObject('the context','EVENT_CONTEXT');
 		// testObject("the command queue","EVENT_COMMAND_QUEUE");
 
 	});
 
-	describe('#setUserEventStatus',function () {
+	describe('#setUserEventStatus', function () {
 
-		skip().vendor('nVidia').it('should set the status to the good value',function () {
+		skip().vendor('nVidia').it('should set the status to the good value', function () {
 			U.withContext(function (ctx) {
 				let uEvent = cl.createUserEvent(ctx);
-				cl.setUserEventStatus(uEvent,cl.COMPLETE);
-				let result = cl.getEventInfo(uEvent,cl.EVENT_COMMAND_EXECUTION_STATUS);
-				assert.strictEqual(result,cl.COMPLETE);
+				cl.setUserEventStatus(uEvent, cl.COMPLETE);
+				let result = cl.getEventInfo(uEvent, cl.EVENT_COMMAND_EXECUTION_STATUS);
+				assert.strictEqual(result, cl.COMPLETE);
 				cl.releaseEvent(uEvent);
 			});
 		});
 		
 		//bug in amd driver?
-		skip().it('should throw an error for invalid value',function () {
+		skip().it('should throw an error for invalid value', function () {
 			U.withContext(function (ctx) {
 				let uEvent = cl.createUserEvent(ctx);
-				const setStatusBound = cl.setUserEventStatus.bind(cl.setUserEvent,uEvent,-1);
+				const setStatusBound = cl.setUserEventStatus.bind(cl.setUserEvent, uEvent,-1);
 				expect(setStatusBound).to.throw(cl.INVALID_VALUE.message);
 				cl.releaseEvent(uEvent);
 			});
 		});
 		
-		skip().it('should throw an error because 2 change of the values for the same user event',function () {
+		skip().it('should throw an error because 2 change of the values for the same user event', function () {
 			U.withContext(function (ctx) {
 				let uEvent = cl.createUserEvent(ctx);
-				cl.setUserEventStatus(uEvent,cl.COMPLETE);
+				cl.setUserEventStatus(uEvent, cl.COMPLETE);
 				const setStatusBound = cl.setUserEventStatus.bind(
 					cl.setUserEvent,
 					uEvent,
@@ -141,8 +141,8 @@ describe('Event', function () {
 
 	});
 
-	describe('#setEventCallback',function () {
-		skip().vendor('nVidia').it('callback should be called',function (done) {
+	describe('#setEventCallback', function () {
+		skip().vendor('nVidia').it('callback should be called', function (done) {
 			U.withAsyncContext(function (ctx, device, platform, ctxDone) {
 				let myCallback = function (userData, status, mEvent) {
 					// assert(ctx === cl.getEventInfo(mEvent, cl.EVENT_CONTEXT), 'ctx === event ctx');
@@ -151,8 +151,8 @@ describe('Event', function () {
 					userData.done();
 				};
 				let mEvent = cl.createUserEvent(ctx);
-				cl.setEventCallback(mEvent,cl.COMPLETE,myCallback,{done:done});
-				cl.setUserEventStatus(mEvent,cl.COMPLETE);
+				cl.setEventCallback(mEvent, cl.COMPLETE, myCallback,{done:done});
+				cl.setUserEventStatus(mEvent, cl.COMPLETE);
 			});
 		});
 	});

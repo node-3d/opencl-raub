@@ -62,7 +62,7 @@ if (cl.createCommandQueueWithProperties !== undefined) {
 cl.enqueueNDRangeKernel(cq, kern, 1, null, [NVALUES], null);
 
 cl.enqueueReadBuffer(cq, outputsMem, true, 0, NVALUES * BYTES_PER_ELEMENT, outputs);
-// should contains i^2 for i=0,...,10000-1
+// should contains i^2 for i=0,..., 10000-1
 
 cl.finish(cq);
 
@@ -105,7 +105,7 @@ cl.setKernelArg(kern2, 2, 'uint', NVALUES);
 cl.enqueueNDRangeKernel(cq, kern2, 1, null, [NVALUES], null);
 
 cl.enqueueReadBuffer(cq, outputsMem2, true, 0, NVALUES * BYTES_PER_ELEMENT, outputs2);
-// should contains i^2 for i=0,...,10000-1
+// should contains i^2 for i=0,..., 10000-1
 
 cl.finish(cq);
 

@@ -417,7 +417,7 @@ describe('CommandQueue', function () {
 		it('should fill a buffer with a scallar float pattern', function () {
 			U.withContext(function (ctx, device) {
 				U.withCQ(ctx, device, function (cq) {
-					let array = new Buffer([0,0,0,0,0,0,0,0]);
+					let array = new Buffer([0, 0, 0, 0, 0, 0, 0, 0]);
 
 					let buffer = cl.createBuffer(ctx, cl.MEM_USE_HOST_PTR, 32, array);
 					let ret = cl.enqueueFillBuffer(cq, buffer, 2.5, 0, 16);
@@ -430,10 +430,10 @@ describe('CommandQueue', function () {
 		it('should fill a buffer with a vector pattern', function () {
 			U.withContext(function (ctx, device) {
 				U.withCQ(ctx, device, function (cq) {
-					let array = new Buffer([0,0,0,0,0,0,0,0]);
+					let array = new Buffer([0, 0, 0, 0, 0, 0, 0, 0]);
 
 					// INTEGER VECTOR
-					let pattern = new Buffer([1,2]);
+					let pattern = new Buffer([1, 2]);
 
 					let buffer = cl.createBuffer(ctx, cl.MEM_USE_HOST_PTR, 32, array);
 					let ret = cl.enqueueFillBuffer(cq, buffer, pattern, 0, 16);
@@ -446,10 +446,10 @@ describe('CommandQueue', function () {
 		it('should fill a buffer with a vector pattern', function () {
 			U.withContext(function (ctx, device) {
 				U.withCQ(ctx, device, function (cq) {
-					let array = new Buffer([0,0,0,0,0,0,0,0]);
+					let array = new Buffer([0, 0, 0, 0, 0, 0, 0, 0]);
 
 					// FLOAT VECTOR
-					let pattern = new Buffer([1.5,2.5]);
+					let pattern = new Buffer([1.5, 2.5]);
 
 					let buffer = cl.createBuffer(ctx, cl.MEM_USE_HOST_PTR, 32, array);
 					let ret = cl.enqueueFillBuffer(cq, buffer, pattern, 0, 16);
@@ -715,7 +715,7 @@ describe('CommandQueue', function () {
 		});
 	});
 
-	let createImageWrapper = function (ctx,flags, imageFormat, imageDesc, hostmem) {
+	let createImageWrapper = function (ctx, flags, imageFormat, imageDesc, hostmem) {
 		return cl.createImage(ctx, flags, imageFormat, imageDesc, hostmem);
 	};
 
@@ -741,8 +741,8 @@ describe('CommandQueue', function () {
 						cq,
 						image,
 						true,
-						[0,0,0],
-						[8,8,1],
+						[0, 0, 0],
+						[8, 8, 1],
 						0,
 						0,
 						new Buffer(32)
@@ -761,8 +761,8 @@ describe('CommandQueue', function () {
 							cq,
 							null,
 							true,
-							[0,0,0],
-							[8,8,1],
+							[0, 0, 0],
+							[8, 8, 1],
 							0,
 							0,
 							new Buffer(64)
@@ -783,8 +783,8 @@ describe('CommandQueue', function () {
 							cq,
 							image,
 							true,
-							[0,0,0],
-							[8,8,1],
+							[0, 0, 0],
+							[8, 8, 1],
 							12,
 							1000,
 							new Buffer(64)
@@ -807,8 +807,8 @@ describe('CommandQueue', function () {
 							cq,
 							image,
 							true,
-							[0,0,0],
-							[8,8,1],
+							[0, 0, 0],
+							[8, 8, 1],
 							12,
 							1000,
 							new Buffer(64)
@@ -835,7 +835,7 @@ describe('CommandQueue', function () {
 								image,
 								true,
 								invalidOrigin,
-								[8,8,1],
+								[8, 8, 1],
 								0,
 								0,
 								new Buffer(64)
@@ -854,13 +854,13 @@ describe('CommandQueue', function () {
 					U.withCQ(ctx, device, function (cq) {
 						let image = createImageWrapper(ctx, 0, imageFormat, imageDesc);
 						// this will cause an INVALID_VALUE exception
-						let outOfBoundRegion = [9,9,1];
+						let outOfBoundRegion = [9, 9, 1];
 						expect(
 							() => cl.enqueueReadImage(
 								cq,
 								image,
 								true,
-								[0,0,0],
+								[0, 0, 0],
 								outOfBoundRegion,
 								0,
 								0,
@@ -881,13 +881,13 @@ describe('CommandQueue', function () {
 						let image = createImageWrapper(ctx, 0, imageFormat, imageDesc);
 						// This will cause an INVALID_VALUE exception
 						// (region[2] must be 1 for 2D images)
-						let invalidRegion = [8,8,2];
+						let invalidRegion = [8, 8, 2];
 						expect(
 							() => cl.enqueueReadImage(
 								cq,
 								image,
 								true,
-								[0,0,0],
+								[0, 0, 0],
 								invalidRegion,
 								0,
 								0,
@@ -924,8 +924,8 @@ describe('CommandQueue', function () {
 						cq,
 						image,
 						true,
-						[0,0,0],
-						[8,8,1],
+						[0, 0, 0],
+						[8, 8, 1],
 						0,
 						0,
 						new Buffer(32)
@@ -953,8 +953,8 @@ describe('CommandQueue', function () {
 							cq,
 							image,
 							true,
-							[0,0,0],
-							[8,8,1],
+							[0, 0, 0],
+							[8, 8, 1],
 							0,
 							0,
 							new Buffer(32)
@@ -984,8 +984,8 @@ describe('CommandQueue', function () {
 								cq,
 								image,
 								true,
-								[0,0,0],
-								[8,8,1],
+								[0, 0, 0],
+								[8, 8, 1],
 								0,
 								0,
 								new Buffer(32)
@@ -1005,15 +1005,15 @@ describe('CommandQueue', function () {
 						let image = createImageWrapper(ctx, 0, imageFormat, imageDesc);
 
 						// This will trigger a cl.INVALID_VALUE exception
-						// (origin must be [0,0,0]
-						let invalidOrigin = [1,1,1];
+						// (origin must be [0, 0, 0]
+						let invalidOrigin = [1, 1, 1];
 						expect(
 							() => cl.enqueueWriteImage(
 								cq,
 								image,
 								true,
 								invalidOrigin,
-								[8,8,1],
+								[8, 8, 1],
 								0,
 								0,
 								new Buffer(32)
@@ -1034,7 +1034,7 @@ describe('CommandQueue', function () {
 
 						// This will trigger a cl.INVALID_VALUE exception
 						// (region[2] must be 1 for 2D images)
-						let invalidRegion = [8,8,2];
+						let invalidRegion = [8, 8, 2];
 						expect(
 							() => cl.enqueueWriteImage(
 								cq,
@@ -1062,7 +1062,7 @@ describe('CommandQueue', function () {
 
 						// This will trigger a cl.INVALID_VALUE exception
 						// (region[2] must be 1 for 2D images)
-						let outOfBoundRegion = [9,9,1];
+						let outOfBoundRegion = [9, 9, 1];
 						expect(
 							() => cl.enqueueWriteImage(
 								cq,
@@ -1100,9 +1100,9 @@ describe('CommandQueue', function () {
 			U.withContext(function (ctx, device) {
 				U.withCQ(ctx, device, function (cq) {
 					let image = createImageWrapper(ctx, 0, imageFormat, imageDesc);
-					let color = new Buffer([0.5,0.5,0.5,0.5]);
+					let color = new Buffer([0.5, 0.5, 0.5, 0.5]);
 
-					let ret = cl.enqueueFillImage(cq, image, color, [0,0,0], [8,8,1]);
+					let ret = cl.enqueueFillImage(cq, image, color, [0, 0, 0], [8, 8, 1]);
 
 					cl.releaseMemObject(image);
 					assert.strictEqual(ret, cl.SUCCESS);
@@ -1117,7 +1117,7 @@ describe('CommandQueue', function () {
 					let color = null;
 
 					expect(
-						() => cl.enqueueFillImage(cq, image, color, [0,0,0], [8,8,1])
+						() => cl.enqueueFillImage(cq, image, color, [0, 0, 0], [8, 8, 1])
 					).to.throw('Argument 2 must be of type `Object`');
 					cl.releaseMemObject(image);
 				});
@@ -1129,10 +1129,10 @@ describe('CommandQueue', function () {
 				U.withCQ(ctx, device, function (cq) {
 					let image = createImageWrapper(ctx, 0, imageFormat, imageDesc);
 					let color = new Buffer([0.5, 0.5, 0.5, 0.5]);
-					let outOfBoundsRegion = [9,9,1];
+					let outOfBoundsRegion = [9, 9, 1];
 
 					expect(
-						() => cl.enqueueFillImage(cq, image, color, [0,0,0], outOfBoundsRegion)
+						() => cl.enqueueFillImage(cq, image, color, [0, 0, 0], outOfBoundsRegion)
 					).to.throw(cl.INVALID_VALUE.message);
 					cl.releaseMemObject(image);
 				});
@@ -1146,10 +1146,10 @@ describe('CommandQueue', function () {
 					let color = new Buffer([0.5, 0.5, 0.5, 0.5]);
 
 					// origin[2] must be 0
-					let invalidOrigin = [0,0,1];
+					let invalidOrigin = [0, 0, 1];
 
 					expect(
-						() => cl.enqueueFillImage(cq, image, color, invalidOrigin, [8,8,1])
+						() => cl.enqueueFillImage(cq, image, color, invalidOrigin, [8, 8, 1])
 					).to.throw(cl.INVALID_VALUE.message);
 					cl.releaseMemObject(image);
 				});
@@ -1163,10 +1163,10 @@ describe('CommandQueue', function () {
 					let color = new Buffer([0.5, 0.5, 0.5, 0.5]);
 
 					// origin[2] must be 1
-					let invalidRegion = [8,8,0];
+					let invalidRegion = [8, 8, 0];
 
 					expect(
-						() => cl.enqueueFillImage(cq, image, color, [0,0,0], invalidRegion)
+						() => cl.enqueueFillImage(cq, image, color, [0, 0, 0], invalidRegion)
 					).to.throw(cl.INVALID_VALUE.message);
 					cl.releaseMemObject(image);
 				});
@@ -1180,10 +1180,10 @@ describe('CommandQueue', function () {
 					let color = new Buffer([0.5, 0.5, 0.5, 0.5]);
 
 					// origin[2] must be 1
-					let invalidRegion = [8,8,0];
+					let invalidRegion = [8, 8, 0];
 
 					expect(
-						() => cl.enqueueFillImage(cq, image, color, [0,0,0], invalidRegion)
+						() => cl.enqueueFillImage(cq, image, color, [0, 0, 0], invalidRegion)
 					).to.throw('Argument 1 must be of type `Object`');
 				});
 			});
@@ -1417,7 +1417,7 @@ describe('CommandQueue', function () {
 					let buffer = cl.createBuffer(ctx, cl.MEM_HOST_READ_ONLY, 64, null);
 
 					// origin[2] must be 0
-					let invalidOrigin = [1,1,1];
+					let invalidOrigin = [1, 1, 1];
 					expect(
 						() => cl.enqueueCopyImageToBuffer(
 							cq,
@@ -1448,7 +1448,7 @@ describe('CommandQueue', function () {
 					let buffer = cl.createBuffer(ctx, cl.MEM_HOST_READ_ONLY, 64, null);
 
 					// region[2] must be 1
-					let invalidRegion = [1,1,2];
+					let invalidRegion = [1, 1, 2];
 					expect(
 						() => cl.enqueueCopyImageToBuffer(
 							cq,
@@ -1543,7 +1543,7 @@ describe('CommandQueue', function () {
 					let buffer = cl.createBuffer(ctx, cl.MEM_HOST_WRITE_ONLY, 8, null);
 
 					// origin[2] must be 0
-					let invalidOrigin = [1,1,1];
+					let invalidOrigin = [1, 1, 1];
 					expect(
 						() => cl.enqueueCopyBufferToImage(
 							cq,
@@ -1568,7 +1568,7 @@ describe('CommandQueue', function () {
 					let buffer = cl.createBuffer(ctx, cl.MEM_HOST_WRITE_ONLY, 8, null);
 
 					// region[2] must be 1
-					let invalidRegion = [1,1,2];
+					let invalidRegion = [1, 1, 2];
 					expect(
 						() => cl.enqueueCopyBufferToImage(
 							cq,
@@ -1592,7 +1592,7 @@ describe('CommandQueue', function () {
 			U.withContext(function (ctx, device) {
 				U.withCQ(ctx, device, function (cq) {
 					let buf = cl.createBuffer(ctx, cl.MEM_READ_WRITE, 8, null);
-					let ret = cl.enqueueMapBuffer(cq, buf, true, cl.MAP_READ, 0, 8,[],false);
+					let ret = cl.enqueueMapBuffer(cq, buf, true, cl.MAP_READ, 0, 8,[], false);
 					let u8s = new Uint8Array(ret);
 					assert.instanceOf(u8s.buffer, ArrayBuffer);
 					assert.equal(u8s.buffer.byteLength, 8);
@@ -1651,7 +1651,7 @@ describe('CommandQueue', function () {
 			U.withContext(function (ctx, device) {
 				U.withCQ(ctx, device, function (cq) {
 					let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
-					let ret = cl.enqueueMapImage(cq, image, true, cl.MAP_READ, [0,0,0], [2,2,1]);
+					let ret = cl.enqueueMapImage(cq, image, true, cl.MAP_READ, [0, 0, 0], [2, 2, 1]);
 					let u8s = new Uint8Array(ret);
 					assert.instanceOf(u8s.buffer, ArrayBuffer);
 					assert.isNumber(u8s[0]);
@@ -1664,7 +1664,7 @@ describe('CommandQueue', function () {
 			U.withContext(function (ctx, device) {
 				U.withCQ(ctx, device, function (cq) {
 					let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
-					let ret = cl.enqueueMapImage(cq, image, true, cl.MAP_WRITE, [0,0,0], [2,2,1]);
+					let ret = cl.enqueueMapImage(cq, image, true, cl.MAP_WRITE, [0, 0, 0], [2, 2, 1]);
 					let u8s = new Uint8Array(ret);
 					assert.instanceOf(u8s.buffer, ArrayBuffer);
 					assert.isNumber(u8s[0]);
@@ -1682,8 +1682,8 @@ describe('CommandQueue', function () {
 						image,
 						true,
 						cl.MAP_WRITE_INVALIDATE_REGION,
-						[0,0,0],
-						[2,2,1]
+						[0, 0, 0],
+						[2, 2, 1]
 					);
 					let u8s = new Uint8Array(ret);
 					assert.instanceOf(u8s.buffer, ArrayBuffer);
@@ -1698,7 +1698,7 @@ describe('CommandQueue', function () {
 			U.withContext(function (ctx, device) {
 				U.withCQ(ctx, device, function (cq) {
 					let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
-					let ret = cl.enqueueMapImage(cq, image, false, cl.MAP_READ, [0,0,0], [2,2,1], [], true);
+					let ret = cl.enqueueMapImage(cq, image, false, cl.MAP_READ, [0, 0, 0], [2, 2, 1], [], true);
 					let u8s = new Uint8Array(ret);
 					assert.instanceOf(u8s.buffer, ArrayBuffer);
 					assert.isNumber(u8s[0]);
@@ -1711,7 +1711,7 @@ describe('CommandQueue', function () {
 			U.withContext(function (ctx, device) {
 				U.withCQ(ctx, device, function (cq) {
 					let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
-					let ret = cl.enqueueMapImage(cq, image, false, cl.MAP_WRITE, [0,0,0], [2,2,1], [], true);
+					let ret = cl.enqueueMapImage(cq, image, false, cl.MAP_WRITE, [0, 0, 0], [2, 2, 1], [], true);
 					let u8s = new Uint8Array(ret);
 					assert.instanceOf(u8s.buffer, ArrayBuffer);
 					assert.isNumber(u8s[0]);
@@ -1724,7 +1724,7 @@ describe('CommandQueue', function () {
 			U.withAsyncContext(function (ctx, device, _, ctxDone) {
 				U.withAsyncCQ(ctx, device, function (cq, cqDone) {
 					let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
-					let ret = cl.enqueueMapImage(cq, image, false, cl.MAP_READ, [0,0,0], [2,2,1], [], true);
+					let ret = cl.enqueueMapImage(cq, image, false, cl.MAP_READ, [0, 0, 0], [2, 2, 1], [], true);
 
 					cl.setEventCallback(ret.event, cl.COMPLETE, function () {
 						let u8s = new Uint8Array(ret);
@@ -1744,7 +1744,7 @@ describe('CommandQueue', function () {
 			U.withAsyncContext(function (ctx, device, _, ctxDone) {
 				U.withAsyncCQ(ctx, device, function (cq, cqDone) {
 					let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
-					let ret = cl.enqueueMapImage(cq, image, false, cl.MAP_WRITE, [0,0,0], [2,2,1], [], true);
+					let ret = cl.enqueueMapImage(cq, image, false, cl.MAP_WRITE, [0, 0, 0], [2, 2, 1], [], true);
 
 					cl.setEventCallback(ret.event, cl.COMPLETE, function () {
 						let u8s = new Uint8Array(ret);
@@ -1780,7 +1780,7 @@ describe('CommandQueue', function () {
 			U.withContext(function (ctx, device) {
 				U.withCQ(ctx, device, function (cq) {
 					let buf = cl.createBuffer(ctx, 0, 8, null);
-					let ret = cl.enqueueMapBuffer(cq, buf, true, cl.MAP_READ, 0, 8,[],false);
+					let ret = cl.enqueueMapBuffer(cq, buf, true, cl.MAP_READ, 0, 8,[], false);
 					let u8s = new Uint8Array(ret);
 					assert.instanceOf(u8s.buffer, ArrayBuffer);
 					let res = cl.enqueueUnmapMemObject(cq, buf, u8s.buffer);

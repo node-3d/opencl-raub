@@ -151,7 +151,7 @@ JS_METHOD(createImage) { NAPI_ENV;
 	
 	// if (host_ptr) {
 	//   NoCLAvoidGC* user_data = new NoCLAvoidGC(info[3].As<Object>());
-	//   clSetMemObjectDestructorCallback(mem,notifyFreeClMemObj,user_data);
+	//   clSetMemObjectDestructorCallback(mem, notifyFreeClMemObj, user_data);
 	// }
 	
 	RET_WRAPPER(mem);

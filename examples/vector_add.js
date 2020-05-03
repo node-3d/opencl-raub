@@ -6,7 +6,7 @@ const cl = require('../');
 const BUFFER_SIZE = 10;
 
 
-const printResults = (A,B,C) => {
+const printResults = (A, B, C) => {
 	// Print input vectors and result vector
 	let output = '\nA = ';
 	for (let i = 0; i < BUFFER_SIZE; i++) {
@@ -35,13 +35,13 @@ for (let i = 0; i < BUFFER_SIZE; i++) {
 
 const platforms = cl.getPlatformIDs();
 for (let i = 0;i < platforms.length;i++)
-	console.log('Platform ' + i + ': ' + cl.getPlatformInfo(platforms[i],cl.PLATFORM_NAME));
+	console.log('Platform ' + i + ': ' + cl.getPlatformInfo(platforms[i], cl.PLATFORM_NAME));
 let platform = platforms[0];
 console.log('platform', platform);
 
 const devices = cl.getDeviceIDs(platform, cl.DEVICE_TYPE_ALL);
 for (let i = 0;i < devices.length;i++)
-	console.log('  Devices ' + i + ': ' + cl.getDeviceInfo(devices[i],cl.DEVICE_NAME));
+	console.log('  Devices ' + i + ': ' + cl.getDeviceInfo(devices[i], cl.DEVICE_NAME));
 
 console.log('creating context');
 
@@ -112,7 +112,7 @@ const C = new Uint32Array(BUFFER_SIZE);
 cl.enqueueReadBuffer (queue, cBuffer, true, 0, C.length * Uint32Array.BYTES_PER_ELEMENT, C);
 
 // print results
-printResults(A,B,C);
+printResults(A, B, C);
 
 // cleanup
 // test release each CL object

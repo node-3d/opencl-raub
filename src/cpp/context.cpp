@@ -168,7 +168,7 @@ JS_METHOD(getContextInfo) { NAPI_ENV;
 	}
 	case CL_CONTEXT_PROPERTIES: {
 		size_t n = 0;
-		CHECK_ERR(clGetContextInfo(context,param_name,0,nullptr, &n));
+		CHECK_ERR(clGetContextInfo(context, param_name, 0, nullptr, &n));
 		std::unique_ptr<cl_context_properties[]> ctx(new cl_context_properties[n]);
 		CHECK_ERR(clGetContextInfo(
 			context,

@@ -105,12 +105,12 @@ public:
 			func_t f = [](Napi::Value val)                                       \
 				-> std::tuple<size_t, void*, cl_int> {                                  \
 				if (!val.IsNumber()){                                                      \
-				 return std::tuple<size_t, void*,cl_int>(0, nullptr, CL_INVALID_ARG_VALUE);\
+				 return std::tuple<size_t, void*, cl_int>(0, nullptr, CL_INVALID_ARG_VALUE);\
 				}                                                                       \
 				void* ptr_data = new TYPE;                                              \
 				size_t ptr_size = sizeof(TYPE);                                         \
 				*((TYPE *)ptr_data) = (TYPE) val.ToNumber().DoubleValue();              \
-				return std::tuple<size_t, void*,cl_int>(ptr_size, ptr_data, 0);         \
+				return std::tuple<size_t, void*, cl_int>(ptr_size, ptr_data, 0);         \
 			};                                                                        \
 			m_converters[NAME] = f;                                                   \
 		 }
@@ -136,12 +136,12 @@ public:
 			 func_t f = [](Napi::Value val) -> std::tuple<size_t, void*, cl_int> {       \
 				if (!val.IsArray()) {                                                           \
 					/*THROW_ERR(CL_INVALID_ARG_VALUE);  */                                        \
-					return std::tuple<size_t,void*,cl_int>(0, nullptr, CL_INVALID_ARG_VALUE);     \
+					return std::tuple<size_t, void*, cl_int>(0, nullptr, CL_INVALID_ARG_VALUE);     \
 				}                                                                               \
 				Napi::Array arr = val.As<Napi::Array>();                                        \
 				if (arr.Length() != I) {                                                        \
 					/*THROW_ERR(CL_INVALID_ARG_SIZE);*/                                           \
-					return std::tuple<size_t,void*,cl_int>(0, nullptr, CL_INVALID_ARG_SIZE);      \
+					return std::tuple<size_t, void*, cl_int>(0, nullptr, CL_INVALID_ARG_SIZE);      \
 				}                                                                               \
 				TYPE * vvc = new TYPE[I];                                                       \
 				size_t ptr_size = sizeof(TYPE) * I;                                             \
@@ -150,11 +150,11 @@ public:
 					if (!arr.Get(i).IsNumber()) {                                                     \
 						/*THROW_ERR(CL_INVALID_ARG_VALUE);*/                                        \
 						/*THROW_ERR(CL_INVALID_ARG_VALUE);*/                                        \
-						return std::tuple<size_t,void*,cl_int>(0, nullptr, CL_INVALID_ARG_VALUE);   \
+						return std::tuple<size_t, void*, cl_int>(0, nullptr, CL_INVALID_ARG_VALUE);   \
 					}                                                                             \
 					vvc[i] = (TYPE) arr.Get(i).ToNumber().DoubleValue();                          \
 				}                                                                               \
-				return std::tuple<size_t,void*,cl_int>(ptr_size, ptr_data, 0);                  \
+				return std::tuple<size_t, void*, cl_int>(ptr_size, ptr_data, 0);                  \
 			};                                                                                \
 			m_converters[NAME #I ] = f;                                                       \
 			}
@@ -186,7 +186,7 @@ public:
 				size_t ptr_size = sizeof(cl_bool);
 				void* ptr_data = new cl_bool;
 				*((cl_bool *)ptr_data) = val.ToBoolean().Value() ? 1 : 0;
-				return std::tuple<size_t,void*,cl_int>(ptr_size, ptr_data, 0);
+				return std::tuple<size_t, void*, cl_int>(ptr_size, ptr_data, 0);
 		};
 	}
 	
@@ -338,7 +338,7 @@ JS_METHOD(getKernelInfo) { NAPI_ENV;
 				&nchars
 			));
 			std::unique_ptr<char[]> name(new char[nchars]);
-			CHECK_ERR(clGetKernelInfo(kernel,param_name,nchars,name.get(),nullptr));
+			CHECK_ERR(clGetKernelInfo(kernel, param_name, nchars, name.get(), nullptr));
 			RET_STR(name.get());
 		}
 		case CL_KERNEL_NUM_ARGS:

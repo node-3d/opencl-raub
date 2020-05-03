@@ -273,7 +273,7 @@ JS_METHOD(enqueueReadBufferRect) { NAPI_ENV;
 		buffer_row_pitch,
 		buffer_slice_pitch,
 		host_row_pitch,
-		host_slice_pitch,ptr,
+		host_slice_pitch, ptr,
 		(cl_uint)cl_events.size(),
 		&cl_events.front(),
 		eventPtr
@@ -587,8 +587,8 @@ JS_METHOD(enqueueReadImage) { NAPI_ENV;
 	
 	size_t srcOriginArrayLen = std::max(srcOriginArray.Length(), 2u);
 	size_t regionArrayLen = std::max(regionArray.Length(), 2u);
-	size_t origin[] = {0,0,0};
-	size_t region[] = {1,1,1};
+	size_t origin[] = {0, 0, 0};
+	size_t region[] = {1, 1, 1};
 	
 	for(size_t i = 0; i < srcOriginArrayLen; i++) {
 		origin[i] = srcOriginArray.Get(i).ToNumber().Int64Value();
@@ -651,8 +651,8 @@ JS_METHOD(enqueueWriteImage) { NAPI_ENV;
 	
 	size_t srcOriginArrayLen = std::max(srcOriginArray.Length(), 2u);
 	size_t regionArrayLen = std::max(regionArray.Length(), 2u);
-	size_t origin[] = {0,0,0};
-	size_t region[] = {1,1,1};
+	size_t origin[] = {0, 0, 0};
+	size_t region[] = {1, 1, 1};
 	
 	for(size_t i = 0; i < srcOriginArrayLen; i++) {
 		origin[i] = srcOriginArray.Get(i).ToNumber().Int64Value();
@@ -717,8 +717,8 @@ JS_METHOD(enqueueFillImage) { NAPI_ENV;
 		RET_UNDEFINED;
 	}
 	
-	size_t origin[] = {0,0,0};
-	size_t region[] = {1,1,1};
+	size_t origin[] = {0, 0, 0};
+	size_t region[] = {1, 1, 1};
 	size_t srcOriginArrayLen = std::max(srcOriginArray.Length(), 2u);
 	size_t regionArrayLen = std::max(regionArray.Length(), 2u);
 	
@@ -868,8 +868,8 @@ JS_METHOD(enqueueCopyBufferToImage) { NAPI_ENV;
 	REQ_ARRAY_ARG(4, dstOriginArray);
 	REQ_ARRAY_ARG(5, regionArray);
 
-	size_t dst_origin[] = {0,0,0};
-	size_t region[] = {1,1,1};
+	size_t dst_origin[] = {0, 0, 0};
+	size_t region[] = {1, 1, 1};
 	size_t dstOriginArrayLen = std::max(dstOriginArray.Length(), 2u);
 	size_t regionArrayLen = std::max(regionArray.Length(), 2u);
 	
@@ -898,7 +898,7 @@ JS_METHOD(enqueueCopyBufferToImage) { NAPI_ENV;
 	
 }
 
-// static std::unordered_map<void*,int> mapPointers;
+// static std::unordered_map<void*, int> mapPointers;
 
 void CL_CALLBACK notifyMapCB (cl_event event, cl_int event_command_exec_status, void *user_data)
 {
@@ -958,8 +958,8 @@ JS_METHOD(enqueueMapBuffer) { NAPI_ENV;
 		// 	buf->GetIndexedPropertiesExternalArrayDataType(),
 		// 	0
 		// );
-		// NoCLMapCB* cb = new NoCLMapCB(buf,size,mPtr);
-		// err = clSetEventCallback(event,CL_COMPLETE,notifyMapCB,cb);
+		// NoCLMapCB* cb = new NoCLMapCB(buf, size, mPtr);
+		// err = clSetEventCallback(event, CL_COMPLETE, notifyMapCB, cb);
 		// CHECK_ERR(err)
 	}
 	
@@ -989,8 +989,8 @@ JS_METHOD(enqueueMapImage) { NAPI_ENV;
 	REQ_ARRAY_ARG(4, srcOriginArray);
 	REQ_ARRAY_ARG(5, regionArray);
 	
-	size_t origin[] = {0,0,0};
-	size_t region[] = {1,1,1};
+	size_t origin[] = {0, 0, 0};
+	size_t region[] = {1, 1, 1};
 	size_t srcOriginArrayLen = std::max(srcOriginArray.Length(), 2u);
 	size_t regionArrayLen = std::max(regionArray.Length(), 2u);
 	
@@ -1041,8 +1041,8 @@ JS_METHOD(enqueueMapImage) { NAPI_ENV;
 	
 	if (!blocking_map) {
 		//TODO? buf->SetIndexedPropertiesToExternalArrayData(nullptr, buf->GetIndexedPropertiesExternalArrayDataType(), 0);
-		// NoCLMapCB* cb = new NoCLMapCB(buf,size,mPtr);
-		// err = clSetEventCallback(event,CL_COMPLETE,notifyMapCB,cb);
+		// NoCLMapCB* cb = new NoCLMapCB(buf, size, mPtr);
+		// err = clSetEventCallback(event, CL_COMPLETE, notifyMapCB, cb);
 		// CHECK_ERR(err)
 	}
 	
@@ -1056,7 +1056,7 @@ JS_METHOD(enqueueMapImage) { NAPI_ENV;
 //
 //  cl_int ret = CL_SUCCESS;
 //  void *ptr = clEnqueueMapImage(
-//    clQueue,image->getRaw(),blocking_map,map_flags,
+//    clQueue, image->getRaw(), blocking_map, map_flags,
 //    origin, region, (size_t*)image_row_pitch, (size_t*)image_slice_pitch,
 //    cl_events.size(), NOCL_TO_CL_ARRAY(cl_events, NoCLEvent),
 //    event ? &event : nullptr,
@@ -1333,7 +1333,7 @@ JS_METHOD(enqueueReleaseGLObjects) { NAPI_ENV;
 	REQ_CL_ARG(0, queue, cl_command_queue);
 	REQ_CL_ARG(1, mem, cl_mem);
 	
-	CHECK_ERR(clEnqueueReleaseGLObjects(queue, 1, &mem, 0,0,0 ) );
+	CHECK_ERR(clEnqueueReleaseGLObjects(queue, 1, &mem, 0, 0, 0 ) );
 	
 	RET_NUM(CL_SUCCESS);
 	

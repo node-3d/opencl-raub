@@ -57,7 +57,7 @@ describe('Program', function () {
 		});
 
 		it('should build and call the callback using a valid program', function (done) {
-			U.withAsyncContext(function (ctx,device,platform,ctxDone) {
+			U.withAsyncContext(function (ctx, device, platform, ctxDone) {
 				let mCB = function (prg, userData) {
 					assert.isNotNull(prg);
 					assert.isDefined(prg);
@@ -66,7 +66,7 @@ describe('Program', function () {
 					userData.done();
 				};
 				let prg = cl.createProgramWithSource(ctx, squareKern);
-				let ret = cl.buildProgram(prg,undefined,undefined,mCB,{done:done});
+				let ret = cl.buildProgram(prg, undefined, undefined, mCB,{done:done});
 				assert(ret == cl.SUCCESS);
 			});
 		});
@@ -250,7 +250,7 @@ describe('Program', function () {
 		});
 
 		it('should build and call the callback with no input header', function (done) {
-			U.withAsyncContext(function (ctx,device,platform,ctxDone) {
+			U.withAsyncContext(function (ctx, device, platform, ctxDone) {
 				let mCB = function (prg, userData) {
 					assert.isNotNull(prg);
 					assert.isDefined(prg);
@@ -350,7 +350,7 @@ describe('Program', function () {
 		});
 		
 		it('should success in linking one program and call the callback', function (done) {
-			U.withAsyncContext(function (ctx,device,platform,ctxDone) {
+			U.withAsyncContext(function (ctx, device, platform, ctxDone) {
 				let mCB = function (p, userData) {
 					assert.isNotNull(userData.prg);
 					assert.isDefined(userData.prg);

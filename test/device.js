@@ -11,8 +11,8 @@ describe('Device', function () {
 
 	let platform = global.MAIN_PLATFORM;
 
-	describe('#getDeviceIDs()',function () {
-		it('should return an array',function () {
+	describe('#getDeviceIDs()', function () {
+		it('should return an array', function () {
 			let ids = cl.getDeviceIDs(platform);
 			assert.isArray(ids);
 			assert.isAbove(ids.length, 0);
@@ -20,34 +20,34 @@ describe('Device', function () {
 	});
 
 	function testBoolean(device, name, vendorsToSkip = []) {
-		skip().vendor(...vendorsToSkip).it(name + ' should return a boolean',function (done) {
+		skip().vendor(...vendorsToSkip).it(name + ' should return a boolean', function (done) {
 			let val = cl.getDeviceInfo(device, cl[name.toUpperCase()]);
 			assert.isBoolean(val);
 			done();
 		});
 	}
 	function testInteger(device, name, vendorsToSkip = []) {
-		skip().vendor(...vendorsToSkip).it(name + ' should return an integer',function (done) {
+		skip().vendor(...vendorsToSkip).it(name + ' should return an integer', function (done) {
 			let val = cl.getDeviceInfo(device, cl[name.toUpperCase()]);
 			assert.isNumber(val);
 			done();
 		});
 	}
 	function testString(device, name, vendorsToSkip = []) {
-		skip().vendor(...vendorsToSkip).it(name + ' should return a string',function (done) {
+		skip().vendor(...vendorsToSkip).it(name + ' should return a string', function (done) {
 			let val = cl.getDeviceInfo(device, cl[name.toUpperCase()]);
 			assert.isString(val);
 			done();
 		});
 	}
 	function testObject(device, name, vendorsToSkip = []) {
-		skip().vendor(...vendorsToSkip).it(name + ' should return an object',function () {
+		skip().vendor(...vendorsToSkip).it(name + ' should return an object', function () {
 			let info = cl.getDeviceInfo(device, cl[name.toUpperCase()]);
 			assert.isObject(info);
 		});
 	}
 	function testArray(device, name, vendorsToSkip = []) {
-		skip().vendor(...vendorsToSkip).it(name + ' should return an array',function (done) {
+		skip().vendor(...vendorsToSkip).it(name + ' should return an array', function (done) {
 			let val = cl.getDeviceInfo(device, cl[name.toUpperCase()]);
 			assert.isArray(val);
 			done();
@@ -55,7 +55,7 @@ describe('Device', function () {
 	}
 
 	function test64Array(device, name, vendorsToSkip = []) {
-		skip().vendor(...vendorsToSkip).it(name + ' should return a 2 integers array',function (done) {
+		skip().vendor(...vendorsToSkip).it(name + ' should return a 2 integers array', function (done) {
 			let val = cl.getDeviceInfo(device, cl[name.toUpperCase()]);
 			assert.isArray(val);
 			assert.isNumber(val[0]);
@@ -65,10 +65,10 @@ describe('Device', function () {
 	}
 
 	function testDevice(device) {
-		let deviceVendor = cl.getDeviceInfo(device,cl.DEVICE_VENDOR);
-		let deviceName = cl.getDeviceInfo(device,cl.DEVICE_NAME);
+		let deviceVendor = cl.getDeviceInfo(device, cl.DEVICE_VENDOR);
+		let deviceName = cl.getDeviceInfo(device, cl.DEVICE_NAME);
 
-		describe('#getDeviceInfo() for ' + deviceVendor + ' ' + deviceName,function () {
+		describe('#getDeviceInfo() for ' + deviceVendor + ' ' + deviceName, function () {
 			testString(device, 'DEVICE_NAME');
 			testString(device, 'DEVICE_VENDOR');
 			testString(device, 'DEVICE_PROFILE');
@@ -78,7 +78,7 @@ describe('Device', function () {
 			// testString(device, "DEVICE_BUILT_IN_KERNELS");
 			// testString(device, "DEVICE_SPIR_VERSIONS");
 			testString(device, 'DRIVER_VERSION');
-			let ext = cl.getDeviceInfo(device,cl.DEVICE_EXTENSIONS);
+			let ext = cl.getDeviceInfo(device, cl.DEVICE_EXTENSIONS);
 			let hasFP16 = ext.toLowerCase().match(/cl_khr_fp16/g);
 			let hasFP64 = ext.toLowerCase().match(/cl_khr_fp64/g);
 			testObject(device, 'DEVICE_PLATFORM');
@@ -162,46 +162,46 @@ describe('Device', function () {
 			testInteger(device, 'DEVICE_IMAGE_MAX_ARRAY_SIZE');
 
 			//// negative test cases
-			it('should throw cl.INVALID_VALUE with name=-123.56',function () {
-				const getInfoBound = cl.getDeviceInfo.bind(cl,device,-123.56);
+			it('should throw cl.INVALID_VALUE with name=-123.56', function () {
+				const getInfoBound = cl.getDeviceInfo.bind(cl, device,-123.56);
 				expect(getInfoBound).to.throw(cl.INVALID_VALUE.message);
 			});
-			it('should throw cl.INVALID_VALUE with name=\'a string\'',function () {
-				const getInfoBound = cl.getDeviceInfo.bind(cl,device,'a string');
+			it('should throw cl.INVALID_VALUE with name=\'a string\'', function () {
+				const getInfoBound = cl.getDeviceInfo.bind(cl, device,'a string');
 				expect(getInfoBound).to.throw('Argument 1 must be of type `Uint32`');
 			});
-			it('should throw cl.INVALID_VALUE with name=123456',function () {
-				const getInfoBound = cl.getDeviceInfo.bind(cl,device,123456);
+			it('should throw cl.INVALID_VALUE with name=123456', function () {
+				const getInfoBound = cl.getDeviceInfo.bind(cl, device, 123456);
 				expect(getInfoBound).to.throw(cl.INVALID_VALUE.message);
 			});
-			it('should throw cl.INVALID_DEVICE with device = null',function () {
-				const getInfoBound = cl.getDeviceInfo.bind(cl,null,123);
+			it('should throw cl.INVALID_DEVICE with device = null', function () {
+				const getInfoBound = cl.getDeviceInfo.bind(cl, null, 123);
 				expect(getInfoBound).to.throw('Argument 0 must be of type `Object`');
 			});
-			it('should throw cl.INVALID_DEVICE with device = \'a string\'',function () {
-				const getInfoBound = cl.getDeviceInfo.bind(cl,'a string',123);
+			it('should throw cl.INVALID_DEVICE with device = \'a string\'', function () {
+				const getInfoBound = cl.getDeviceInfo.bind(cl,'a string', 123);
 				expect(getInfoBound).to.throw('Argument 0 must be of type `Object`');
 			});
-			it('should throw cl.INVALID_DEVICE with device = 123',function () {
-				const getInfoBound = cl.getDeviceInfo.bind(cl,123,123);
+			it('should throw cl.INVALID_DEVICE with device = 123', function () {
+				const getInfoBound = cl.getDeviceInfo.bind(cl, 123, 123);
 				expect(getInfoBound).to.throw('Argument 0 must be of type `Object`');
 			});
-			it('should throw cl.INVALID_DEVICE with device = [1,2,3]',function () {
-				const getInfoBound = cl.getDeviceInfo.bind(cl,[1,2,3],123);
+			it('should throw cl.INVALID_DEVICE with device = [1, 2, 3]', function () {
+				const getInfoBound = cl.getDeviceInfo.bind(cl,[1, 2, 3], 123);
 				expect(getInfoBound).to.throw('Argument 0 must be a CL Wrapper.');
 			});
-			it('should throw cl.INVALID_DEVICE with device = new Array()',function () {
-				const getInfoBound = cl.getDeviceInfo.bind(cl,[],123);
+			it('should throw cl.INVALID_DEVICE with device = new Array()', function () {
+				const getInfoBound = cl.getDeviceInfo.bind(cl,[], 123);
 				expect(getInfoBound).to.throw('Argument 0 must be a CL Wrapper.');
 			});
 
 		});
 
-		describe('#createSubDevices() for ' + deviceVendor + ' ' + deviceName,function () {
+		describe('#createSubDevices() for ' + deviceVendor + ' ' + deviceName, function () {
 
 
 			let num = cl.getDeviceInfo(device, cl.DEVICE_PARTITION_MAX_SUB_DEVICES);
-			cl.getDeviceInfo(device,cl.DEVICE_VENDOR);
+			cl.getDeviceInfo(device, cl.DEVICE_VENDOR);
 
 			if (num > 0)
 			{
@@ -275,7 +275,7 @@ describe('Device', function () {
 				});
 			}
 
-			it('should throw cl.INVALID_DEVICE with device = null',function () {
+			it('should throw cl.INVALID_DEVICE with device = null', function () {
 				const createBound = cl.createSubDevices.bind(
 					cl,
 					null,
@@ -285,20 +285,20 @@ describe('Device', function () {
 				expect(createBound).to.throw('Argument 0 must be of type `Object`');
 			});
 
-			it('should throw cl.INVALID_VALUE with properties = null',function () {
+			it('should throw cl.INVALID_VALUE with properties = null', function () {
 				const createBound = cl.createSubDevices.bind(cl, device, null, 2);
 				expect(createBound).to.throw('Argument 1 must be of type `Array`');
 			});
 
 		});
-		describe('#retainDevice() for ' + deviceVendor + ' ' + deviceName,function () {
+		describe('#retainDevice() for ' + deviceVendor + ' ' + deviceName, function () {
 
 			it('should throw cl.INVALID_DEVICE if device is not a subdevice', function () {
 				const retainBound = cl.retainDevice.bind(cl, device);
 				expect(retainBound).to.throw(cl.INVALID_DEVICE.message);
 			});
 
-			it('should increase device reference count',function () {
+			it('should increase device reference count', function () {
 				try {
 					let subDevice = cl.createSubDevices(device, cl.DEVICE_PARTITION_BY_COUNTS, 2);
 					cl.retainDevice(subDevice);
@@ -312,14 +312,14 @@ describe('Device', function () {
 				}
 			});
 		});
-		describe('#releaseDevice() for ' + deviceVendor + ' ' + deviceName,function () {
+		describe('#releaseDevice() for ' + deviceVendor + ' ' + deviceName, function () {
 
 			it('should throw cl.INVALID_DEVICE if device is not a subdevice', function () {
 				const retainBound = cl.releaseDevice.bind(cl, device);
 				expect(retainBound).to.throw(cl.INVALID_DEVICE.message);
 			});
 
-			it('should decrease device reference count',function () {
+			it('should decrease device reference count', function () {
 				try {
 					let subDevice = cl.createSubDevices(device, cl.DEVICE_PARTITION_BY_COUNTS, 2);
 					cl.retainDevice(subDevice);

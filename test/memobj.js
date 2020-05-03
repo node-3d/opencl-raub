@@ -648,7 +648,7 @@ describe('MemObj', function () {
 
 		var createImageWrapper = function (ctx) {
 			if (cl.VERSION_1_1 && ! cl.VERSION_1_2) {
-				return cl.createImage2D(ctx,0,imageFormat,imageDesc.width,imageDesc.height,0,null);
+				return cl.createImage2D(ctx, 0, imageFormat, imageDesc.width, imageDesc.height, 0, null);
 			}
 			else {
 				return cl.createImage(ctx, 0, imageFormat, imageDesc, null);
