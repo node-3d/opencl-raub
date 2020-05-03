@@ -587,8 +587,8 @@ JS_METHOD(enqueueReadImage) { NAPI_ENV;
 	
 	size_t srcOriginArrayLen = std::max(srcOriginArray.Length(), 2u);
 	size_t regionArrayLen = std::max(regionArray.Length(), 2u);
-	size_t origin[]={0,0,0};
-	size_t region[]={1,1,1};
+	size_t origin[] = {0,0,0};
+	size_t region[] = {1,1,1};
 	
 	for(size_t i = 0; i < srcOriginArrayLen; i++) {
 		origin[i] = srcOriginArray.Get(i).ToNumber().Int64Value();
@@ -651,8 +651,8 @@ JS_METHOD(enqueueWriteImage) { NAPI_ENV;
 	
 	size_t srcOriginArrayLen = std::max(srcOriginArray.Length(), 2u);
 	size_t regionArrayLen = std::max(regionArray.Length(), 2u);
-	size_t origin[]={0,0,0};
-	size_t region[]={1,1,1};
+	size_t origin[] = {0,0,0};
+	size_t region[] = {1,1,1};
 	
 	for(size_t i = 0; i < srcOriginArrayLen; i++) {
 		origin[i] = srcOriginArray.Get(i).ToNumber().Int64Value();
@@ -717,8 +717,8 @@ JS_METHOD(enqueueFillImage) { NAPI_ENV;
 		RET_UNDEFINED;
 	}
 	
-	size_t origin[]={0,0,0};
-	size_t region[]={1,1,1};
+	size_t origin[] = {0,0,0};
+	size_t region[] = {1,1,1};
 	size_t srcOriginArrayLen = std::max(srcOriginArray.Length(), 2u);
 	size_t regionArrayLen = std::max(regionArray.Length(), 2u);
 	
@@ -868,8 +868,8 @@ JS_METHOD(enqueueCopyBufferToImage) { NAPI_ENV;
 	REQ_ARRAY_ARG(4, dstOriginArray);
 	REQ_ARRAY_ARG(5, regionArray);
 
-	size_t dst_origin[]={0,0,0};
-	size_t region[]={1,1,1};
+	size_t dst_origin[] = {0,0,0};
+	size_t region[] = {1,1,1};
 	size_t dstOriginArrayLen = std::max(dstOriginArray.Length(), 2u);
 	size_t regionArrayLen = std::max(regionArray.Length(), 2u);
 	
@@ -989,8 +989,8 @@ JS_METHOD(enqueueMapImage) { NAPI_ENV;
 	REQ_ARRAY_ARG(4, srcOriginArray);
 	REQ_ARRAY_ARG(5, regionArray);
 	
-	size_t origin[]={0,0,0};
-	size_t region[]={1,1,1};
+	size_t origin[] = {0,0,0};
+	size_t region[] = {1,1,1};
 	size_t srcOriginArrayLen = std::max(srcOriginArray.Length(), 2u);
 	size_t regionArrayLen = std::max(regionArray.Length(), 2u);
 	

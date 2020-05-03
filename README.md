@@ -31,3 +31,5 @@ OpenCL interfaces.
 
 By adding `true` to any `enqueueXXX()` methods, the `enqueueXXX()` returns
 a `cl.Event` that can be used to coordinate calls, profiling etc...
+
+See `examples` for more details.
