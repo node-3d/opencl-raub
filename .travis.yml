@@ -52,6 +52,7 @@ script:
   - npm test event
   - npm test kernel
   - npm test memobj
+  - npm test memobj-info
   - npm test platform
   - npm test program
   - npm test queues
