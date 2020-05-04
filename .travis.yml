@@ -57,6 +57,7 @@ script:
   - npm test queues
   - npm test queues-buffer
   - npm test queues-image
+  - npm test queues-image-copy
   - npm test sampler
 
 deploy:
