@@ -233,6 +233,87 @@ inline Napi::Value getDeviceInfoSize(Napi::Env env, cl_device_id device_id, uint
 	RET_NUM(param_value);
 }
 
+#define CASES_CL_STRING                                                                \
+	case CL_DEVICE_NAME:                                                               \
+	case CL_DEVICE_VENDOR:                                                             \
+	case CL_DRIVER_VERSION:                                                            \
+	case CL_DEVICE_PROFILE:                                                            \
+	case CL_DEVICE_VERSION:                                                            \
+	case CL_DEVICE_OPENCL_C_VERSION:                                                   \
+	case CL_DEVICE_EXTENSIONS:
+
+#define CASES_CL_FP                                                                    \
+	case CL_DEVICE_HALF_FP_CONFIG:                                                     \
+	case CL_DEVICE_SINGLE_FP_CONFIG:                                                   \
+	case CL_DEVICE_DOUBLE_FP_CONFIG:
+
+#define CASES_CL_UINT                                                                  \
+	case CL_DEVICE_ADDRESS_BITS:                                                       \
+	case CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE:                                          \
+	case CL_DEVICE_MAX_CLOCK_FREQUENCY:                                                \
+	case CL_DEVICE_MAX_COMPUTE_UNITS:                                                  \
+	case CL_DEVICE_MAX_CONSTANT_ARGS:                                                  \
+	case CL_DEVICE_MAX_READ_IMAGE_ARGS:                                                \
+	case CL_DEVICE_MAX_SAMPLERS:                                                       \
+	case CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS:                                           \
+	case CL_DEVICE_MAX_WRITE_IMAGE_ARGS:                                               \
+	case CL_DEVICE_MEM_BASE_ADDR_ALIGN:                                                \
+	case CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE:                                           \
+	case CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR:                                           \
+	case CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT:                                          \
+	case CL_DEVICE_NATIVE_VECTOR_WIDTH_INT:                                            \
+	case CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG:                                           \
+	case CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT:                                          \
+	case CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE:                                         \
+	case CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF:                                           \
+	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR:                                        \
+	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT:                                       \
+	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT:                                         \
+	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG:                                        \
+	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT:                                       \
+	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE:                                      \
+	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF:                                        \
+	case CL_DEVICE_VENDOR_ID:                                                          \
+#if !defined (__APPLE__)                                                               \
+	case CL_DEVICE_COMPUTE_CAPABILITY_MAJOR_NV:                                        \
+	case CL_DEVICE_COMPUTE_CAPABILITY_MINOR_NV:                                        \
+	case CL_DEVICE_REGISTERS_PER_BLOCK_NV:                                             \
+	case CL_DEVICE_WARP_SIZE_NV:                                                       \
+	case CL_DEVICE_GPU_OVERLAP_NV:                                                     \
+	case CL_DEVICE_KERNEL_EXEC_TIMEOUT_NV:                                             \
+	case CL_DEVICE_INTEGRATED_MEMORY_NV:                                               \
+#endif                                                                                 \
+	case CL_DEVICE_REFERENCE_COUNT:                                                    \
+	case CL_DEVICE_PARTITION_MAX_SUB_DEVICES:
+
+
+#define CASES_CL_BOOL                                                                  \
+	case CL_DEVICE_AVAILABLE:                                                          \
+	case CL_DEVICE_COMPILER_AVAILABLE:                                                 \
+	case CL_DEVICE_ENDIAN_LITTLE:                                                      \
+	case CL_DEVICE_ERROR_CORRECTION_SUPPORT:                                           \
+	case CL_DEVICE_HOST_UNIFIED_MEMORY:                                                \
+	case CL_DEVICE_IMAGE_SUPPORT:
+
+#define CASES_CL_ULONG                                                                 \
+	case CL_DEVICE_GLOBAL_MEM_CACHE_SIZE:                                              \
+	case CL_DEVICE_GLOBAL_MEM_SIZE:                                                    \
+	case CL_DEVICE_LOCAL_MEM_SIZE:                                                     \
+	case CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE:                                           \
+	case CL_DEVICE_MAX_MEM_ALLOC_SIZE:
+
+#define CASES_CL_SIZE                                                                  \
+	case CL_DEVICE_IMAGE2D_MAX_HEIGHT:                                                 \
+	case CL_DEVICE_IMAGE2D_MAX_WIDTH:                                                  \
+	case CL_DEVICE_IMAGE3D_MAX_DEPTH:                                                  \
+	case CL_DEVICE_IMAGE3D_MAX_HEIGHT:                                                 \
+	case CL_DEVICE_IMAGE3D_MAX_WIDTH:                                                  \
+	case CL_DEVICE_MAX_PARAMETER_SIZE:                                                 \
+	case CL_DEVICE_MAX_WORK_GROUP_SIZE:                                                \
+	case CL_DEVICE_PROFILING_TIMER_RESOLUTION:                                         \
+	case CL_DEVICE_IMAGE_MAX_BUFFER_SIZE:                                              \
+	case CL_DEVICE_IMAGE_MAX_ARRAY_SIZE:
+
 // extern CL_API_ENTRY cl_int CL_API_CALL
 // clGetDeviceInfo(cl_device_id    /* device */,
 //                 cl_device_info  /* param_name */,
@@ -245,13 +326,7 @@ JS_METHOD(getDeviceInfo) { NAPI_ENV;
 	REQ_UINT32_ARG(1, param_name);
 	
 	switch (param_name) {
-	case CL_DEVICE_NAME:
-	case CL_DEVICE_VENDOR:
-	case CL_DRIVER_VERSION:
-	case CL_DEVICE_PROFILE:
-	case CL_DEVICE_VERSION:
-	case CL_DEVICE_OPENCL_C_VERSION:
-	case CL_DEVICE_EXTENSIONS:
+	CASES_CL_STRING
 		return getDeviceInfoString(env, device_id, param_name);
 	case CL_DEVICE_PLATFORM:
 		return getDeviceInfoPlatform(env, device_id, param_name);
@@ -265,77 +340,17 @@ JS_METHOD(getDeviceInfo) { NAPI_ENV;
 		return getDeviceInfoCaps(env, device_id, param_name);
 	case CL_DEVICE_QUEUE_PROPERTIES:
 		return getDeviceInfoQueueProps(env, device_id, param_name);
-	case CL_DEVICE_HALF_FP_CONFIG:
-	case CL_DEVICE_SINGLE_FP_CONFIG:
-	case CL_DEVICE_DOUBLE_FP_CONFIG:
+	CASES_CL_FP
 		return getDeviceInfoFpConfig(env, device_id, param_name);
 	case CL_DEVICE_MAX_WORK_ITEM_SIZES:
 		return getDeviceInfoMaxWorkItem(env, device_id, param_name);
-	// cl_bool params
-	case CL_DEVICE_AVAILABLE:
-	case CL_DEVICE_COMPILER_AVAILABLE:
-	case CL_DEVICE_ENDIAN_LITTLE:
-	case CL_DEVICE_ERROR_CORRECTION_SUPPORT:
-	case CL_DEVICE_HOST_UNIFIED_MEMORY:
-	case CL_DEVICE_IMAGE_SUPPORT:
+	CASES_CL_BOOL
 		return getDeviceInfoBool(env, device_id, param_name);
-	// cl_uint params
-	case CL_DEVICE_ADDRESS_BITS:
-	case CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE:
-	case CL_DEVICE_MAX_CLOCK_FREQUENCY:
-	case CL_DEVICE_MAX_COMPUTE_UNITS:
-	case CL_DEVICE_MAX_CONSTANT_ARGS:
-	case CL_DEVICE_MAX_READ_IMAGE_ARGS:
-	case CL_DEVICE_MAX_SAMPLERS:
-	case CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS:
-	case CL_DEVICE_MAX_WRITE_IMAGE_ARGS:
-	case CL_DEVICE_MEM_BASE_ADDR_ALIGN:
-	case CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE:
-	case CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR:
-	case CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT:
-	case CL_DEVICE_NATIVE_VECTOR_WIDTH_INT:
-	case CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG:
-	case CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT:
-	case CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE:
-	case CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF:
-	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR:
-	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT:
-	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT:
-	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG:
-	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT:
-	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE:
-	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF:
-	case CL_DEVICE_VENDOR_ID:
-#if !defined (__APPLE__)
-	case CL_DEVICE_COMPUTE_CAPABILITY_MAJOR_NV:
-	case CL_DEVICE_COMPUTE_CAPABILITY_MINOR_NV:
-	case CL_DEVICE_REGISTERS_PER_BLOCK_NV:
-	case CL_DEVICE_WARP_SIZE_NV:
-	case CL_DEVICE_GPU_OVERLAP_NV:
-	case CL_DEVICE_KERNEL_EXEC_TIMEOUT_NV:
-	case CL_DEVICE_INTEGRATED_MEMORY_NV:
-#endif
-	case CL_DEVICE_REFERENCE_COUNT:
-	case CL_DEVICE_PARTITION_MAX_SUB_DEVICES:
+	CASES_CL_UINT
 		return getDeviceInfoUint(env, device_id, param_name);
-	// cl_ulong params
-	case CL_DEVICE_GLOBAL_MEM_CACHE_SIZE:
-	case CL_DEVICE_GLOBAL_MEM_SIZE:
-	case CL_DEVICE_LOCAL_MEM_SIZE:
-	case CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE:
-	case CL_DEVICE_MAX_MEM_ALLOC_SIZE:
+	CASES_CL_ULONG
 		return getDeviceInfoUlong(env, device_id, param_name);
-	// size_t params
-	case CL_DEVICE_IMAGE2D_MAX_HEIGHT:
-	case CL_DEVICE_IMAGE2D_MAX_WIDTH:
-	case CL_DEVICE_IMAGE3D_MAX_DEPTH:
-	case CL_DEVICE_IMAGE3D_MAX_HEIGHT:
-	case CL_DEVICE_IMAGE3D_MAX_WIDTH:
-	case CL_DEVICE_MAX_PARAMETER_SIZE:
-	case CL_DEVICE_MAX_WORK_GROUP_SIZE:
-	case CL_DEVICE_PROFILING_TIMER_RESOLUTION:
-	case CL_DEVICE_IMAGE_MAX_BUFFER_SIZE:
-	case CL_DEVICE_IMAGE_MAX_ARRAY_SIZE:
+	CASES_CL_SIZE
 		return getDeviceInfoSize(env, device_id, param_name);
 	default: break;
 	}
