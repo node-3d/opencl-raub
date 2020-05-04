@@ -102,6 +102,7 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
 	JS_CL_SET_METHOD(enqueueReleaseGLObjects);
 	
 	JS_CL_SET_METHOD(createContext);
+	JS_CL_SET_METHOD(createContextFromType);
 	JS_CL_SET_METHOD(retainContext);
 	JS_CL_SET_METHOD(releaseContext);
 	JS_CL_SET_METHOD(getContextInfo);

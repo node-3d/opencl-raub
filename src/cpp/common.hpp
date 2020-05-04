@@ -111,6 +111,7 @@ JS_METHOD(enqueueAcquireGLObjects);
 JS_METHOD(enqueueReleaseGLObjects);
 
 JS_METHOD(createContext);
+JS_METHOD(createContextFromType);
 JS_METHOD(retainContext);
 JS_METHOD(releaseContext);
 JS_METHOD(getContextInfo);

@@ -114,8 +114,7 @@ cl.enqueueReadBuffer (queue, cBuffer, true, 0, C.length * Uint32Array.BYTES_PER_
 // print results
 printResults(A, B, C);
 
-// cleanup
-// test release each CL object
+// Cleanup - release each CL object
 cl.releaseCommandQueue(queue);
 cl.releaseKernel(kernel);
 cl.releaseProgram(program);
@@ -123,10 +122,5 @@ cl.releaseMemObject(aBuffer);
 cl.releaseMemObject(bBuffer);
 cl.releaseMemObject(cBuffer);
 cl.releaseContext(context);
-
-// test release all CL objects
-// cl.releaseAll();
-
-// if no manual cleanup specified, cl.releaseAll() is called at exit of program
 
 console.log('DONE');
