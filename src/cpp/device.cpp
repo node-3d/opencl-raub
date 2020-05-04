@@ -247,45 +247,75 @@ inline Napi::Value getDeviceInfoSize(Napi::Env env, cl_device_id device_id, uint
 	case CL_DEVICE_SINGLE_FP_CONFIG:                                                   \
 	case CL_DEVICE_DOUBLE_FP_CONFIG:
 
-#define CASES_CL_UINT                                                                  \
-	case CL_DEVICE_ADDRESS_BITS:                                                       \
-	case CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE:                                          \
-	case CL_DEVICE_MAX_CLOCK_FREQUENCY:                                                \
-	case CL_DEVICE_MAX_COMPUTE_UNITS:                                                  \
-	case CL_DEVICE_MAX_CONSTANT_ARGS:                                                  \
-	case CL_DEVICE_MAX_READ_IMAGE_ARGS:                                                \
-	case CL_DEVICE_MAX_SAMPLERS:                                                       \
-	case CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS:                                           \
-	case CL_DEVICE_MAX_WRITE_IMAGE_ARGS:                                               \
-	case CL_DEVICE_MEM_BASE_ADDR_ALIGN:                                                \
-	case CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE:                                           \
-	case CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR:                                           \
-	case CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT:                                          \
-	case CL_DEVICE_NATIVE_VECTOR_WIDTH_INT:                                            \
-	case CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG:                                           \
-	case CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT:                                          \
-	case CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE:                                         \
-	case CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF:                                           \
-	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR:                                        \
-	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT:                                       \
-	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT:                                         \
-	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG:                                        \
-	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT:                                       \
-	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE:                                      \
-	case CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF:                                        \
-	case CL_DEVICE_VENDOR_ID:                                                          \
-#if !defined (__APPLE__)                                                               \
-	case CL_DEVICE_COMPUTE_CAPABILITY_MAJOR_NV:                                        \
-	case CL_DEVICE_COMPUTE_CAPABILITY_MINOR_NV:                                        \
-	case CL_DEVICE_REGISTERS_PER_BLOCK_NV:                                             \
-	case CL_DEVICE_WARP_SIZE_NV:                                                       \
-	case CL_DEVICE_GPU_OVERLAP_NV:                                                     \
-	case CL_DEVICE_KERNEL_EXEC_TIMEOUT_NV:                                             \
-	case CL_DEVICE_INTEGRATED_MEMORY_NV:                                               \
-#endif                                                                                 \
-	case CL_DEVICE_REFERENCE_COUNT:                                                    \
-	case CL_DEVICE_PARTITION_MAX_SUB_DEVICES:
 
+#if !defined (__APPLE__)
+	#define CASES_CL_UINT                                                              \
+		case CL_DEVICE_ADDRESS_BITS:                                                   \
+		case CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE:                                      \
+		case CL_DEVICE_MAX_CLOCK_FREQUENCY:                                            \
+		case CL_DEVICE_MAX_COMPUTE_UNITS:                                              \
+		case CL_DEVICE_MAX_CONSTANT_ARGS:                                              \
+		case CL_DEVICE_MAX_READ_IMAGE_ARGS:                                            \
+		case CL_DEVICE_MAX_SAMPLERS:                                                   \
+		case CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS:                                       \
+		case CL_DEVICE_MAX_WRITE_IMAGE_ARGS:                                           \
+		case CL_DEVICE_MEM_BASE_ADDR_ALIGN:                                            \
+		case CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE:                                       \
+		case CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR:                                       \
+		case CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT:                                      \
+		case CL_DEVICE_NATIVE_VECTOR_WIDTH_INT:                                        \
+		case CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG:                                       \
+		case CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT:                                      \
+		case CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE:                                     \
+		case CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF:                                       \
+		case CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR:                                    \
+		case CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT:                                   \
+		case CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT:                                     \
+		case CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG:                                    \
+		case CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT:                                   \
+		case CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE:                                  \
+		case CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF:                                    \
+		case CL_DEVICE_VENDOR_ID:                                                      \
+		case CL_DEVICE_COMPUTE_CAPABILITY_MAJOR_NV:                                    \
+		case CL_DEVICE_COMPUTE_CAPABILITY_MINOR_NV:                                    \
+		case CL_DEVICE_REGISTERS_PER_BLOCK_NV:                                         \
+		case CL_DEVICE_WARP_SIZE_NV:                                                   \
+		case CL_DEVICE_GPU_OVERLAP_NV:                                                 \
+		case CL_DEVICE_KERNEL_EXEC_TIMEOUT_NV:                                         \
+		case CL_DEVICE_INTEGRATED_MEMORY_NV:                                           \
+		case CL_DEVICE_REFERENCE_COUNT:                                                \
+		case CL_DEVICE_PARTITION_MAX_SUB_DEVICES:
+#else
+	#define CASES_CL_UINT                                                              \
+		case CL_DEVICE_ADDRESS_BITS:                                                   \
+		case CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE:                                      \
+		case CL_DEVICE_MAX_CLOCK_FREQUENCY:                                            \
+		case CL_DEVICE_MAX_COMPUTE_UNITS:                                              \
+		case CL_DEVICE_MAX_CONSTANT_ARGS:                                              \
+		case CL_DEVICE_MAX_READ_IMAGE_ARGS:                                            \
+		case CL_DEVICE_MAX_SAMPLERS:                                                   \
+		case CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS:                                       \
+		case CL_DEVICE_MAX_WRITE_IMAGE_ARGS:                                           \
+		case CL_DEVICE_MEM_BASE_ADDR_ALIGN:                                            \
+		case CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE:                                       \
+		case CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR:                                       \
+		case CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT:                                      \
+		case CL_DEVICE_NATIVE_VECTOR_WIDTH_INT:                                        \
+		case CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG:                                       \
+		case CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT:                                      \
+		case CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE:                                     \
+		case CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF:                                       \
+		case CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR:                                    \
+		case CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT:                                   \
+		case CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT:                                     \
+		case CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG:                                    \
+		case CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT:                                   \
+		case CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE:                                  \
+		case CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF:                                    \
+		case CL_DEVICE_VENDOR_ID:                                                      \
+		case CL_DEVICE_REFERENCE_COUNT:                                                \
+		case CL_DEVICE_PARTITION_MAX_SUB_DEVICES:
+#endif
 
 #define CASES_CL_BOOL                                                                  \
 	case CL_DEVICE_AVAILABLE:                                                          \

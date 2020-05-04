@@ -55,6 +55,8 @@ script:
   - npm test platform
   - npm test program
   - npm test queues
+  - npm test queues-buffer
+  - npm test queues-image
   - npm test sampler
 
 deploy:

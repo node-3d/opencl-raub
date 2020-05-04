@@ -8,4 +8,6 @@ require('./memobj');
 require('./platform');
 require('./program');
 require('./queues');
+require('./queues-buffer');
+require('./queues-image');
 require('./sampler');
