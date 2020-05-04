@@ -7,219 +7,240 @@ let U = require('./utils');
 let skip = require('./utils/diagnostic');
 
 
-describe('CommandQueue - Image', function () {
+let imageFormat = {
+	'channel_order': cl.RGBA,
+	'channel_data_type': cl.UNSIGNED_INT8,
+};
 
-	let createImageWrapper = function (ctx, flags, imageFormat, imageDesc, hostmem) {
-		return cl.createImage(ctx, flags, imageFormat, imageDesc, hostmem);
-	};
+let imageDesc = {
+	'type': cl.MEM_OBJECT_IMAGE2D,
+	'width': 8,
+	'height': 8,
+	'depth': 2,
+	'image_array_size': 1,
+	'image_row_pitch': 8,
+	'image_slice_pitch': 64
+};
 
-	describe.skip('#enqueueReadImage', function () {
+let zeroArray = [0, 0, 0];
+let validRegion = [8, 8, 1];
+let invalidRegion = [8, 8, 2];
+let grayColor = [0.5, 0.5, 0.5, 0.5];
 
-		let imageFormat = {'channel_order': cl.RGBA, 'channel_data_type': cl.UNSIGNED_INT8};
-		let imageDesc = {
-			'type': cl.MEM_OBJECT_IMAGE2D,
-			'width': 8,
-			'height': 8,
-			'depth': 2,
-			'image_array_size': 1,
-			'image_row_pitch': 8,
-			'image_slice_pitch': 64
-		};
 
-		it('should work with valid image', function () {
+const enqueueReadImage = () => describe.skip('#enqueueReadImage', function () {
+
+	it('should work with valid image', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(ctx, 0, imageFormat, imageDesc);
+				// command queue, cl_image, blocking, origin, region, row, slice, ptr
+				let ret = cl.enqueueReadImage(
+					cq,
+					image,
+					true,
+					zeroArray,
+					validRegion,
+					0,
+					0,
+					new Buffer(32)
+				);
+				cl.releaseMemObject(image);
+				assert(ret == cl.SUCCESS);
+			});
+		});
+	});
+
+	skip().device('AMD').os('darwin').it('should fail with bad parameters', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				expect(
+					() => cl.enqueueReadImage(
+						cq,
+						null,
+						true,
+						zeroArray,
+						validRegion,
+						0,
+						0,
+						new Buffer(64)
+					)
+				).to.throw(cl.INVALID_MEM_OBJECT.message);
+			});
+		});
+	});
+
+	skip().device('AMD').os('darwin').it(
+		'should throw cl.INVALID_OPERATION if image was created with cl.MEM_HOST_WRITE_ONLY',
+		function () {
 			U.withContext(function (ctx, device) {
 				U.withCQ(ctx, device, function (cq) {
-					let image = createImageWrapper(ctx, 0, imageFormat, imageDesc);
-					// command queue, cl_image, blocking, origin, region, row, slice, ptr
+					let image = cl.createImage(ctx, cl.MEM_HOST_WRITE_ONLY, imageFormat, imageDesc);
+					// this will cause an INVALID_VALUE exception
+					const readBound = () => cl.enqueueReadImage(
+						cq,
+						image,
+						true,
+						zeroArray,
+						validRegion,
+						12,
+						1000,
+						new Buffer(64)
+					);
+					expect(readBound).to.throw(cl.INVALID_OPERATION.message);
+					cl.releaseMemObject(image);
+				});
+			});
+		}
+	);
+
+	skip().device('AMD').os('darwin').it(
+		'should work if image was created with cl.MEM_HOST_READ_ONLY',
+		function () {
+			U.withContext(function (ctx, device) {
+				U.withCQ(ctx, device, function (cq) {
+					let image = cl.createImage(ctx, cl.MEM_HOST_READ_ONLY, imageFormat, imageDesc);
+					// this will cause an INVALID_VALUE exception
 					let ret = cl.enqueueReadImage(
 						cq,
 						image,
 						true,
-						[0, 0, 0],
-						[8, 8, 1],
-						0,
-						0,
-						new Buffer(32)
+						zeroArray,
+						validRegion,
+						12,
+						1000,
+						new Buffer(64)
 					);
 					cl.releaseMemObject(image);
-					assert(ret == cl.SUCCESS);
+
+					assert.strictEqual(ret, cl.SUCCESS);
 				});
 			});
-		});
+		}
+	);
 
-		skip().device('AMD').os('darwin').it('should fail with bad parameters', function () {
+	skip().device('AMD').device('Intel').os('darwin').it(
+		'should throw cl.INVALID_VALUE if origin has an invalid value',
+		function () {
 			U.withContext(function (ctx, device) {
 				U.withCQ(ctx, device, function (cq) {
+					let image = cl.createImage(ctx, 0, imageFormat, imageDesc);
+					// this will cause an INVALID_VALUE exception
+					let invalidOrigin = [1, 1, 1];
 					expect(
 						() => cl.enqueueReadImage(
 							cq,
-							null,
+							image,
 							true,
-							[0, 0, 0],
-							[8, 8, 1],
+							invalidOrigin,
+							validRegion,
 							0,
 							0,
 							new Buffer(64)
 						)
-					).to.throw(cl.INVALID_MEM_OBJECT.message);
+					).to.throw(cl.INVALID_VALUE.message);
+					cl.releaseMemObject(image);
 				});
 			});
-		});
+		}
+	);
 
-		skip().device('AMD').os('darwin').it(
-			'should throw cl.INVALID_OPERATION if image was created with cl.MEM_HOST_WRITE_ONLY',
-			function () {
-				U.withContext(function (ctx, device) {
-					U.withCQ(ctx, device, function (cq) {
-						let image = createImageWrapper(ctx, cl.MEM_HOST_WRITE_ONLY, imageFormat, imageDesc);
-						// this will cause an INVALID_VALUE exception
-						const readBound = () => cl.enqueueReadImage(
-							cq,
-							image,
-							true,
-							[0, 0, 0],
-							[8, 8, 1],
-							12,
-							1000,
-							new Buffer(64)
-						);
-						expect(readBound).to.throw(cl.INVALID_OPERATION.message);
-						cl.releaseMemObject(image);
-					});
-				});
-			}
-		);
-
-		skip().device('AMD').os('darwin').it(
-			'should work if image was created with cl.MEM_HOST_READ_ONLY',
-			function () {
-				U.withContext(function (ctx, device) {
-					U.withCQ(ctx, device, function (cq) {
-						let image = createImageWrapper(ctx, cl.MEM_HOST_READ_ONLY, imageFormat, imageDesc);
-						// this will cause an INVALID_VALUE exception
-						let ret = cl.enqueueReadImage(
-							cq,
-							image,
-							true,
-							[0, 0, 0],
-							[8, 8, 1],
-							12,
-							1000,
-							new Buffer(64)
-						);
-						cl.releaseMemObject(image);
-
-						assert.strictEqual(ret, cl.SUCCESS);
-					});
-				});
-			}
-		);
-
-		skip().device('AMD').device('Intel').os('darwin').it(
-			'should throw cl.INVALID_VALUE if origin has an invalid value',
-			function () {
-				U.withContext(function (ctx, device) {
-					U.withCQ(ctx, device, function (cq) {
-						let image = createImageWrapper(ctx, 0, imageFormat, imageDesc);
-						// this will cause an INVALID_VALUE exception
-						let invalidOrigin = [1, 1, 1];
-						expect(
-							() => cl.enqueueReadImage(
-								cq,
-								image,
-								true,
-								invalidOrigin,
-								[8, 8, 1],
-								0,
-								0,
-								new Buffer(64)
-							)
-						).to.throw(cl.INVALID_VALUE.message);
-						cl.releaseMemObject(image);
-					});
-				});
-			}
-		);
-
-		skip().device('AMD').device('Intel').os('darwin').it(
-			'should throw cl.INVALID_VALUE if region is out of bound',
-			function () {
-				U.withContext(function (ctx, device) {
-					U.withCQ(ctx, device, function (cq) {
-						let image = createImageWrapper(ctx, 0, imageFormat, imageDesc);
-						// this will cause an INVALID_VALUE exception
-						let outOfBoundRegion = [9, 9, 1];
-						expect(
-							() => cl.enqueueReadImage(
-								cq,
-								image,
-								true,
-								[0, 0, 0],
-								outOfBoundRegion,
-								0,
-								0,
-								new Buffer(64)
-							)
-						).to.throw(cl.INVALID_VALUE.message);
-						cl.releaseMemObject(image);
-					});
-				});
-			}
-		);
-
-		skip().device('AMD').os('darwin').it(
-			'should throw cl.INVALID_VALUE if region is invalid',
-			function () {
-				U.withContext(function (ctx, device) {
-					U.withCQ(ctx, device, function (cq) {
-						let image = createImageWrapper(ctx, 0, imageFormat, imageDesc);
-						// This will cause an INVALID_VALUE exception
-						// (region[2] must be 1 for 2D images)
-						let invalidRegion = [8, 8, 2];
-						expect(
-							() => cl.enqueueReadImage(
-								cq,
-								image,
-								true,
-								[0, 0, 0],
-								invalidRegion,
-								0,
-								0,
-								new Buffer(64)
-							)
-						).to.throw(cl.INVALID_VALUE.message);
-						cl.releaseMemObject(image);
-					});
-				});
-			}
-		);
-
-	});
-
-	describe('#enqueueWriteImage', function () {
-
-		let imageFormat = {'channel_order': cl.RGBA, 'channel_data_type': cl.UNSIGNED_INT8};
-		let imageDesc = {
-			'type': cl.MEM_OBJECT_IMAGE2D,
-			'width': 8,
-			'height': 8,
-			'depth': 2,
-			'image_array_size': 1,
-			'image_row_pitch': 8,
-			'image_slice_pitch': 64
-		};
-
-		it('should work with cl.MEM_READ_WRITE images', function () {
+	skip().device('AMD').device('Intel').os('darwin').it(
+		'should throw cl.INVALID_VALUE if region is out of bound',
+		function () {
 			U.withContext(function (ctx, device) {
 				U.withCQ(ctx, device, function (cq) {
-					let image = createImageWrapper(ctx, 0, imageFormat, imageDesc);
-					// command queue, cl_image, blocking, origin, region, row, slice, ptr
+					let image = cl.createImage(ctx, 0, imageFormat, imageDesc);
+					// this will cause an INVALID_VALUE exception
+					let outOfBoundRegion = [9, 9, 1];
+					expect(
+						() => cl.enqueueReadImage(
+							cq,
+							image,
+							true,
+							zeroArray,
+							outOfBoundRegion,
+							0,
+							0,
+							new Buffer(64)
+						)
+					).to.throw(cl.INVALID_VALUE.message);
+					cl.releaseMemObject(image);
+				});
+			});
+		}
+	);
+
+	skip().device('AMD').os('darwin').it(
+		'should throw cl.INVALID_VALUE if region is invalid',
+		function () {
+			U.withContext(function (ctx, device) {
+				U.withCQ(ctx, device, function (cq) {
+					let image = cl.createImage(ctx, 0, imageFormat, imageDesc);
+					// This will cause an INVALID_VALUE exception
+					// (region[2] must be 1 for 2D images)
+					expect(
+						() => cl.enqueueReadImage(
+							cq,
+							image,
+							true,
+							zeroArray,
+							invalidRegion,
+							0,
+							0,
+							new Buffer(64)
+						)
+					).to.throw(cl.INVALID_VALUE.message);
+					cl.releaseMemObject(image);
+				});
+			});
+		}
+	);
+
+});
+
+const enqueueWriteImage = () => describe('#enqueueWriteImage', function () {
+
+	it('should work with cl.MEM_READ_WRITE images', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(ctx, 0, imageFormat, imageDesc);
+				// command queue, cl_image, blocking, origin, region, row, slice, ptr
+				let ret = cl.enqueueWriteImage(
+					cq,
+					image,
+					true,
+					zeroArray,
+					validRegion,
+					0,
+					0,
+					new Buffer(32)
+				);
+				cl.releaseMemObject(image);
+				assert(ret == cl.SUCCESS);
+			});
+		});
+	});
+
+	skip().device('AMD').os('darwin').it(
+		'should work with cl.MEM_HOST_WRITE_ONLY images',
+		function () {
+			this.skip();
+			U.withContext(function (ctx, device) {
+				U.withCQ(ctx, device, function (cq) {
+					let image = cl.createImage(
+						ctx,
+						cl.MEM_HOST_WRITE_ONLY,
+						imageFormat,
+						imageDesc,
+						null
+					);
 					let ret = cl.enqueueWriteImage(
 						cq,
 						image,
 						true,
-						[0, 0, 0],
-						[8, 8, 1],
+						zeroArray,
+						validRegion,
 						0,
 						0,
 						new Buffer(32)
@@ -228,924 +249,840 @@ describe('CommandQueue - Image', function () {
 					assert(ret == cl.SUCCESS);
 				});
 			});
-		});
+		}
+	);
 
-		skip().device('AMD').os('darwin').it(
-			'should work with cl.MEM_HOST_WRITE_ONLY images',
-			function () {
-				this.skip();
-				U.withContext(function (ctx, device) {
-					U.withCQ(ctx, device, function (cq) {
-						let image = createImageWrapper(
-							ctx,
-							cl.MEM_HOST_WRITE_ONLY,
-							imageFormat,
-							imageDesc,
-							null
-						);
-						let ret = cl.enqueueWriteImage(
+	skip().device('AMD').os('darwin').it(
+		'should throw cl.INVALID_OPERATION with cl.MEM_HOST_READ_ONLY images',
+		function () {
+			U.withContext(function (ctx, device) {
+				U.withCQ(ctx, device, function (cq) {
+					let image = cl.createImage(
+						ctx,
+						cl.MEM_HOST_READ_ONLY,
+						imageFormat,
+						imageDesc,
+						null
+					);
+
+					expect(
+						() => cl.enqueueWriteImage(
 							cq,
 							image,
 							true,
-							[0, 0, 0],
-							[8, 8, 1],
+							zeroArray,
+							validRegion,
 							0,
 							0,
 							new Buffer(32)
-						);
-						cl.releaseMemObject(image);
-						assert(ret == cl.SUCCESS);
-					});
-				});
-			}
-		);
-
-		skip().device('AMD').os('darwin').it(
-			'should throw cl.INVALID_OPERATION with cl.MEM_HOST_READ_ONLY images',
-			function () {
-				U.withContext(function (ctx, device) {
-					U.withCQ(ctx, device, function (cq) {
-						let image = createImageWrapper(
-							ctx,
-							cl.MEM_HOST_READ_ONLY,
-							imageFormat,
-							imageDesc,
-							null
-						);
-
-						expect(
-							() => cl.enqueueWriteImage(
-								cq,
-								image,
-								true,
-								[0, 0, 0],
-								[8, 8, 1],
-								0,
-								0,
-								new Buffer(32)
-							)
-						).to.throw(cl.INVALID_OPERATION.message);
-						cl.releaseMemObject(image);
-					});
-				});
-			}
-		);
-
-		skip().device('AMD').os('darwin').it(
-			'should throw cl.INVALID_VALUE with an invalid origin',
-			function () {
-				U.withContext(function (ctx, device) {
-					U.withCQ(ctx, device, function (cq) {
-						let image = createImageWrapper(ctx, 0, imageFormat, imageDesc);
-
-						// This will trigger a cl.INVALID_VALUE exception
-						// (origin must be [0, 0, 0]
-						let invalidOrigin = [1, 1, 1];
-						expect(
-							() => cl.enqueueWriteImage(
-								cq,
-								image,
-								true,
-								invalidOrigin,
-								[8, 8, 1],
-								0,
-								0,
-								new Buffer(32)
-							)
-						).to.throw(cl.INVALID_VALUE.message);
-						cl.releaseMemObject(image);
-					});
-				});
-			}
-		);
-
-		skip().device('AMD').os('darwin').it(
-			'should throw cl.INVALID_VALUE with an invalid region',
-			function () {
-				U.withContext(function (ctx, device) {
-					U.withCQ(ctx, device, function (cq) {
-						let image = createImageWrapper(ctx, 0, imageFormat, imageDesc);
-
-						// This will trigger a cl.INVALID_VALUE exception
-						// (region[2] must be 1 for 2D images)
-						let invalidRegion = [8, 8, 2];
-						expect(
-							() => cl.enqueueWriteImage(
-								cq,
-								image,
-								true,
-								[0, 0, 0],
-								invalidRegion,
-								0,
-								0,
-								new Buffer(32)
-							)
-						).to.throw(cl.INVALID_VALUE.message);
-						cl.releaseMemObject(image);
-					});
-				});
-			}
-		);
-
-		skip().device('AMD').os('darwin').it(
-			'should throw cl.INVALID_VALUE if region is out of bound',
-			function () {
-				U.withContext(function (ctx, device) {
-					U.withCQ(ctx, device, function (cq) {
-						let image = createImageWrapper(ctx, 0, imageFormat, imageDesc);
-
-						// This will trigger a cl.INVALID_VALUE exception
-						// (region[2] must be 1 for 2D images)
-						let outOfBoundRegion = [9, 9, 1];
-						expect(
-							() => cl.enqueueWriteImage(
-								cq,
-								image,
-								true,
-								[0, 0, 0],
-								outOfBoundRegion,
-								0,
-								0,
-								new Buffer(32)
-							)
-						).to.throw(cl.INVALID_VALUE.message);
-						cl.releaseMemObject(image);
-					});
-				});
-			}
-		);
-	});
-
-
-	describe('#enqueueFillImage', function () {
-
-		let imageFormat = {'channel_order': cl.RGBA, 'channel_data_type': cl.UNSIGNED_INT8};
-		let imageDesc = {
-			'type': cl.MEM_OBJECT_IMAGE2D,
-			'width': 8,
-			'height': 8,
-			'depth': 2,
-			'image_array_size': 1,
-			'image_row_pitch': 8,
-			'image_slice_pitch': 64
-		};
-
-		it('should fill image with color', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image = createImageWrapper(ctx, 0, imageFormat, imageDesc);
-					let color = new Buffer([0.5, 0.5, 0.5, 0.5]);
-
-					let ret = cl.enqueueFillImage(cq, image, color, [0, 0, 0], [8, 8, 1]);
-
-					cl.releaseMemObject(image);
-					assert.strictEqual(ret, cl.SUCCESS);
-				});
-			});
-		});
-
-		it('should throw cl.INVALID_VALUE if color is null', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image = createImageWrapper(ctx, 0, imageFormat, imageDesc);
-					let color = null;
-
-					expect(
-						() => cl.enqueueFillImage(cq, image, color, [0, 0, 0], [8, 8, 1])
-					).to.throw('Argument 2 must be of type `Object`');
+						)
+					).to.throw(cl.INVALID_OPERATION.message);
 					cl.releaseMemObject(image);
 				});
 			});
-		});
+		}
+	);
 
-		it('should throw cl.INVALID_VALUE if region is out of bounds', function () {
+	skip().device('AMD').os('darwin').it(
+		'should throw cl.INVALID_VALUE with an invalid origin',
+		function () {
 			U.withContext(function (ctx, device) {
 				U.withCQ(ctx, device, function (cq) {
-					let image = createImageWrapper(ctx, 0, imageFormat, imageDesc);
-					let color = new Buffer([0.5, 0.5, 0.5, 0.5]);
-					let outOfBoundsRegion = [9, 9, 1];
+					let image = cl.createImage(ctx, 0, imageFormat, imageDesc);
 
+					// This will trigger a cl.INVALID_VALUE exception
+					// (origin must be zeroArray
+					let invalidOrigin = [1, 1, 1];
 					expect(
-						() => cl.enqueueFillImage(cq, image, color, [0, 0, 0], outOfBoundsRegion)
+						() => cl.enqueueWriteImage(
+							cq,
+							image,
+							true,
+							invalidOrigin,
+							validRegion,
+							0,
+							0,
+							new Buffer(32)
+						)
 					).to.throw(cl.INVALID_VALUE.message);
 					cl.releaseMemObject(image);
 				});
 			});
-		});
+		}
+	);
 
-		it('should throw cl.INVALID_VALUE if origin is invalid', function () {
+	skip().device('AMD').os('darwin').it(
+		'should throw cl.INVALID_VALUE with an invalid region',
+		function () {
 			U.withContext(function (ctx, device) {
 				U.withCQ(ctx, device, function (cq) {
-					let image = createImageWrapper(ctx, 0, imageFormat, imageDesc);
-					let color = new Buffer([0.5, 0.5, 0.5, 0.5]);
+					let image = cl.createImage(ctx, 0, imageFormat, imageDesc);
 
-					// origin[2] must be 0
-					let invalidOrigin = [0, 0, 1];
-
+					// This will trigger a cl.INVALID_VALUE exception
+					// (region[2] must be 1 for 2D images)
 					expect(
-						() => cl.enqueueFillImage(cq, image, color, invalidOrigin, [8, 8, 1])
+						() => cl.enqueueWriteImage(
+							cq,
+							image,
+							true,
+							zeroArray,
+							invalidRegion,
+							0,
+							0,
+							new Buffer(32)
+						)
 					).to.throw(cl.INVALID_VALUE.message);
 					cl.releaseMemObject(image);
 				});
 			});
-		});
+		}
+	);
 
-		it('should throw cl.INVALID_VALUE if region is invalid', function () {
+	skip().device('AMD').os('darwin').it(
+		'should throw cl.INVALID_VALUE if region is out of bound',
+		function () {
 			U.withContext(function (ctx, device) {
 				U.withCQ(ctx, device, function (cq) {
-					let image = createImageWrapper(ctx, 0, imageFormat, imageDesc);
-					let color = new Buffer([0.5, 0.5, 0.5, 0.5]);
+					let image = cl.createImage(ctx, 0, imageFormat, imageDesc);
 
-					// origin[2] must be 1
-					let invalidRegion = [8, 8, 0];
-
+					// This will trigger a cl.INVALID_VALUE exception
+					// (region[2] must be 1 for 2D images)
+					let outOfBoundRegion = [9, 9, 1];
 					expect(
-						() => cl.enqueueFillImage(cq, image, color, [0, 0, 0], invalidRegion)
+						() => cl.enqueueWriteImage(
+							cq,
+							image,
+							true,
+							zeroArray,
+							outOfBoundRegion,
+							0,
+							0,
+							new Buffer(32)
+						)
 					).to.throw(cl.INVALID_VALUE.message);
 					cl.releaseMemObject(image);
 				});
 			});
-		});
+		}
+	);
+});
 
-		it('should throw cl.INVALID_MEM_OBJECT if image is not a valid image object', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image = null;
-					let color = new Buffer([0.5, 0.5, 0.5, 0.5]);
 
-					// origin[2] must be 1
-					let invalidRegion = [8, 8, 0];
+const enqueueFillImage = () => describe('#enqueueFillImage', function () {
 
-					expect(
-						() => cl.enqueueFillImage(cq, image, color, [0, 0, 0], invalidRegion)
-					).to.throw('Argument 1 must be of type `Object`');
-				});
+	it('should fill image with color', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(ctx, 0, imageFormat, imageDesc);
+				let color = new Buffer(grayColor);
+
+				let ret = cl.enqueueFillImage(cq, image, color, zeroArray, validRegion);
+
+				cl.releaseMemObject(image);
+				assert.strictEqual(ret, cl.SUCCESS);
 			});
 		});
 	});
 
-	describe('#enqueueCopyImage', function () {
+	it('should throw cl.INVALID_VALUE if color is null', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(ctx, 0, imageFormat, imageDesc);
+				let color = null;
 
-		let imageFormat = {'channel_order': cl.RGBA, 'channel_data_type': cl.UNSIGNED_INT8};
-		let imageDesc = {
-			'type': cl.MEM_OBJECT_IMAGE2D,
-			'width': 8,
-			'height': 8,
-			'depth': 2,
-			'image_array_size': 1,
-			'image_row_pitch': 8,
-			'image_slice_pitch': 64
-		};
-
-		it('should work with cl.MEM_READ_WRITE images', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image1 = createImageWrapper(
-						ctx,
-						cl.MEM_READ_WRITE,
-						imageFormat,
-						imageDesc,
-						null
-					);
-					let image2 = createImageWrapper(
-						ctx,
-						cl.MEM_READ_WRITE,
-						imageFormat,
-						imageDesc,
-						null
-					);
-					// command queue, cl_image_src, cl_image_dst, origin_src, origin_dst, region
-					let ret = cl.enqueueCopyImage(
-						cq,
-						image1,
-						image2,
-						[0, 0, 0],
-						[0, 0, 0],
-						[8, 8, 1]
-					);
-
-					cl.releaseMemObject(image1);
-					cl.releaseMemObject(image2);
-					assert(ret == cl.SUCCESS);
-				});
-			});
-		});
-
-		it('should work with write images', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image1 = createImageWrapper(
-						ctx,
-						cl.MEM_HOST_WRITE_ONLY,
-						imageFormat,
-						imageDesc,
-						null
-					);
-					let image2 = createImageWrapper(
-						ctx,
-						cl.MEM_HOST_WRITE_ONLY,
-						imageFormat,
-						imageDesc,
-						null
-					);
-					// command queue, cl_image_src, cl_image_dst, origin_src, origin_dst, region
-					let ret = cl.enqueueCopyImage(
-						cq,
-						image1,
-						image2,
-						[0, 0, 0],
-						[0, 0, 0],
-						[8, 8, 1]
-					);
-
-					cl.releaseMemObject(image1);
-					cl.releaseMemObject(image2);
-					assert(ret == cl.SUCCESS);
-				});
-			});
-		});
-
-		it('should work with read images', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image1 = createImageWrapper(
-						ctx,
-						cl.MEM_HOST_READ_ONLY,
-						imageFormat,
-						imageDesc,
-						null
-					);
-					let image2 = createImageWrapper(
-						ctx,
-						cl.MEM_HOST_READ_ONLY,
-						imageFormat,
-						imageDesc,
-						null
-					);
-					// command queue, cl_image_src, cl_image_dst, origin_src, origin_dst, region
-					let ret = cl.enqueueCopyImage(
-						cq,
-						image1,
-						image2,
-						[0, 0, 0],
-						[0, 0, 0],
-						[8, 8, 1]
-					);
-
-					cl.releaseMemObject(image1);
-					cl.releaseMemObject(image2);
-					assert(ret == cl.SUCCESS);
-				});
+				expect(
+					() => cl.enqueueFillImage(cq, image, color, zeroArray, validRegion)
+				).to.throw('Argument 2 must be of type `Object`');
+				cl.releaseMemObject(image);
 			});
 		});
 	});
 
+	it('should throw cl.INVALID_VALUE if region is out of bounds', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(ctx, 0, imageFormat, imageDesc);
+				let color = new Buffer(grayColor);
+				let outOfBoundsRegion = [9, 9, 1];
 
-	describe('#enqueueCopyImageToBuffer', function () {
+				expect(
+					() => cl.enqueueFillImage(cq, image, color, zeroArray, outOfBoundsRegion)
+				).to.throw(cl.INVALID_VALUE.message);
+				cl.releaseMemObject(image);
+			});
+		});
+	});
 
-		let imageFormat = {'channel_order': cl.RGBA, 'channel_data_type': cl.UNSIGNED_INT8};
-		let imageDesc = {
-			'type': cl.MEM_OBJECT_IMAGE2D,
-			'width': 8,
-			'height': 8,
-			'depth': 2,
-			'image_array_size': 1,
-			'image_row_pitch': 8,
-			'image_slice_pitch': 64
-		};
+	it('should throw cl.INVALID_VALUE if origin is invalid', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(ctx, 0, imageFormat, imageDesc);
+				let color = new Buffer(grayColor);
 
-		it('should work with read only buffers', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image = createImageWrapper(
-						ctx,
-						cl.MEM_COPY_HOST_PTR,
-						imageFormat,
-						imageDesc,
-						new Buffer(64)
-					);
-					let buffer = cl.createBuffer(ctx, cl.MEM_HOST_READ_ONLY, 64, null);
+				// origin[2] must be 0
+				let invalidOrigin = [0, 0, 1];
 
-					let ret = cl.enqueueCopyImageToBuffer(
+				expect(
+					() => cl.enqueueFillImage(cq, image, color, invalidOrigin, validRegion)
+				).to.throw(cl.INVALID_VALUE.message);
+				cl.releaseMemObject(image);
+			});
+		});
+	});
+
+	it('should throw cl.INVALID_VALUE if region is invalid', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(ctx, 0, imageFormat, imageDesc);
+				let color = new Buffer(grayColor);
+
+				// origin[2] must be 1
+				let invalidRegion = [8, 8, 0];
+
+				expect(
+					() => cl.enqueueFillImage(cq, image, color, zeroArray, invalidRegion)
+				).to.throw(cl.INVALID_VALUE.message);
+				cl.releaseMemObject(image);
+			});
+		});
+	});
+
+	it('should throw cl.INVALID_MEM_OBJECT if image is not a valid image object', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = null;
+				let color = new Buffer(grayColor);
+
+				// origin[2] must be 1
+				let invalidRegion = [8, 8, 0];
+
+				expect(
+					() => cl.enqueueFillImage(cq, image, color, zeroArray, invalidRegion)
+				).to.throw('Argument 1 must be of type `Object`');
+			});
+		});
+	});
+});
+
+const enqueueCopyImage = () => describe('#enqueueCopyImage', function () {
+
+	it('should work with cl.MEM_READ_WRITE images', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image1 = cl.createImage(
+					ctx,
+					cl.MEM_READ_WRITE,
+					imageFormat,
+					imageDesc,
+					null
+				);
+				let image2 = cl.createImage(
+					ctx,
+					cl.MEM_READ_WRITE,
+					imageFormat,
+					imageDesc,
+					null
+				);
+				// command queue, cl_image_src, cl_image_dst, origin_src, origin_dst, region
+				let ret = cl.enqueueCopyImage(
+					cq,
+					image1,
+					image2,
+					zeroArray,
+					zeroArray,
+					validRegion
+				);
+
+				cl.releaseMemObject(image1);
+				cl.releaseMemObject(image2);
+				assert(ret == cl.SUCCESS);
+			});
+		});
+	});
+
+	it('should work with write images', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image1 = cl.createImage(
+					ctx,
+					cl.MEM_HOST_WRITE_ONLY,
+					imageFormat,
+					imageDesc,
+					null
+				);
+				let image2 = cl.createImage(
+					ctx,
+					cl.MEM_HOST_WRITE_ONLY,
+					imageFormat,
+					imageDesc,
+					null
+				);
+				// command queue, cl_image_src, cl_image_dst, origin_src, origin_dst, region
+				let ret = cl.enqueueCopyImage(
+					cq,
+					image1,
+					image2,
+					zeroArray,
+					zeroArray,
+					validRegion
+				);
+
+				cl.releaseMemObject(image1);
+				cl.releaseMemObject(image2);
+				assert(ret == cl.SUCCESS);
+			});
+		});
+	});
+
+	it('should work with read images', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image1 = cl.createImage(
+					ctx,
+					cl.MEM_HOST_READ_ONLY,
+					imageFormat,
+					imageDesc,
+					null
+				);
+				let image2 = cl.createImage(
+					ctx,
+					cl.MEM_HOST_READ_ONLY,
+					imageFormat,
+					imageDesc,
+					null
+				);
+				// command queue, cl_image_src, cl_image_dst, origin_src, origin_dst, region
+				let ret = cl.enqueueCopyImage(
+					cq,
+					image1,
+					image2,
+					zeroArray,
+					zeroArray,
+					validRegion
+				);
+
+				cl.releaseMemObject(image1);
+				cl.releaseMemObject(image2);
+				assert(ret == cl.SUCCESS);
+			});
+		});
+	});
+});
+
+
+const enqueueCopyImageToBuffer = () => describe('#enqueueCopyImageToBuffer', function () {
+
+	it('should work with read only buffers', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(
+					ctx,
+					cl.MEM_COPY_HOST_PTR,
+					imageFormat,
+					imageDesc,
+					new Buffer(64)
+				);
+				let buffer = cl.createBuffer(ctx, cl.MEM_HOST_READ_ONLY, 64, null);
+
+				let ret = cl.enqueueCopyImageToBuffer(
+					cq,
+					image,
+					buffer,
+					zeroArray,
+					[1, 1, 1],
+					0
+				);
+
+				cl.releaseMemObject(image);
+				cl.releaseMemObject(buffer);
+				assert.strictEqual(ret, cl.SUCCESS);
+			});
+		});
+	});
+
+	it('should work with write buffers', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(
+					ctx,
+					cl.MEM_COPY_HOST_PTR,
+					imageFormat,
+					imageDesc,
+					new Buffer(64)
+				);
+				let buffer = cl.createBuffer(ctx, cl.MEM_HOST_WRITE_ONLY, 64, null);
+
+				let ret = cl.enqueueCopyImageToBuffer(
+					cq,
+					image,
+					buffer,
+					zeroArray,
+					[1, 1, 1],
+					0
+				);
+
+				cl.releaseMemObject(image);
+				cl.releaseMemObject(buffer);
+				assert.strictEqual(ret, cl.SUCCESS);
+			});
+		});
+	});
+
+	it('should work with different values of source and destination offsets', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(
+					ctx,
+					cl.MEM_COPY_HOST_PTR,
+					imageFormat,
+					imageDesc,
+					new Buffer(64)
+				);
+				let buffer = cl.createBuffer(ctx, cl.MEM_HOST_READ_ONLY, 64, null);
+
+				let ret = cl.enqueueCopyImageToBuffer(
+					cq,
+					image,
+					buffer,
+					[1, 1, 0],
+					[1, 1, 1],
+					2
+				);
+
+				cl.releaseMemObject(image);
+				cl.releaseMemObject(buffer);
+				assert.strictEqual(ret, cl.SUCCESS);
+			});
+		});
+	});
+
+	it('should throw cl.INVALID_VALUE if origin is invalid', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(
+					ctx,
+					cl.MEM_COPY_HOST_PTR,
+					imageFormat,
+					imageDesc,
+					new Buffer(64)
+				);
+				let buffer = cl.createBuffer(ctx, cl.MEM_HOST_READ_ONLY, 64, null);
+
+				// origin[2] must be 0
+				let invalidOrigin = [1, 1, 1];
+				expect(
+					() => cl.enqueueCopyImageToBuffer(
 						cq,
 						image,
 						buffer,
-						[0, 0, 0],
+						invalidOrigin,
 						[1, 1, 1],
-						0
-					);
+						2
+					)
+				).to.throw(cl.INVALID_VALUE.message);
 
-					cl.releaseMemObject(image);
-					cl.releaseMemObject(buffer);
-					assert.strictEqual(ret, cl.SUCCESS);
-				});
+				cl.releaseMemObject(image);
+				cl.releaseMemObject(buffer);
 			});
 		});
+	});
 
-		it('should work with write buffers', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image = createImageWrapper(
-						ctx,
-						cl.MEM_COPY_HOST_PTR,
-						imageFormat,
-						imageDesc,
-						new Buffer(64)
-					);
-					let buffer = cl.createBuffer(ctx, cl.MEM_HOST_WRITE_ONLY, 64, null);
+	it('should throw cl.INVALID_VALUE if region is invalid', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(
+					ctx,
+					cl.MEM_COPY_HOST_PTR,
+					imageFormat,
+					imageDesc,
+					new Buffer(64)
+				);
+				let buffer = cl.createBuffer(ctx, cl.MEM_HOST_READ_ONLY, 64, null);
 
-					let ret = cl.enqueueCopyImageToBuffer(
-						cq,
-						image,
-						buffer,
-						[0, 0, 0],
-						[1, 1, 1],
-						0
-					);
-
-					cl.releaseMemObject(image);
-					cl.releaseMemObject(buffer);
-					assert.strictEqual(ret, cl.SUCCESS);
-				});
-			});
-		});
-
-		it('should work with different values of source and destination offsets', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image = createImageWrapper(
-						ctx,
-						cl.MEM_COPY_HOST_PTR,
-						imageFormat,
-						imageDesc,
-						new Buffer(64)
-					);
-					let buffer = cl.createBuffer(ctx, cl.MEM_HOST_READ_ONLY, 64, null);
-
-					let ret = cl.enqueueCopyImageToBuffer(
+				// region[2] must be 1
+				let invalidRegion = [1, 1, 2];
+				expect(
+					() => cl.enqueueCopyImageToBuffer(
 						cq,
 						image,
 						buffer,
 						[1, 1, 0],
-						[1, 1, 1],
+						invalidRegion,
 						2
-					);
+					)
+				).to.throw(cl.INVALID_VALUE.message);
 
-					cl.releaseMemObject(image);
-					cl.releaseMemObject(buffer);
-					assert.strictEqual(ret, cl.SUCCESS);
-				});
+				cl.releaseMemObject(image);
+				cl.releaseMemObject(buffer);
 			});
 		});
+	});
+});
 
-		it('should throw cl.INVALID_VALUE if origin is invalid', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image = createImageWrapper(
-						ctx,
-						cl.MEM_COPY_HOST_PTR,
-						imageFormat,
-						imageDesc,
-						new Buffer(64)
-					);
-					let buffer = cl.createBuffer(ctx, cl.MEM_HOST_READ_ONLY, 64, null);
+const enqueueCopyBufferToImage = () => describe('#enqueueCopyBufferToImage', function () {
 
-					// origin[2] must be 0
-					let invalidOrigin = [1, 1, 1];
-					expect(
-						() => cl.enqueueCopyImageToBuffer(
-							cq,
-							image,
-							buffer,
-							invalidOrigin,
-							[1, 1, 1],
-							2
-						)
-					).to.throw(cl.INVALID_VALUE.message);
+	it('should work with read only buffers', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(
+					ctx,
+					cl.MEM_HOST_READ_ONLY,
+					imageFormat,
+					imageDesc,
+					null
+				);
+				let buffer = cl.createBuffer(ctx, cl.MEM_HOST_READ_ONLY, 8, null);
 
-					cl.releaseMemObject(image);
-					cl.releaseMemObject(buffer);
-				});
-			});
-		});
+				let ret = cl.enqueueCopyBufferToImage(
+					cq,
+					buffer,
+					image,
+					0,
+					zeroArray,
+					[1, 1, 1]
+				);
 
-		it('should throw cl.INVALID_VALUE if region is invalid', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image = createImageWrapper(
-						ctx,
-						cl.MEM_COPY_HOST_PTR,
-						imageFormat,
-						imageDesc,
-						new Buffer(64)
-					);
-					let buffer = cl.createBuffer(ctx, cl.MEM_HOST_READ_ONLY, 64, null);
-
-					// region[2] must be 1
-					let invalidRegion = [1, 1, 2];
-					expect(
-						() => cl.enqueueCopyImageToBuffer(
-							cq,
-							image,
-							buffer,
-							[1, 1, 0],
-							invalidRegion,
-							2
-						)
-					).to.throw(cl.INVALID_VALUE.message);
-
-					cl.releaseMemObject(image);
-					cl.releaseMemObject(buffer);
-				});
+				cl.releaseMemObject(image);
+				cl.releaseMemObject(buffer);
+				assert.strictEqual(ret, cl.SUCCESS);
 			});
 		});
 	});
 
-	describe('#enqueueCopyBufferToImage', function () {
+	it('should work with write buffers', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(
+					ctx,
+					cl.MEM_HOST_WRITE_ONLY,
+					imageFormat,
+					imageDesc,
+					null
+				);
+				let buffer = cl.createBuffer(ctx, cl.MEM_HOST_WRITE_ONLY, 8, null);
 
-		let imageFormat = {'channel_order': cl.RGBA, 'channel_data_type': cl.UNSIGNED_INT8};
-		let imageDesc = {
-			'type': cl.MEM_OBJECT_IMAGE2D,
-			'width': 8,
-			'height': 8,
-			'depth': 2,
-			'image_array_size': 1,
-			'image_row_pitch': 8,
-			'image_slice_pitch': 64
-		};
+				let ret = cl.enqueueCopyBufferToImage(
+					cq,
+					buffer,
+					image,
+					0,
+					zeroArray,
+					[1, 1, 1]
+				);
 
-		it('should work with read only buffers', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image = createImageWrapper(
-						ctx,
-						cl.MEM_HOST_READ_ONLY,
-						imageFormat,
-						imageDesc,
-						null
-					);
-					let buffer = cl.createBuffer(ctx, cl.MEM_HOST_READ_ONLY, 8, null);
+				cl.releaseMemObject(image);
+				cl.releaseMemObject(buffer);
+				assert.strictEqual(ret, cl.SUCCESS);
+			});
+		});
+	});
 
-					let ret = cl.enqueueCopyBufferToImage(
+	it('should throw cl.INVALID_VALUE if origin is invalid', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(ctx, cl.MEM_HOST_WRITE_ONLY, imageFormat, imageDesc, null);
+				let buffer = cl.createBuffer(ctx, cl.MEM_HOST_WRITE_ONLY, 8, null);
+
+				// origin[2] must be 0
+				let invalidOrigin = [1, 1, 1];
+				expect(
+					() => cl.enqueueCopyBufferToImage(
 						cq,
 						buffer,
 						image,
 						0,
-						[0, 0, 0],
+						invalidOrigin,
 						[1, 1, 1]
-					);
+					)
+				).to.throw(cl.INVALID_VALUE.message);
 
-					cl.releaseMemObject(image);
-					cl.releaseMemObject(buffer);
-					assert.strictEqual(ret, cl.SUCCESS);
-				});
+				cl.releaseMemObject(image);
+				cl.releaseMemObject(buffer);
 			});
 		});
+	});
 
-		it('should work with write buffers', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image = createImageWrapper(
-						ctx,
-						cl.MEM_HOST_WRITE_ONLY,
-						imageFormat,
-						imageDesc,
-						null
-					);
-					let buffer = cl.createBuffer(ctx, cl.MEM_HOST_WRITE_ONLY, 8, null);
+	it('should throw cl.INVALID_VALUE if region is invalid', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(ctx, cl.MEM_HOST_WRITE_ONLY, imageFormat, imageDesc, null);
+				let buffer = cl.createBuffer(ctx, cl.MEM_HOST_WRITE_ONLY, 8, null);
 
-					let ret = cl.enqueueCopyBufferToImage(
+				// region[2] must be 1
+				let invalidRegion = [1, 1, 2];
+				expect(
+					() => cl.enqueueCopyBufferToImage(
 						cq,
 						buffer,
 						image,
 						0,
-						[0, 0, 0],
-						[1, 1, 1]
-					);
+						[1, 1, 0],
+						invalidRegion
+					)
+				).to.throw(cl.INVALID_VALUE.message);
 
-					cl.releaseMemObject(image);
-					cl.releaseMemObject(buffer);
-					assert.strictEqual(ret, cl.SUCCESS);
-				});
+				cl.releaseMemObject(image);
+				cl.releaseMemObject(buffer);
 			});
 		});
+	});
+});
 
-		it('should throw cl.INVALID_VALUE if origin is invalid', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image = createImageWrapper(ctx, cl.MEM_HOST_WRITE_ONLY, imageFormat, imageDesc, null);
-					let buffer = cl.createBuffer(ctx, cl.MEM_HOST_WRITE_ONLY, 8, null);
+const enqueueMapImage = () => describe('# enqueueMapImage', function () {
 
-					// origin[2] must be 0
-					let invalidOrigin = [1, 1, 1];
-					expect(
-						() => cl.enqueueCopyBufferToImage(
-							cq,
-							buffer,
-							image,
-							0,
-							invalidOrigin,
-							[1, 1, 1]
-						)
-					).to.throw(cl.INVALID_VALUE.message);
-
-					cl.releaseMemObject(image);
-					cl.releaseMemObject(buffer);
-				});
+	it('should return a valid buffer', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
+				let ret = cl.enqueueMapImage(cq, image, true, cl.MAP_READ, zeroArray, [2, 2, 1]);
+				let u8s = new Uint8Array(ret);
+				assert.instanceOf(u8s.buffer, ArrayBuffer);
+				assert.isNumber(u8s[0]);
+				cl.releaseMemObject(image);
 			});
 		});
+	});
 
-		it('should throw cl.INVALID_VALUE if region is invalid', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image = createImageWrapper(ctx, cl.MEM_HOST_WRITE_ONLY, imageFormat, imageDesc, null);
-					let buffer = cl.createBuffer(ctx, cl.MEM_HOST_WRITE_ONLY, 8, null);
+	it('should return a valid buffer', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
+				let ret = cl.enqueueMapImage(cq, image, true, cl.MAP_WRITE, zeroArray, [2, 2, 1]);
+				let u8s = new Uint8Array(ret);
+				assert.instanceOf(u8s.buffer, ArrayBuffer);
+				assert.isNumber(u8s[0]);
+				cl.releaseMemObject(image);
+			});
+		});
+	});
 
-					// region[2] must be 1
-					let invalidRegion = [1, 1, 2];
-					expect(
-						() => cl.enqueueCopyBufferToImage(
-							cq,
-							buffer,
-							image,
-							0,
-							[1, 1, 0],
-							invalidRegion
-						)
-					).to.throw(cl.INVALID_VALUE.message);
+	it('should return a valid buffer', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
+				let ret = cl.enqueueMapImage(
+					cq,
+					image,
+					true,
+					cl.MAP_WRITE_INVALIDATE_REGION,
+					zeroArray,
+					[2, 2, 1]
+				);
+				let u8s = new Uint8Array(ret);
+				assert.instanceOf(u8s.buffer, ArrayBuffer);
+				assert.isNumber(u8s[0]);
+				cl.releaseMemObject(image);
+			});
+		});
+	});
 
+
+	it('should not be able to read from a not already allocated pointer', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
+				let ret = cl.enqueueMapImage(
+					cq,
+					image,
+					false,
+					cl.MAP_READ,
+					zeroArray,
+					[2, 2, 1],
+					[],
+					true
+				);
+				let u8s = new Uint8Array(ret);
+				assert.instanceOf(u8s.buffer, ArrayBuffer);
+				assert.isNumber(u8s[0]);
+				cl.releaseMemObject(image);
+			});
+		});
+	});
+
+	it('should not be able to read from a not already allocated pointer', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
+				let ret = cl.enqueueMapImage(
+					cq,
+					image,
+					false,
+					cl.MAP_WRITE,
+					zeroArray,
+					[2, 2, 1],
+					[],
+					true
+				);
+				let u8s = new Uint8Array(ret);
+				assert.instanceOf(u8s.buffer, ArrayBuffer);
+				assert.isNumber(u8s[0]);
+				cl.releaseMemObject(image);
+			});
+		});
+	});
+
+	it('should not throw as we are using the pointer from an event', function (done) {
+		U.withAsyncContext(function (ctx, device, _, ctxDone) {
+			U.withAsyncCQ(ctx, device, function (cq, cqDone) {
+				let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
+				let ret = cl.enqueueMapImage(
+					cq,
+					image,
+					false,
+					cl.MAP_READ,
+					zeroArray,
+					[2, 2, 1],
+					[],
+					true
+				);
+
+				cl.setEventCallback(ret.event, cl.COMPLETE, function () {
+					let u8s = new Uint8Array(ret);
+					assert.instanceOf(u8s.buffer, ArrayBuffer);
+					assert.isNumber(u8s[0]);
 					cl.releaseMemObject(image);
-					cl.releaseMemObject(buffer);
+					cl.releaseEvent(ret.event);
+					cqDone();
+					ctxDone();
+					done();
 				});
 			});
 		});
 	});
 
-	describe('# enqueueMapImage', function () {
-
-		let imageFormat = {'channel_order': cl.RGBA, 'channel_data_type': cl.UNSIGNED_INT8};
-		let imageDesc = {
-			'type': cl.MEM_OBJECT_IMAGE2D,
-			'width': 10,
-			'height': 10,
-			'depth': 1,
-			'image_array_size': 1
-		};
-
-		it('should return a valid buffer', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
-					let ret = cl.enqueueMapImage(cq, image, true, cl.MAP_READ, [0, 0, 0], [2, 2, 1]);
+	it('should not throw as we are using the pointer from an event', function (done) {
+		U.withAsyncContext(function (ctx, device, _, ctxDone) {
+			U.withAsyncCQ(ctx, device, function (cq, cqDone) {
+				let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
+				let ret = cl.enqueueMapImage(
+					cq,
+					image,
+					false,
+					cl.MAP_WRITE,
+					zeroArray,
+					[2, 2, 1],
+					[],
+					true
+				);
+				
+				cl.setEventCallback(ret.event, cl.COMPLETE, function () {
 					let u8s = new Uint8Array(ret);
 					assert.instanceOf(u8s.buffer, ArrayBuffer);
 					assert.isNumber(u8s[0]);
 					cl.releaseMemObject(image);
+					cl.releaseEvent(ret.event);
+					ctxDone();
+					cqDone();
+					done();
 				});
 			});
-		});
-
-		it('should return a valid buffer', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
-					let ret = cl.enqueueMapImage(cq, image, true, cl.MAP_WRITE, [0, 0, 0], [2, 2, 1]);
-					let u8s = new Uint8Array(ret);
-					assert.instanceOf(u8s.buffer, ArrayBuffer);
-					assert.isNumber(u8s[0]);
-					cl.releaseMemObject(image);
-				});
-			});
-		});
-
-		it('should return a valid buffer', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
-					let ret = cl.enqueueMapImage(
-						cq,
-						image,
-						true,
-						cl.MAP_WRITE_INVALIDATE_REGION,
-						[0, 0, 0],
-						[2, 2, 1]
-					);
-					let u8s = new Uint8Array(ret);
-					assert.instanceOf(u8s.buffer, ArrayBuffer);
-					assert.isNumber(u8s[0]);
-					cl.releaseMemObject(image);
-				});
-			});
-		});
-
-
-		it('should not be able to read from a not already allocated pointer', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
-					let ret = cl.enqueueMapImage(
-						cq,
-						image,
-						false,
-						cl.MAP_READ,
-						[0, 0, 0],
-						[2, 2, 1],
-						[],
-						true
-					);
-					let u8s = new Uint8Array(ret);
-					assert.instanceOf(u8s.buffer, ArrayBuffer);
-					assert.isNumber(u8s[0]);
-					cl.releaseMemObject(image);
-				});
-			});
-		});
-
-		it('should not be able to read from a not already allocated pointer', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
-					let ret = cl.enqueueMapImage(
-						cq,
-						image,
-						false,
-						cl.MAP_WRITE,
-						[0, 0, 0],
-						[2, 2, 1],
-						[],
-						true
-					);
-					let u8s = new Uint8Array(ret);
-					assert.instanceOf(u8s.buffer, ArrayBuffer);
-					assert.isNumber(u8s[0]);
-					cl.releaseMemObject(image);
-				});
-			});
-		});
-
-		it('should not throw as we are using the pointer from an event', function (done) {
-			U.withAsyncContext(function (ctx, device, _, ctxDone) {
-				U.withAsyncCQ(ctx, device, function (cq, cqDone) {
-					let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
-					let ret = cl.enqueueMapImage(
-						cq,
-						image,
-						false,
-						cl.MAP_READ,
-						[0, 0, 0],
-						[2, 2, 1],
-						[],
-						true
-					);
-
-					cl.setEventCallback(ret.event, cl.COMPLETE, function () {
-						let u8s = new Uint8Array(ret);
-						assert.instanceOf(u8s.buffer, ArrayBuffer);
-						assert.isNumber(u8s[0]);
-						cl.releaseMemObject(image);
-						cl.releaseEvent(ret.event);
-						cqDone();
-						ctxDone();
-						done();
-					});
-				});
-			});
-		});
-
-		it('should not throw as we are using the pointer from an event', function (done) {
-			U.withAsyncContext(function (ctx, device, _, ctxDone) {
-				U.withAsyncCQ(ctx, device, function (cq, cqDone) {
-					let image = cl.createImage(ctx, 0, imageFormat, imageDesc, null);
-					let ret = cl.enqueueMapImage(
-						cq,
-						image,
-						false,
-						cl.MAP_WRITE,
-						[0, 0, 0],
-						[2, 2, 1],
-						[],
-						true
-					);
-					
-					cl.setEventCallback(ret.event, cl.COMPLETE, function () {
-						let u8s = new Uint8Array(ret);
-						assert.instanceOf(u8s.buffer, ArrayBuffer);
-						assert.isNumber(u8s[0]);
-						cl.releaseMemObject(image);
-						cl.releaseEvent(ret.event);
-						ctxDone();
-						cqDone();
-						done();
-					});
-				});
-			});
-
 		});
 
 	});
 
-	describe('#enqueueMigrateMemObjects', function () {
-		let imageFormat = {'channel_order': cl.RGBA, 'channel_data_type': cl.UNSIGNED_INT8};
-		let imageDesc = {
-			'type': cl.MEM_OBJECT_IMAGE2D,
-			'width': 8,
-			'height': 8,
-			'depth': 2,
-			'image_array_size': 1,
-			'image_row_pitch': 8,
-			'image_slice_pitch': 64
-		};
+});
 
-		it('should migrate mem objects with flag cl.MIGRATE_MEM_OBJECT_HOST', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image = createImageWrapper(
-						ctx,
-						cl.MEM_COPY_HOST_PTR,
-						imageFormat,
-						imageDesc,
-						new Buffer(64)
-					);
-					let buffer = cl.createBuffer(ctx, cl.MEM_HOST_READ_ONLY, 64, null);
+const enqueueMigrateMemObjects = () => describe('#enqueueMigrateMemObjects', function () {
 
-					// cq, mem objects, flags
-					let ret = cl.enqueueMigrateMemObjects(
-						cq,
-						[image, buffer],
-						cl.MIGRATE_MEM_OBJECT_HOST
-					);
+	it('should migrate mem objects with flag cl.MIGRATE_MEM_OBJECT_HOST', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(
+					ctx,
+					cl.MEM_COPY_HOST_PTR,
+					imageFormat,
+					imageDesc,
+					new Buffer(64)
+				);
+				let buffer = cl.createBuffer(ctx, cl.MEM_HOST_READ_ONLY, 64, null);
 
-					assert.strictEqual(ret, cl.SUCCESS);
-					cl.releaseMemObject(image);
-					cl.releaseMemObject(buffer);
-				});
+				// cq, mem objects, flags
+				let ret = cl.enqueueMigrateMemObjects(
+					cq,
+					[image, buffer],
+					cl.MIGRATE_MEM_OBJECT_HOST
+				);
+
+				assert.strictEqual(ret, cl.SUCCESS);
+				cl.releaseMemObject(image);
+				cl.releaseMemObject(buffer);
 			});
 		});
+	});
 
-		it('should migrate mem objects with flag cl.MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image = createImageWrapper(
-						ctx,
-						cl.MEM_COPY_HOST_PTR,
-						imageFormat,
-						imageDesc,
-						new Buffer(64)
-					);
-					let buffer = cl.createBuffer(ctx, cl.MEM_HOST_READ_ONLY, 64, null);
+	it('should migrate mem objects with flag cl.MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(
+					ctx,
+					cl.MEM_COPY_HOST_PTR,
+					imageFormat,
+					imageDesc,
+					new Buffer(64)
+				);
+				let buffer = cl.createBuffer(ctx, cl.MEM_HOST_READ_ONLY, 64, null);
 
-					// cq, mem objects, flags
-					let ret = cl.enqueueMigrateMemObjects(
+				// cq, mem objects, flags
+				let ret = cl.enqueueMigrateMemObjects(
+					cq,
+					[image, buffer],
+					cl.MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED
+				);
+
+				assert.strictEqual(ret, cl.SUCCESS);
+				cl.releaseMemObject(image);
+				cl.releaseMemObject(buffer);
+			});
+		});
+	});
+
+	it('should throw cl.INVALID_VALUE if memObjects is null', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				// cq, mem objects, flags
+				expect(
+					() => cl.enqueueMigrateMemObjects(
+						cq,
+						null,
+						cl.MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED
+					)
+				).to.throw('Argument 1 must be of type `Array`');
+			});
+		});
+	});
+
+	it('should throw cl.INVALID_MEM_OBJECT if any memory object is null', function () {
+		U.withContext(function (ctx, device) {
+			U.withCQ(ctx, device, function (cq) {
+				let image = cl.createImage(
+					ctx,
+					cl.MEM_COPY_HOST_PTR,
+					imageFormat,
+					imageDesc,
+					new Buffer(64)
+				);
+				let buffer = null;
+
+				expect(
+					() => cl.enqueueMigrateMemObjects(
 						cq,
 						[image, buffer],
 						cl.MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED
-					);
-
-					assert.strictEqual(ret, cl.SUCCESS);
-					cl.releaseMemObject(image);
-					cl.releaseMemObject(buffer);
-				});
-			});
-		});
-
-		it('should throw cl.INVALID_VALUE if memObjects is null', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					// cq, mem objects, flags
-					expect(
-						() => cl.enqueueMigrateMemObjects(
-							cq,
-							null,
-							cl.MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED
-						)
-					).to.throw('Argument 1 must be of type `Array`');
-				});
-			});
-		});
-
-		it('should throw cl.INVALID_MEM_OBJECT if any memory object is null', function () {
-			U.withContext(function (ctx, device) {
-				U.withCQ(ctx, device, function (cq) {
-					let image = createImageWrapper(
-						ctx,
-						cl.MEM_COPY_HOST_PTR,
-						imageFormat,
-						imageDesc,
-						new Buffer(64)
-					);
-					let buffer = null;
-
-					expect(
-						() => cl.enqueueMigrateMemObjects(
-							cq,
-							[image, buffer],
-							cl.MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED
-						)
-					).to.throw(cl.INVALID_MEM_OBJECT.message);
-					cl.releaseMemObject(image);
-				});
+					)
+				).to.throw(cl.INVALID_MEM_OBJECT.message);
+				cl.releaseMemObject(image);
 			});
 		});
 	});
+});
 
+describe('CommandQueue - Image', function () {
+	enqueueReadImage();
+	enqueueWriteImage();
+	enqueueFillImage();
+	enqueueCopyImage();
+	enqueueCopyImageToBuffer();
+	enqueueCopyBufferToImage();
+	enqueueMapImage();
+	enqueueMigrateMemObjects();
 });
