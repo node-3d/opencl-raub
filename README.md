@@ -114,37 +114,63 @@ See `examples` for more details. The full code of the above example is available
 [here](examples/simple.js).
 
 
-## Exported Methods
+## API Notes
 
-The returned `number` type corresponds to `cl_int` values of CL error codes.
+The methods, returning `cl_int` values of CL error codes, would return a `number` to JS.
+That `number` may be checked against `cl.SUCCESS` and other error codes.
 
 The returned object types (`Platform`, `Context`, `Event`, etc.) are wrappers around CL
 resource ids, that can be passed to further CL method calls.
 
-* `cl.getPlatformIDs(): [Platform]` - .
-* `cl.getPlatformInfo(): string` - .
+Most of the method arguments comply to the original C-style spec, some parameters are omitted
+due to JS specifics. For example, passing an array, you don't need to specify the length.
+The specific set of parameters for each method is documented below, so it can be compared
+to the original spec, when in doubt.
 
-* `cl.createContext(): Context` - .
-* `cl.createContextFromType(): Context` - .
-* `cl.retainContext(): number` - .
-* `cl.releaseContext(): number` - .
-* `cl.getContextInfo(): number` - .
+For `enqueueXXX()` methods, you can pass `hasEvent = true` (the last argument).
+In this case an `Event` is returned, it can be used to coordinate calls, profiling etc.
 
-* `cl.getDeviceIDs(): [Device]` - .
-* `cl.getDeviceInfo(): string | number | boolean | Platform | [number] | null` - .
-* `cl.createSubDevices(): [Device]` - .
-* `cl.retainDevice(): number` - .
-* `cl.releaseDevice(): number` - .
 
-* `cl.createCommandQueue(): Queue` - .
-* `cl.retainCommandQueue(): number` - .
-* `cl.releaseCommandQueue(): number` - .
-* `cl.getCommandQueueInfo(): number` - .
-* `cl.flush(): number` - .
-* `cl.finish(): number` - .
+## Exported Methods
 
-> NOTE: For `enqueueXXX()` methods, you can pass ` = true` (the last argument).
-In this case a `cl.Event` is returned, it can be used to coordinate calls, profiling etc.
+* `cl.getPlatformIDs(): [Platform]` -
+	[clGetPlatformIDs](https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetPlatformIDs.html).
+* `cl.getPlatformInfo(platform: Platform, param_name: string): string` -
+	[clGetPlatformInfo](https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetPlatformInfo.html).
+
+* `cl.createContext(properties: [number | Platform], devices: [Device]): Context` -
+	[clCreateContext](https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clCreateContext.html).
+* `cl.createContextFromType(properties: [number | Platform], device_type: number): Context` -
+	[clCreateContext](https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clCreateContextFromType.html).
+* `cl.retainContext(context: Context): number` -
+	[clRetainContext](https://www.khronos.org/registry/OpenCL/sdk/2.0/docs/man/xhtml/clRetainContext.html).
+* `cl.releaseContext(context: Context): number` -
+	[clReleaseContext](https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clReleaseContext.html).
+* `cl.getContextInfo(context: Context, param_name: string): [Device] | number | [number | Platform]` -
+	[clGetContextInfo](https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetContextInfo.html).
+
+* `cl.getDeviceIDs(platform: Platform, device_type: number): [Device]` -
+	[clGetDeviceIDs](https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetDeviceIDs.html).
+* `cl.getDeviceInfo(device: Device, param_name: number): string | number | boolean | Platform | [number] | null` -
+	[clGetDeviceInfo](https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetDeviceInfo.html).
+* `cl.createSubDevices(device: Device, properties: [number | Platform]): [Device]` - .
+* `cl.retainDevice(device: Device): number` -
+	[clRetainDevice](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clRetainDevice.html).
+* `cl.releaseDevice(device: Device): number` -
+	[clReleaseDevice](https://www.khronos.org/registry/OpenCL/sdk/2.0/docs/man/xhtml/clReleaseDevice.html).
+
+* `cl.createCommandQueue(context: Context, device: Device, properties: number): Queue` -
+	[clCreateCommandQueue](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateCommandQueue.html).
+* `cl.retainCommandQueue(queue: Queue): number` -
+	[clRetainCommandQueue](https://www.khronos.org/registry/OpenCL/sdk/1.1/docs/man/xhtml/clRetainCommandQueue.html).
+* `cl.releaseCommandQueue(queue: Queue): number` -
+	[clReleaseCommandQueue](https://www.khronos.org/registry/OpenCL/sdk/1.1/docs/man/xhtml/clReleaseCommandQueue.html).
+* `cl.getCommandQueueInfo(queue: Queue, param_name: number): number` -
+	[clGetCommandQueueInfo](https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetCommandQueueInfo.html).
+* `cl.flush(queue: Queue): number` -
+	[clFlush](https://www.khronos.org/registry/OpenCL/sdk/1.1/docs/man/xhtml/clFlush.html).
+* `cl.finish(queue: Queue): number` -
+	[clFinish](https://www.khronos.org/registry/OpenCL/sdk/1.1/docs/man/xhtml/clFinish.html).
 
 * `cl.enqueueReadBuffer(): number | Event` - .
 * `cl.enqueueReadBufferRect(): number | Event` - .
