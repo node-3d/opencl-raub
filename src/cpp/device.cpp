@@ -65,7 +65,7 @@ inline Napi::Value getDeviceInfoPlatform(Napi::Env env, cl_device_id device_id, 
 	if (param_value) {
 		RET_WRAPPER(param_value);
 	}
-	RET_UNDEFINED;
+	RET_NULL;
 }
 
 inline Napi::Value getDeviceInfoType(Napi::Env env, cl_device_id device_id, uint32_t param_name) {
