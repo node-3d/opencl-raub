@@ -39,7 +39,7 @@ const program = cl.createProgramWithSource(context, `
 cl.buildProgram(program);
 
 // Create a kernel object
-let kernel = cl.createKernel(program, 'vadd');
+const kernel = cl.createKernel(program, 'vadd');
 
 // Set kernel args
 cl.setKernelArg(kernel, 0, 'uint*', bufferA);

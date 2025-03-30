@@ -9,7 +9,6 @@ namespace opencl {
 //                  cl_platform_id * /* platforms */,
 //                  cl_uint *        /* num_platforms */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getPlatformIDs) { NAPI_ENV;
-	
 	cl_uint num_entries = 0;
 	CHECK_ERR(clGetPlatformIDs(0, nullptr, &num_entries));
 	
@@ -22,7 +21,6 @@ JS_METHOD(getPlatformIDs) { NAPI_ENV;
 	}
 	
 	RET_VALUE(platformArray);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -32,7 +30,6 @@ JS_METHOD(getPlatformIDs) { NAPI_ENV;
 //                   void *           /* param_value */,
 //                   size_t *         /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getPlatformInfo) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, platform_id, cl_platform_id);
 	REQ_OFFS_ARG(1, param_name);
 	
@@ -48,7 +45,6 @@ JS_METHOD(getPlatformInfo) { NAPI_ENV;
 	));
 	
 	RET_STR(param_value);
-	
 }
 
 

@@ -1,5 +1,4 @@
-#ifndef OPENCL_TYPES_H
-#define OPENCL_TYPES_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -38,9 +37,8 @@ public:
 	
 	JS_DECLARE_METHOD(Wrapper, toString);
 	
-	int acquire() const;
-	
-	int release();
+	cl_int acquire();
+	cl_int release();
 	
 	template <typename T> T as() { return reinterpret_cast<T>(_data); }
 	
@@ -69,7 +67,7 @@ private:
 	void *_data;
 	cl_func _acquire;
 	cl_func _release;
-	bool _released;
+	uint16_t _released;
 	const char *_typeName;
 	
 };
@@ -98,5 +96,3 @@ private:
 	TYPE VAR = _wrap_##VAR->as<TYPE>();
 
 } // namespace opencl
-
-#endif

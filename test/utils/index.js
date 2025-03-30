@@ -1,123 +1,103 @@
 'use strict';
 
+const assert = require('node:assert').strict;
+
 const cl = require('../../');
-
-let { vendors } = require('./diagnostic');
-
 require('./device_selection');
 
 
-let defaultDeviceVendor = vendors[cl.getDeviceInfo(global.MAIN_DEVICE, cl.DEVICE_VENDOR)];
-let defaultPlatformVendor = vendors[cl.getPlatformInfo(global.MAIN_PLATFORM, cl.PLATFORM_VENDOR)];
-let defaultOptions = { device: global.MAIN_DEVICE, platform: global.MAIN_PLATFORM };
-
-let deviceIdToType = id => cl.getDeviceInfo(id, cl.DEVICE_TYPE);
-let deviceTypesAsBitmask = xs => xs.reduce((x, y) => x | y, 0);
-
-
-let Utils = {
-	newContext(opts = defaultOptions) {
-		let platformId = ('platform' in opts) ? opts.platform : global.MAIN_PLATFORM;
-		let types = ('type' in opts) ? [opts.type] : ('types' in opts) ? opts.types : null;
-		let devices = ('device' in opts) ? [opts.device] : ('devices' in opts) ? opts.devices : null;
-		let properties = ('properties' in opts) ? opts.properties : [cl.CONTEXT_PLATFORM, platformId];
-		
-		if (types && types.length) {
-			devices = cl
-				.getDeviceIDs(platformId, cl.DEVICE_TYPE_ALL)
-				.filter(id => ~types.indexOf(deviceIdToType(id)));
-		}
-		
-		devices = devices && devices.length ? devices : [global.MAIN_DEVICE];
-		types = deviceTypesAsBitmask(types || devices.map(deviceIdToType));
-		
-		return cl.createContext ?
-			cl.createContext(properties, devices, null, null) :
-			cl.createContextFromType(properties, types, null, null);
+const Utils = {
+	newContext() {
+		return cl.createContext(
+			[cl.CONTEXT_PLATFORM, global.MAIN_PLATFORM],
+			[global.MAIN_DEVICE],
+		);
 	},
-	withContext: function (exec) {
-		let ctx = Utils.newContext(defaultOptions);
+	newQueue(context) {
+		return cl.createCommandQueue(context, global.MAIN_DEVICE, null);;
+	},
+	withContext: (exec) => {
+		const ctx = cl.createContext(
+			[cl.CONTEXT_PLATFORM, global.MAIN_PLATFORM],
+			[global.MAIN_DEVICE],
+		);
 		try { exec(ctx, global.MAIN_DEVICE, global.MAIN_PLATFORM); }
 		finally { cl.releaseContext(ctx); }
 	},
 	
-	withAsyncContext: function (exec) {
-		let ctx = Utils.newContext(defaultOptions);
+	withAsyncContext: (exec) => {
+		const ctx = Utils.newContext();
 		try {
-			exec(ctx, global.MAIN_DEVICE, global.MAIN_PLATFORM, function () {
+			exec(ctx, global.MAIN_DEVICE, global.MAIN_PLATFORM, () => {
 				cl.releaseContext(ctx);
 			});
-		} catch (e) {
+		} catch (_e) {
 			cl.releaseContext(ctx);
 		}
 	},
 	
-	withProgram: function (ctx, source, exec) {
-		let prg = cl.createProgramWithSource(ctx, source);
+	withProgram: (ctx, source, exec) => {
+		const prg = cl.createProgramWithSource(ctx, source);
 		cl.buildProgram(prg, null, '-cl-kernel-arg-info');
 		try {
 			exec(prg);
-		}
-		finally {
+		} finally {
 			cl.releaseProgram(prg);
 		}
 	},
 	
-	withProgramAsync: function (ctx, source, exec) {
-		let prg = cl.createProgramWithSource(ctx, source);
+	withProgramAsync: (ctx, source, exec) => {
+		const prg = cl.createProgramWithSource(ctx, source);
 		cl.buildProgram(prg, null, '-cl-kernel-arg-info');
 	
 		try {
-			exec(prg, function () {
-				cl.releaseProgram(prg);
-			});
-		} catch (e) { cl.releaseProgram(prg); }
+			exec(prg, () => cl.releaseProgram(prg));
+		} catch (_e) {
+			cl.releaseProgram(prg);
+		}
 	},
 	
-	withCQ: function (ctx, device, exec) {
-		let cq = (
+	withCQ: (ctx, device, exec) => {
+		const cq = (
 			cl.createCommandQueueWithProperties ||
 			cl.createCommandQueue
-		)(ctx, device, Utils.checkVersion('1.x') ? null : []);
+		)(ctx, device, null);
 		try { exec(cq); }
 		finally { cl.releaseCommandQueue(cq); }
 	},
 	
-	withAsyncCQ: function (ctx, device, exec) {
-		let cq = (
+	withAsyncCQ: (ctx, device, exec) => {
+		const cq = (
 			cl.createCommandQueueWithProperties ||
 			cl.createCommandQueue
-		)(ctx, device, Utils.checkVersion('1.x') ? null : []);
+		)(ctx, device, null);
 		try {
-			exec(cq, function () {
-				cl.releaseCommandQueue(cq);
-			});
-		} catch (e) { cl.releaseCommandQueue(cq); }
+			exec(cq, () => cl.releaseCommandQueue(cq));
+		} catch (_e) { cl.releaseCommandQueue(cq); }
 	},
 	
-	bind : function (/*...*/) {
-		let args = Array.prototype.slice.call(arguments);
-		let fct = args.shift();
-		return function () {
-			return fct.apply(fct, args);
-		};
-	},
-	
-	checkImplementation : function () {
-		// We certainly need a better implementation of this method
-		if (! cl.PLATFORM_ICD_SUFFIX_KHR) {
-			return 'osx';
-		} else {
-			return 'other';
+	assertType: (v, name) => {
+		if (name === 'object') {
+			assert.ok(v);
 		}
-	},
-	
-	checkVendor(vendor) {
-		return vendor === defaultDeviceVendor || vendor === defaultPlatformVendor;
-	},
-	
-	checkVersion : function (v) {
-		return v == '1.2' || v == '1.x';
+		
+		if (name === 'array') {
+			assert.ok(v);
+			assert.strictEqual(
+				typeof v, 'object',
+				'assertType(v, \'array\'): "v" must be an object',
+			);
+			assert.strictEqual(
+				typeof v.length, 'number',
+				'assertType(v, \'array\'): "v.length" must be a number',
+			);
+			return;
+		}
+		
+		assert.strictEqual(
+			typeof v, name,
+			`assertType(v, '${name}'): the type is "${typeof v}"`,
+		);
 	},
 };
 

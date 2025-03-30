@@ -30,7 +30,6 @@ namespace opencl {
 //                      cl_command_queue_properties    /* properties */,
 //                      cl_int *                       /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(createCommandQueue) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, context, cl_context);
 	REQ_CL_ARG(1, device, cl_device_id);
 	LET_UINT32_ARG(2, properties);
@@ -40,34 +39,29 @@ JS_METHOD(createCommandQueue) { NAPI_ENV;
 	
 	CHECK_ERR(err)
 	RET_WRAPPER(q);
-	
 }
 
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
 // clRetainCommandQueue(cl_command_queue /* command_queue */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(retainCommandQueue) { NAPI_ENV;
-	
 	REQ_WRAP_ARG(0, q);
 	
 	cl_int err = q->acquire();
 	CHECK_ERR(err)
 	
 	RET_NUM(err);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
 // clReleaseCommandQueue(cl_command_queue /* command_queue */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(releaseCommandQueue) { NAPI_ENV;
-	
 	REQ_WRAP_ARG(0, q);
 	
 	cl_int err = q->release();
 	CHECK_ERR(err)
 	
 	RET_NUM(err);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -77,7 +71,6 @@ JS_METHOD(releaseCommandQueue) { NAPI_ENV;
 //                       void *                /* param_value */,
 //                       size_t *              /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getCommandQueueInfo) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_UINT32_ARG(1, param_name);
 	
@@ -130,34 +123,29 @@ JS_METHOD(getCommandQueueInfo) { NAPI_ENV;
 	}
 	
 	THROW_ERR(CL_INVALID_VALUE);
-	
 }
 
 // /* Flush and Finish APIs */
 // extern CL_API_ENTRY cl_int CL_API_CALL
 // clFlush(cl_command_queue /* command_queue */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(flush) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	
 	cl_int err = clFlush(clQueue);
 	
 	CHECK_ERR(err);
 	RET_NUM(err);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
 // clFinish(cl_command_queue /* command_queue */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(finish) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	
 	cl_int err = clFinish(clQueue);
 	
 	CHECK_ERR(err);
 	RET_NUM(err);
-	
 }
 
 // /* Enqueued Commands APIs */
@@ -172,7 +160,6 @@ JS_METHOD(finish) { NAPI_ENV;
 //                     const cl_event *    /* event_wait_list */,
 //                     cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(enqueueReadBuffer) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, clMem, cl_mem);
 	SOFT_BOOL_ARG(2, blocking_read);
@@ -203,7 +190,6 @@ JS_METHOD(enqueueReadBuffer) { NAPI_ENV;
 	));
 	
 	RET_EVENT;
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -222,7 +208,6 @@ JS_METHOD(enqueueReadBuffer) { NAPI_ENV;
 //                         const cl_event *    /* event_wait_list */,
 //                         cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_1;
 JS_METHOD(enqueueReadBufferRect) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, clMem, cl_mem);
 	SOFT_BOOL_ARG(2, blocking_read);
@@ -280,7 +265,6 @@ JS_METHOD(enqueueReadBufferRect) { NAPI_ENV;
 	));
 	
 	RET_EVENT;
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -294,7 +278,6 @@ JS_METHOD(enqueueReadBufferRect) { NAPI_ENV;
 //                      const cl_event *   /* event_wait_list */,
 //                      cl_event *         /* event */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(enqueueWriteBuffer) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, clMem, cl_mem);
 	SOFT_BOOL_ARG(2, blocking_write);
@@ -326,7 +309,6 @@ JS_METHOD(enqueueWriteBuffer) { NAPI_ENV;
 	));
 	
 	RET_EVENT;
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -345,7 +327,6 @@ JS_METHOD(enqueueWriteBuffer) { NAPI_ENV;
 //                          const cl_event *    /* event_wait_list */,
 //                          cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_1;
 JS_METHOD(enqueueWriteBufferRect) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, clMem, cl_mem);
 	SOFT_BOOL_ARG(2, blocking_write);
@@ -404,7 +385,6 @@ JS_METHOD(enqueueWriteBufferRect) { NAPI_ENV;
 	));
 	
 	RET_EVENT;
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -418,7 +398,6 @@ JS_METHOD(enqueueWriteBufferRect) { NAPI_ENV;
 //                     const cl_event *   /* event_wait_list */,
 //                     cl_event *         /* event */) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(enqueueFillBuffer) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, clMem, cl_mem);
 	
@@ -456,7 +435,6 @@ JS_METHOD(enqueueFillBuffer) { NAPI_ENV;
 	));
 	
 	RET_EVENT;
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -470,7 +448,6 @@ JS_METHOD(enqueueFillBuffer) { NAPI_ENV;
 //                     const cl_event *    /* event_wait_list */,
 //                     cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(enqueueCopyBuffer) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, src_buffer, cl_mem);
 	REQ_CL_ARG(2, dst_buffer, cl_mem);
@@ -493,7 +470,6 @@ JS_METHOD(enqueueCopyBuffer) { NAPI_ENV;
 	));
 	
 	RET_EVENT;
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -511,7 +487,6 @@ JS_METHOD(enqueueCopyBuffer) { NAPI_ENV;
 //                         const cl_event *    /* event_wait_list */,
 //                         cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_1;
 JS_METHOD(enqueueCopyBufferRect) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, src_buffer, cl_mem);
 	REQ_CL_ARG(2, dst_buffer, cl_mem);
@@ -559,7 +534,6 @@ JS_METHOD(enqueueCopyBufferRect) { NAPI_ENV;
 	));
 	
 	RET_EVENT;
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -575,7 +549,6 @@ JS_METHOD(enqueueCopyBufferRect) { NAPI_ENV;
 //                    const cl_event *     /* event_wait_list */,
 //                    cl_event *           /* event */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(enqueueReadImage) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, image, cl_mem);
 	SOFT_BOOL_ARG(2, blocking_read);
@@ -623,7 +596,6 @@ JS_METHOD(enqueueReadImage) { NAPI_ENV;
 	));
 	
 	RET_EVENT;
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -639,7 +611,6 @@ JS_METHOD(enqueueReadImage) { NAPI_ENV;
 //                     const cl_event *    /* event_wait_list */,
 //                     cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(enqueueWriteImage) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, image, cl_mem);
 	SOFT_BOOL_ARG(2, blocking_write);
@@ -687,7 +658,6 @@ JS_METHOD(enqueueWriteImage) { NAPI_ENV;
 	));
 	
 	RET_EVENT;
-	
 }
 
 
@@ -701,7 +671,6 @@ JS_METHOD(enqueueWriteImage) { NAPI_ENV;
 //                    const cl_event *   /* event_wait_list */,
 //                    cl_event *         /* event */) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(enqueueFillImage) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, image, cl_mem);
 	REQ_OBJ_ARG(2, buffer);
@@ -743,7 +712,6 @@ JS_METHOD(enqueueFillImage) { NAPI_ENV;
 	));
 	
 	RET_EVENT;
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -757,7 +725,6 @@ JS_METHOD(enqueueFillImage) { NAPI_ENV;
 //                    const cl_event *     /* event_wait_list */,
 //                    cl_event *           /* event */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(enqueueCopyImage) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, src_buffer, cl_mem);
 	REQ_CL_ARG(2, dst_buffer, cl_mem);
@@ -797,7 +764,6 @@ JS_METHOD(enqueueCopyImage) { NAPI_ENV;
 	));
 	
 	RET_EVENT;
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -811,7 +777,6 @@ JS_METHOD(enqueueCopyImage) { NAPI_ENV;
 //                            const cl_event * /* event_wait_list */,
 //                            cl_event *       /* event */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(enqueueCopyImageToBuffer) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, src_buffer, cl_mem);
 	REQ_CL_ARG(2, dst_buffer, cl_mem);
@@ -846,7 +811,6 @@ JS_METHOD(enqueueCopyImageToBuffer) { NAPI_ENV;
 	));
 	
 	RET_EVENT;
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -860,7 +824,6 @@ JS_METHOD(enqueueCopyImageToBuffer) { NAPI_ENV;
 //                            const cl_event * /* event_wait_list */,
 //                            cl_event *       /* event */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(enqueueCopyBufferToImage) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, src_buffer, cl_mem);
 	REQ_CL_ARG(2, dst_buffer, cl_mem);
@@ -895,7 +858,6 @@ JS_METHOD(enqueueCopyBufferToImage) { NAPI_ENV;
 	));
 	
 	RET_EVENT;
-	
 }
 
 // static std::unordered_map<void*, int> mapPointers;
@@ -910,6 +872,7 @@ void CL_CALLBACK notifyMapCB (
 	//     asyncCB->CallBackIsDone();
 }
 
+// FIXME: events and return format
 // extern CL_API_ENTRY void * CL_API_CALL
 // clEnqueueMapBuffer(cl_command_queue /* command_queue */,
 //                    cl_mem           /* buffer */,
@@ -922,7 +885,6 @@ void CL_CALLBACK notifyMapCB (
 //                    cl_event *       /* event */,
 //                    cl_int *         /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(enqueueMapBuffer) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, mem, cl_mem);
 	SOFT_BOOL_ARG(2, blocking_map);
@@ -967,7 +929,6 @@ JS_METHOD(enqueueMapBuffer) { NAPI_ENV;
 	}
 	
 	RET_VALUE(obj);
-	
 }
 
 // extern CL_API_ENTRY void * CL_API_CALL
@@ -984,7 +945,6 @@ JS_METHOD(enqueueMapBuffer) { NAPI_ENV;
 //                   cl_event *        /* event */,
 //                   cl_int *          /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(enqueueMapImage) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, mem, cl_mem);
 	SOFT_BOOL_ARG(2, blocking_map);
@@ -1083,7 +1043,6 @@ JS_METHOD(enqueueMapImage) { NAPI_ENV;
 //                         const cl_event *  /* event_wait_list */,
 //                         cl_event *        /* event */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(enqueueUnmapMemObject) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, mem, cl_mem);
 	REQ_OBJ_ARG(2, buffer);
@@ -1111,7 +1070,6 @@ JS_METHOD(enqueueUnmapMemObject) { NAPI_ENV;
 	CHECK_ERR(err)
 	
 	RET_EVENT;
-	
 }
 
 
@@ -1124,7 +1082,6 @@ JS_METHOD(enqueueUnmapMemObject) { NAPI_ENV;
 //                            const cl_event *       /* event_wait_list */,
 //                            cl_event *             /* event */) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(enqueueMigrateMemObjects) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_ARRAY_ARG(1, objArray);
 	REQ_UINT32_ARG(2, flags);
@@ -1153,7 +1110,6 @@ JS_METHOD(enqueueMigrateMemObjects) { NAPI_ENV;
 	));
 	
 	RET_EVENT;
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -1167,7 +1123,6 @@ JS_METHOD(enqueueMigrateMemObjects) { NAPI_ENV;
 //                        const cl_event * /* event_wait_list */,
 //                        cl_event *       /* event */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(enqueueNDRangeKernel) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, k, cl_kernel);
 	REQ_UINT32_ARG(2, work_dim);
@@ -1227,7 +1182,6 @@ JS_METHOD(enqueueNDRangeKernel) { NAPI_ENV;
 	));
 	
 	RET_EVENT;
-	
 }
 
 
@@ -1238,7 +1192,6 @@ JS_METHOD(enqueueNDRangeKernel) { NAPI_ENV;
 //               const cl_event *  /* event_wait_list */,
 //               cl_event *        /* event */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(enqueueTask) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, k, cl_kernel);
 	
@@ -1253,7 +1206,6 @@ JS_METHOD(enqueueTask) { NAPI_ENV;
 	));
 	
 	RET_EVENT;
-	
 }
 
 
@@ -1272,11 +1224,9 @@ JS_METHOD(enqueueTask) { NAPI_ENV;
 
 // Note: only available if CL_EXEC_NATIVE_KERNEL capability
 JS_METHOD(enqueueNativeKernel) { NAPI_ENV;
-	
 	JS_THROW("enqueueNativeKernel is not supported by Node OpenCL");
 	
 	RET_UNDEFINED;
-	
 }
 
 
@@ -1286,7 +1236,6 @@ JS_METHOD(enqueueNativeKernel) { NAPI_ENV;
 //                             const cl_event *  /* event_wait_list */,
 //                             cl_event *        /* event */) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(enqueueMarkerWithWaitList) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	
 	GET_WAIT_LIST_AND_EVENT(1);
@@ -1299,7 +1248,6 @@ JS_METHOD(enqueueMarkerWithWaitList) { NAPI_ENV;
 	));
 	
 	RET_EVENT;
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -1308,7 +1256,6 @@ JS_METHOD(enqueueMarkerWithWaitList) { NAPI_ENV;
 //                              const cl_event *  /* event_wait_list */,
 //                              cl_event *        /* event */) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(enqueueBarrierWithWaitList) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	
 	GET_WAIT_LIST_AND_EVENT(1);
@@ -1325,26 +1272,40 @@ JS_METHOD(enqueueBarrierWithWaitList) { NAPI_ENV;
 
 
 JS_METHOD(enqueueAcquireGLObjects) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, queue, cl_command_queue);
 	REQ_CL_ARG(1, mem, cl_mem);
 	
-	CHECK_ERR(clEnqueueAcquireGLObjects(queue, 1, &mem, 0, 0, 0));
+	GET_WAIT_LIST_AND_EVENT(2);
 	
-	RET_NUM(CL_SUCCESS);
+	CHECK_ERR(clEnqueueAcquireGLObjects(
+		queue,
+		1,
+		&mem,
+		(cl_uint)cl_events.size(),
+		&cl_events.front(),
+		eventPtr
+	));
 	
+	RET_EVENT;
 }
 
 
 JS_METHOD(enqueueReleaseGLObjects) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, queue, cl_command_queue);
 	REQ_CL_ARG(1, mem, cl_mem);
 	
-	CHECK_ERR(clEnqueueReleaseGLObjects(queue, 1, &mem, 0, 0, 0 ) );
+	GET_WAIT_LIST_AND_EVENT(2);
 	
-	RET_NUM(CL_SUCCESS);
+	CHECK_ERR(clEnqueueReleaseGLObjects(
+		queue,
+		1,
+		&mem,
+		(cl_uint)cl_events.size(),
+		&cl_events.front(),
+		eventPtr 
+	));
 	
+	RET_EVENT;
 }
 
 

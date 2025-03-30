@@ -1,5 +1,17 @@
 #include "types.hpp"
 
+#include "queue.cpp"
+#include "common.cpp"
+#include "context.cpp"
+#include "device.cpp"
+#include "event.cpp"
+#include "kernel.cpp"
+#include "memobj.cpp"
+#include "platform.cpp"
+#include "program.cpp"
+#include "sampler.cpp"
+#include "types.cpp"
+
 
 #define JS_CL_CONSTANT(name)                                                  \
 	exports.Set(#name, static_cast<double>(CL_ ## name));
@@ -607,7 +619,6 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
 	#endif
 	
 	return exports;
-	
 }
 
 

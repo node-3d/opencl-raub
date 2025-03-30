@@ -14,7 +14,6 @@ namespace opencl {
 //                const char *    /* kernel_name */,
 //                cl_int *        /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(createKernel) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, program, cl_program);
 	REQ_STR_ARG(1, name);
 	
@@ -23,7 +22,6 @@ JS_METHOD(createKernel) { NAPI_ENV;
 	CHECK_ERR(ret);
 	
 	RET_WRAPPER(k);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -32,7 +30,6 @@ JS_METHOD(createKernel) { NAPI_ENV;
 //                          cl_kernel *    /* kernels */,
 //                          cl_uint *      /* num_kernels_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(createKernelsInProgram) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, program, cl_program);
 	
 	cl_uint numkernels;
@@ -51,33 +48,28 @@ JS_METHOD(createKernelsInProgram) { NAPI_ENV;
 	delete[] kernels;
 	
 	RET_VALUE(karr);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
 // clRetainKernel(cl_kernel    /* kernel */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(retainKernel) { NAPI_ENV;
-	
 	REQ_WRAP_ARG(0, k);
 	
 	cl_int err = k->acquire();
 	CHECK_ERR(err);
 	
 	RET_NUM(CL_SUCCESS);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
 // clReleaseKernel(cl_kernel   /* kernel */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(releaseKernel) { NAPI_ENV;
-	
 	REQ_WRAP_ARG(0, k);
 	
 	cl_int err = k->release();
 	CHECK_ERR(err);
 	
 	RET_NUM(CL_SUCCESS);
-	
 }
 
 // caches OpenCL type name to conversion function mapping in a hash table
@@ -221,7 +213,6 @@ public:
 		// call conversion function and return size of argument and pointer
 		return m_converters[name](val);
 	}
-	
 };
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -328,7 +319,6 @@ JS_METHOD(setKernelArg) { NAPI_ENV;
 	
 	CHECK_ERR(err);
 	RET_NUM(err);
-	
 }
 
 
@@ -339,7 +329,6 @@ JS_METHOD(setKernelArg) { NAPI_ENV;
 //                 void *          /* param_value */,
 //                 size_t *        /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getKernelInfo) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, kernel, cl_kernel);
 	REQ_UINT32_ARG(1, param_name);
 	
@@ -397,7 +386,6 @@ JS_METHOD(getKernelInfo) { NAPI_ENV;
 	}
 	
 	THROW_ERR(CL_INVALID_VALUE);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -408,7 +396,6 @@ JS_METHOD(getKernelInfo) { NAPI_ENV;
 //                    void *          /* param_value */,
 //                    size_t *        /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(getKernelArgInfo) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, kernel, cl_kernel);
 	REQ_UINT32_ARG(1, arg_idx);
 	REQ_UINT32_ARG(2, param_name);
@@ -475,7 +462,6 @@ JS_METHOD(getKernelArgInfo) { NAPI_ENV;
 	}
 	
 	THROW_ERR(CL_INVALID_VALUE);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -486,7 +472,6 @@ JS_METHOD(getKernelArgInfo) { NAPI_ENV;
 //                          void *                     /* param_value */,
 //                          size_t *                   /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getKernelWorkGroupInfo) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, kernel, cl_kernel);
 	REQ_CL_ARG(1, device, cl_device_id);
 	REQ_UINT32_ARG(2, param_name);
@@ -551,7 +536,6 @@ JS_METHOD(getKernelWorkGroupInfo) { NAPI_ENV;
 	}
 	
 	THROW_ERR(CL_INVALID_VALUE);
-	
 }
 
 } // namespace opencl

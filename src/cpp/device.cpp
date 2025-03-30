@@ -11,7 +11,6 @@ namespace opencl {
 //                cl_device_id *   /* devices */,
 //                cl_uint *        /* num_devices */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getDeviceIDs) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, platform, cl_platform_id);
 	USE_OFFS_ARG(1, type, CL_DEVICE_TYPE_ALL);
 	
@@ -35,7 +34,6 @@ JS_METHOD(getDeviceIDs) { NAPI_ENV;
 	}
 	
 	RET_VALUE(deviceArray);
-	
 }
 
 inline Napi::Value getDeviceInfoString(Napi::Env env, cl_device_id device_id, uint32_t param_name) {
@@ -351,7 +349,6 @@ inline Napi::Value getDeviceInfoSize(Napi::Env env, cl_device_id device_id, uint
 //                 void *          /* param_value */,
 //                 size_t *        /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getDeviceInfo) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, device_id, cl_device_id);
 	REQ_UINT32_ARG(1, param_name);
 	
@@ -386,7 +383,6 @@ JS_METHOD(getDeviceInfo) { NAPI_ENV;
 	}
 	
 	THROW_ERR(CL_INVALID_VALUE);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -396,7 +392,6 @@ JS_METHOD(getDeviceInfo) { NAPI_ENV;
 //                    cl_device_id *                       /* out_devices */,
 //                    cl_uint *                            /* num_devices_ret */) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(createSubDevices) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, deviceId, cl_device_id);
 	
 	// Arg 2
@@ -434,13 +429,11 @@ JS_METHOD(createSubDevices) { NAPI_ENV;
 	}
 	
 	RET_VALUE(subDevicesArray);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
 // clRetainDevice(cl_device_id /* device */) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(retainDevice) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, deviceId, cl_device_id);
 	
 	cl_device_id parentId = nullptr;
@@ -461,13 +454,11 @@ JS_METHOD(retainDevice) { NAPI_ENV;
 	
 	CHECK_ERR(ret);
 	RET_NUM(ret);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
 // clReleaseDevice(cl_device_id /* device */) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(releaseDevice) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, deviceId, cl_device_id);
 	
 	cl_device_id parentId = nullptr;
@@ -488,7 +479,6 @@ JS_METHOD(releaseDevice) { NAPI_ENV;
 	
 	CHECK_ERR(ret);
 	RET_NUM(ret);
-	
 }
 
 } // namespace opencl

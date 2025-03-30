@@ -1,5 +1,4 @@
-#ifndef OPENCL_COMMON_H
-#define OPENCL_COMMON_H
+#pragma once
 
 #include <addon-tools.hpp>
 
@@ -132,5 +131,3 @@ JS_METHOD(setEventCallback);
 JS_METHOD(getEventProfilingInfo);
 
 } // namespace opencl
-
-#endif // OPENCL_COMMON_H

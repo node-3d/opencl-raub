@@ -11,10 +11,13 @@ namespace opencl {
 //                void *       /* host_ptr */,
 //                cl_int *     /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(createBuffer) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, context, cl_context);
 	REQ_OFFS_ARG(1, flags);
 	REQ_OFFS_ARG(2, size);
+	
+	if (!flags) {
+		flags = CL_MEM_READ_WRITE;
+	}
 	
 	void *host_ptr = nullptr;
 	if (!IS_ARG_EMPTY(3)) {
@@ -33,7 +36,6 @@ JS_METHOD(createBuffer) { NAPI_ENV;
 	CHECK_ERR(ret);
 	
 	RET_WRAPPER(mem);
-	
 }
 
 // extern CL_API_ENTRY cl_mem CL_API_CALL
@@ -43,7 +45,6 @@ JS_METHOD(createBuffer) { NAPI_ENV;
 //                   const void *             /* buffer_create_info */,
 //                   cl_int *                 /* errcode_ret */) CL_API_SUFFIX__VERSION_1_1;
 JS_METHOD(createSubBuffer) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, buffer, cl_mem);
 	REQ_OFFS_ARG(1, flags);
 	REQ_UINT32_ARG(2, buffer_create_type);
@@ -69,7 +70,6 @@ JS_METHOD(createSubBuffer) { NAPI_ENV;
 	
 	CHECK_ERR(CL_INVALID_VALUE);
 	RET_UNDEFINED;
-	
 }
 
 // extern CL_API_ENTRY cl_mem CL_API_CALL
@@ -80,7 +80,6 @@ JS_METHOD(createSubBuffer) { NAPI_ENV;
 //               void *                  /* host_ptr */,
 //               cl_int *                /* errcode_ret */) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(createImage) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, context, cl_context);
 	REQ_OFFS_ARG(1, flags);
 	REQ_OBJ_ARG(2, formatObj);
@@ -99,16 +98,16 @@ JS_METHOD(createImage) { NAPI_ENV;
 	
 	desc.image_type = descObj.Has("type")
 		? descObj.Get("type").ToNumber().Uint32Value()
-		: 0;
+		: CL_MEM_OBJECT_IMAGE1D;
 	desc.image_width = descObj.Has("width")
 		? descObj.Get("width").ToNumber().Int64Value()
-		: 0;
+		: 1;
 	desc.image_height = descObj.Has("height")
 		? descObj.Get("height").ToNumber().Int64Value()
-		: 0;
+		: 1;
 	desc.image_depth = descObj.Has("depth")
 		? descObj.Get("depth").ToNumber().Int64Value()
-		: 0;
+		: 1;
 	desc.image_array_size = descObj.Has("array_size")
 		? descObj.Get("array_size").ToNumber().Int64Value()
 		: 0;
@@ -125,7 +124,7 @@ JS_METHOD(createImage) { NAPI_ENV;
 		cl_mem buffer = m->as<cl_mem>();
 		desc.buffer = buffer;
 	}
-
+	
 	void *host_ptr = nullptr;
 	if (!IS_ARG_EMPTY(4)) {
 		REQ_OBJ_ARG(4, buffer);
@@ -155,33 +154,28 @@ JS_METHOD(createImage) { NAPI_ENV;
 	// }
 	
 	RET_WRAPPER(mem);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
 // clRetainMemObject(cl_mem /* memobj */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(retainMemObject) { NAPI_ENV;
-	
 	REQ_WRAP_ARG(0, mem);
 	
 	cl_int ret = mem->acquire();
 	CHECK_ERR(ret);
 	
 	RET_NUM(CL_SUCCESS);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
 // clReleaseMemObject(cl_mem /* memobj */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(releaseMemObject) { NAPI_ENV;
-	
 	REQ_WRAP_ARG(0, mem);
 	
 	cl_int ret = mem->release();
 	CHECK_ERR(ret);
 	
 	RET_NUM(CL_SUCCESS);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -192,7 +186,6 @@ JS_METHOD(releaseMemObject) { NAPI_ENV;
 //                            cl_image_format *    /* image_formats */,
 //                            cl_uint *            /* num_image_formats */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getSupportedImageFormats) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, context, cl_context);
 	REQ_OFFS_ARG(1, flags);
 	REQ_OFFS_ARG(2, image_type);
@@ -207,6 +200,11 @@ JS_METHOD(getSupportedImageFormats) { NAPI_ENV;
 		&numEntries
 	));
 	
+	Napi::Array imageFormats = Napi::Array::New(env);
+	if (!numEntries) {
+		RET_VALUE(imageFormats);
+	}
+	
 	std::unique_ptr<cl_image_format[]> image_formats(new cl_image_format[numEntries]);
 	CHECK_ERR(clGetSupportedImageFormats(
 		context,
@@ -217,7 +215,6 @@ JS_METHOD(getSupportedImageFormats) { NAPI_ENV;
 		nullptr
 	));
 	
-	Napi::Array imageFormats = Napi::Array::New(env);
 	for (size_t i = 0; i < numEntries; i++) {
 		Napi::Object format = Napi::Object::New(env);
 		format.Set("channel_order", JS_NUM(image_formats[i].image_channel_order));
@@ -226,7 +223,6 @@ JS_METHOD(getSupportedImageFormats) { NAPI_ENV;
 	}
 	
 	RET_VALUE(imageFormats);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -236,7 +232,6 @@ JS_METHOD(getSupportedImageFormats) { NAPI_ENV;
 //                    void *           /* param_value */,
 //                    size_t *         /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getMemObjectInfo) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, mem, cl_mem);
 	REQ_OFFS_ARG(1, param_name);
 	
@@ -325,7 +320,6 @@ JS_METHOD(getMemObjectInfo) { NAPI_ENV;
 	}
 	
 	THROW_ERR(CL_INVALID_VALUE);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -335,7 +329,6 @@ JS_METHOD(getMemObjectInfo) { NAPI_ENV;
 //                void *           /* param_value */,
 //                size_t *         /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getImageInfo) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, mem, cl_mem);
 	REQ_OFFS_ARG(1, param_name);
 	
@@ -349,10 +342,10 @@ JS_METHOD(getImageInfo) { NAPI_ENV;
 				&val,
 				nullptr
 			));
-			Napi::Array arr = Napi::Array::New(env);
-			arr.Set("channel_order", JS_NUM(val.image_channel_order));
-			arr.Set("channel_data_type", JS_NUM(val.image_channel_data_type));
-			RET_VALUE(arr);
+			Napi::Object obj = Napi::Object::New(env);
+			obj.Set("channel_order", JS_NUM(val.image_channel_order));
+			obj.Set("channel_data_type", JS_NUM(val.image_channel_data_type));
+			RET_VALUE(obj);
 		}
 		case CL_IMAGE_ELEMENT_SIZE:
 		case CL_IMAGE_ROW_PITCH:
@@ -372,16 +365,8 @@ JS_METHOD(getImageInfo) { NAPI_ENV;
 			RET_NUM(val);
 		}
 		case CL_IMAGE_BUFFER: {
-			cl_mem val;
-			CHECK_ERR(clGetImageInfo(
-				mem,
-				param_name,
-				sizeof(cl_mem),
-				&val,
-				nullptr
-			));
-			CHECK_ERR(clRetainMemObject(val))
-			RET_WRAPPER(val);
+			// This is buggy and deprecated - intentionally cut support
+			THROW_ERR(CL_INVALID_VALUE);
 		}
 		case CL_IMAGE_NUM_MIP_LEVELS:
 		case CL_IMAGE_NUM_SAMPLES: {
@@ -398,12 +383,10 @@ JS_METHOD(getImageInfo) { NAPI_ENV;
 	}
 	
 	THROW_ERR(CL_INVALID_VALUE);
-	
 }
 
 
 JS_METHOD(createFromGLBuffer) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, context, cl_context);
 	REQ_OFFS_ARG(1, flags);
 	REQ_OFFS_ARG(2, vboId);
@@ -425,7 +408,6 @@ JS_METHOD(createFromGLBuffer) { NAPI_ENV;
 	CHECK_ERR(ret);
 	
 	RET_WRAPPER(mem);
-	
 }
 
 } // namespace opencl

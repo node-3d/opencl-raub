@@ -34,13 +34,13 @@ for (let i = 0; i < BUFFER_SIZE; i++) {
 }
 
 const platforms = cl.getPlatformIDs();
-for (let i = 0;i < platforms.length;i++)
+for (let i = 0; i < platforms.length; i++)
 	console.log('Platform ' + i + ': ' + cl.getPlatformInfo(platforms[i], cl.PLATFORM_NAME));
-let platform = platforms[0];
+const platform = platforms[0];
 console.log('platform', platform);
 
 const devices = cl.getDeviceIDs(platform, cl.DEVICE_TYPE_ALL);
-for (let i = 0;i < devices.length;i++)
+for (let i = 0; i < devices.length; i++)
 	console.log('  Devices ' + i + ': ' + cl.getDeviceInfo(devices[i], cl.DEVICE_NAME));
 
 console.log('creating context');
@@ -82,7 +82,7 @@ const device = cl.getContextInfo(context, cl.CONTEXT_DEVICES)[0];
 let kernel;
 try {
 	kernel = cl.createKernel(program, 'vadd');
-} catch (err) {
+} catch (_err) {
 	console.error(cl.getProgramBuildInfo(program, device, cl.PROGRAM_BUILD_LOG));
 	process.exit(-1);
 }
@@ -94,7 +94,7 @@ cl.setKernelArg(kernel, 2, 'uint*', cBuffer);
 cl.setKernelArg(kernel, 3, 'uint', BUFFER_SIZE);
 
 // Create command queue
-let queue = cl.createCommandQueue(context, device, null);
+const queue = cl.createCommandQueue(context, device, null);
 
 // Do the work
 cl.enqueueWriteBuffer (queue, aBuffer, true, 0, A.length * Uint32Array.BYTES_PER_ELEMENT, A);

@@ -1,17 +1,17 @@
 {
 	"author": "Luis Blanco <luisblanco1337@gmail.com>",
 	"name": "opencl-raub",
-	"version": "1.0.0",
+	"version": "2.0.0",
 	"description": "OpenCL for Node.js",
 	"license": "MIT",
 	"main": "index.js",
 	"keywords": [
 		"addon",
 		"opencl",
-		"opengl",
-		"gl",
-		"graphics",
-		"window",
+		"compute",
+		"gpu",
+		"gpgpu",
+		"cl",
 		"c++",
 		"bindings",
 		"native",
@@ -26,21 +26,32 @@
 		"README.md"
 	],
 	"engines": {
-		"node": ">=12.13.0",
-		"npm": ">=6.12.0"
+		"node": ">=22.14.0",
+		"npm": ">=10.9.2"
 	},
 	"config": {
-		"install": "v1.0.0"
+		"install": "2.0.0"
 	},
 	"scripts": {
-		"postinstall": "node install"
+		"postinstall": "node install",
+		"eslint": "eslint .",
+		"build": "cd src && node-gyp rebuild -j max --silent && node -e \"require('addon-tools-raub').cpbin('opencl')\"",
+		"test": "node --test --watch",
+		"test-ci": "node --test"
 	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/node-3d/opencl-raub.git"
 	},
 	"dependencies": {
-		"addon-tools-raub": "5.1.x",
-		"segfault-raub": "1.1.x"
+		"addon-tools-raub": "^9.3.0",
+		"segfault-raub": "^3.2.0"
+	},
+	"devDependencies": {
+		"@types/node": "^22.13.4",
+		"@eslint/js": "^9.20.0",
+		"eslint": "^9.20.1",
+		"node-addon-api": "^8.3.0",
+		"typescript": "^5.7.3"
 	}
 }

@@ -104,12 +104,11 @@ Napi::Object Wrapper::fromRaw(Napi::Env env, cl_mapped_ptr raw) {
 
 
 Wrapper::Wrapper(const Napi::CallbackInfo& info) { NAPI_ENV;
-	
 	super(info);
 	
 	if (!info[0].IsExternal() || !info[1].IsNumber()) {
 		_data = nullptr;
-		_released = false;
+		_released = 0;
 		_acquire = typeInfo[0].acquire;
 		_release = typeInfo[0].release;
 		_typeName = typeInfo[0].typeName;
@@ -121,11 +120,10 @@ Wrapper::Wrapper(const Napi::CallbackInfo& info) { NAPI_ENV;
 	int32_t infoIdx = info[1].ToNumber().Int32Value();
 	
 	_data = extParam.Data();
-	_released = false;
+	_released = 1;
 	_acquire = typeInfo[infoIdx].acquire;
 	_release = typeInfo[infoIdx].release;
 	_typeName = typeInfo[infoIdx].typeName;
-	
 }
 
 
@@ -148,16 +146,17 @@ void Wrapper::throwArrayEx(Napi::Env env, int i, const char* msg) {
 }
 
 
-int Wrapper::acquire() const {
+cl_int Wrapper::acquire() {
+	_released++;
 	return _acquire(_data);
 }
 
 
-int Wrapper::release() {
-	if (_released) {
+cl_int Wrapper::release() {
+	if (_released < 1) {
 		return CL_SUCCESS;
 	}
-	_released = true;
+	_released--;
 	return _release(_data);
 }
 

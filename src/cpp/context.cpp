@@ -3,6 +3,35 @@
 
 namespace opencl {
 
+constexpr uint32_t COUNT_CTX_PROPERTY_MAX = 127; // reserve 1 slot for `0` termination
+cl_context_properties bufferCtxProperties[COUNT_CTX_PROPERTY_MAX * 2 + 2];
+
+cl_context_properties *readCtxProperties(Napi::Array jsProperties) {
+	uint32_t propLen = std::min(COUNT_CTX_PROPERTY_MAX, jsProperties.Length());
+	if (!propLen) {
+		return nullptr;
+	}
+	
+	uint32_t at = 0;
+	for (at = 0; at < propLen; at += 2) {
+		cl_uint key = jsProperties.Get(at).ToNumber().Uint32Value();
+		bufferCtxProperties[at] = key;
+		
+		const uint32_t valueIdx = at + 1;
+		
+		if (key == CL_CONTEXT_PLATFORM) {
+			Wrapper *platform = Wrapper::unwrap(jsProperties.Get(valueIdx).As<Napi::Object>());
+			bufferCtxProperties[valueIdx] = platform->as<cl_context_properties>();
+			continue;
+		}
+		
+		bufferCtxProperties[valueIdx] = jsProperties.Get(++at).ToNumber().Int64Value();
+	}
+	
+	bufferCtxProperties[at] = 0;
+	return bufferCtxProperties;
+}
+
 // /* Context APIs  */
 // extern CL_API_ENTRY cl_context CL_API_CALL
 // clCreateContext(const cl_context_properties * /* properties */,
@@ -12,34 +41,19 @@ namespace opencl {
 //                 void *                  /* user_data */,
 //                 cl_int *                /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(createContext) { NAPI_ENV;
+	LET_ARRAY_ARG(0, jsProperties);
+	REQ_ARRAY_ARG(1, jsDevices);
 	
-	LET_ARRAY_ARG(0, js_properties);
-	std::vector<cl_context_properties> cl_properties;
-	size_t propLen = js_properties.Length();
-	for (size_t i = 0; i < propLen; i++) {
-		cl_uint prop_id = js_properties.Get(i).ToNumber().Uint32Value();
-		cl_properties.push_back(prop_id);
-		if (prop_id == CL_CONTEXT_PLATFORM) {
-			Wrapper *platform = Wrapper::unwrap(js_properties.Get(++i).As<Napi::Object>());
-			cl_properties.push_back(
-				(cl_context_properties) platform->as<cl_platform_id>()
-			);
-		} else if (prop_id == CL_GL_CONTEXT_KHR || prop_id == CL_WGL_HDC_KHR) {
-			cl_properties.push_back(js_properties.Get(++i).ToNumber().Int64Value());
-		}
-	}
-	cl_properties.push_back(0);
-	
-	REQ_ARRAY_ARG(1, js_devices);
-	std::vector<cl_device_id> cl_devices;
-	if (Wrapper::fromJsArray(js_devices, &cl_devices)) {
+	cl_context_properties *clProperties = readCtxProperties(jsProperties);
+	std::vector<cl_device_id> clDevices;
+	if (Wrapper::fromJsArray(jsDevices, &clDevices)) {
 		RET_UNDEFINED;
 	}
 	int err = CL_SUCCESS;
 	cl_context ctx = clCreateContext(
-		&cl_properties.front(),
-		static_cast<cl_uint>(cl_devices.size()),
-		&cl_devices.front(),
+		clProperties,
+		static_cast<cl_uint>(clDevices.size()),
+		&clDevices.front(),
 		nullptr, // TODO: callback support
 		nullptr,
 		&err
@@ -48,7 +62,6 @@ JS_METHOD(createContext) { NAPI_ENV;
 	CHECK_ERR(err);
 	
 	RET_WRAPPER(ctx);
-	
 }
 
 
@@ -59,29 +72,14 @@ JS_METHOD(createContext) { NAPI_ENV;
 //    void *              /* user_data */,
 //    cl_int *            /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(createContextFromType) { NAPI_ENV;
-	
-	REQ_ARRAY_ARG(0, js_properties);
-	std::vector<cl_context_properties> cl_properties;
-	size_t propLen = js_properties.Length();
-	for (size_t i = 0; i < propLen; i++) {
-		cl_uint prop_id = js_properties.Get(i).ToNumber().Uint32Value();
-		cl_properties.push_back(prop_id);
-		if (prop_id == CL_CONTEXT_PLATFORM) {
-			Wrapper *platform = Wrapper::unwrap(js_properties.Get(++i).As<Napi::Object>());
-			cl_properties.push_back(
-				(cl_context_properties) platform->as<cl_platform_id>()
-			);
-		} else if (prop_id == CL_GL_CONTEXT_KHR || prop_id == CL_WGL_HDC_KHR) {
-			cl_properties.push_back(js_properties.Get(++i).ToNumber().Int64Value());
-		}
-	}
-	cl_properties.push_back(0);
-
+	REQ_ARRAY_ARG(0, jsProperties);
 	REQ_UINT32_ARG(1, device_type);
-
+	
+	cl_context_properties *clProperties = readCtxProperties(jsProperties);
+	
 	int err = CL_SUCCESS;
 	cl_context ctx = clCreateContextFromType(
-		cl_properties.data(),
+		clProperties,
 		device_type,
 		nullptr, // TODO: callback support
 		nullptr,
@@ -91,34 +89,29 @@ JS_METHOD(createContextFromType) { NAPI_ENV;
 	CHECK_ERR(err);
 	
 	RET_WRAPPER(ctx);
-	
 }
 
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
 // clRetainContext(cl_context /* context */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(retainContext) { NAPI_ENV;
-	
 	REQ_WRAP_ARG(0, ctx);
 	
 	cl_int err = ctx->acquire();
 	CHECK_ERR(err)
 	
 	RET_NUM(err);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
 // clReleaseContext(cl_context /* context */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(releaseContext) { NAPI_ENV;
-	
 	REQ_WRAP_ARG(0, ctx);
 	
 	cl_int err = ctx->release();
 	CHECK_ERR(err)
 	
 	RET_NUM(err);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -128,7 +121,6 @@ JS_METHOD(releaseContext) { NAPI_ENV;
 //                  void *             /* param_value */,
 //                  size_t *           /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getContextInfo) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, context, cl_context);
 	REQ_UINT32_ARG(1, param_name);
 	
@@ -189,7 +181,6 @@ JS_METHOD(getContextInfo) { NAPI_ENV;
 	}
 	
 	RET_UNDEFINED;
-	
 }
 
 } // namespace opencl

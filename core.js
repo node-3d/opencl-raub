@@ -2,8 +2,8 @@
 
 require('segfault-raub');
 
-const { bin } = require('addon-tools-raub');
+const { getBin } = require('addon-tools-raub');
 
-const core = require(`./${bin}/opencl`);
+const core = require(`./${getBin()}/opencl.node`);
 
 module.exports = core;

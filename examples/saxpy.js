@@ -3,21 +3,21 @@
 const cl = require('../');
 
 
-const getEventExecTime = event => {
+const getEventExecTime = (event) => {
 	// times are 64-bit values in nanoseconds. They are returned as [hi, lo] a 2-integer array
 	// here we use the lo parts since this example is unlikely to go beyond 2^31 nanseconds per event.
-	let startTime = cl.getEventProfilingInfo (event, cl.PROFILING_COMMAND_START);
-	let endTime = cl.getEventProfilingInfo (event, cl.PROFILING_COMMAND_END);
+	const startTime = cl.getEventProfilingInfo(event, cl.PROFILING_COMMAND_START);
+	const endTime = cl.getEventProfilingInfo(event, cl.PROFILING_COMMAND_END);
 
 	return (endTime[1] - startTime[1]) * 1e-6; // report in millisecond (from nanoseconds)
 };
 
-let VECTOR_SIZE = 512 * 1024;
+const VECTOR_SIZE = 512 * 1024;
 
 console.log('SAXPY with vector size: ' + VECTOR_SIZE + ' elements');
 
-let alpha = 2.0;
-let A = new Float32Array(VECTOR_SIZE),
+const alpha = 2.0;
+const A = new Float32Array(VECTOR_SIZE),
 	B = new Float32Array(VECTOR_SIZE),
 	C = new Float32Array(VECTOR_SIZE);
 
@@ -36,23 +36,24 @@ if (cl.createContextFromType !== undefined) {
 		null, null);
 }
 else {
-	let platform = cl.getPlatformIDs()[0];
-	let devices = cl.getDeviceIDs(platform, cl.DEVICE_TYPE_GPU);
+	const platform = cl.getPlatformIDs()[0];
+	const devices = cl.getDeviceIDs(platform, cl.DEVICE_TYPE_GPU);
 	console.info('Found ' + devices.length + ' GPUs: ');
 	let device = devices[0];
-	for (let i = 0;i < devices.length;i++) {
-		let name = cl.getDeviceInfo(devices[i], cl.DEVICE_NAME);
+	for (let i = 0; i < devices.length; i++) {
+		const name = cl.getDeviceInfo(devices[i], cl.DEVICE_NAME);
 		console.info('  Devices ' + i + ': ' + name);
 		if (name.indexOf('Intel') == -1) // prefer discrete GPU
 			device = devices[i];
 	}
-
+	
 	context = cl.createContext(
 		[cl.CONTEXT_PLATFORM, platform],
-		[device]);
+		[device],
+	);
 }
 
-let device = cl.getContextInfo(context, cl.CONTEXT_DEVICES)[0];
+const device = cl.getContextInfo(context, cl.CONTEXT_DEVICES)[0];
 console.log('using device: ' + cl.getDeviceInfo(device, cl.DEVICE_NAME));
 
 // Create command queue
@@ -65,7 +66,7 @@ if (cl.createCommandQueueWithProperties !== undefined) {
 	queue = cl.createCommandQueue(context, device, cl.QUEUE_PROFILING_ENABLE); // OpenCL 1.x
 }
 
-let saxpyKernelSource = [
+const saxpyKernelSource = [
 	'__kernel                             ',
 	'void saxpy_kernel(float alpha,       ',
 	'                  __global float *A, ',
@@ -78,26 +79,26 @@ let saxpyKernelSource = [
 ].join('\n');
 
 //Create and program from source
-let program = cl.createProgramWithSource(context, saxpyKernelSource);
+const program = cl.createProgramWithSource(context, saxpyKernelSource);
 
 //Build program
 cl.buildProgram(program);
 
-let size = VECTOR_SIZE * Float32Array.BYTES_PER_ELEMENT; // size in bytes
+const size = VECTOR_SIZE * Float32Array.BYTES_PER_ELEMENT; // size in bytes
 
 // Create buffer for A and B and copy host contents
-let aBuffer = cl.createBuffer(context, cl.MEM_READ_ONLY, size);
-let bBuffer = cl.createBuffer(context, cl.MEM_READ_ONLY, size);
+const aBuffer = cl.createBuffer(context, cl.MEM_READ_ONLY, size);
+const bBuffer = cl.createBuffer(context, cl.MEM_READ_ONLY, size);
 
 // Create buffer for C to read results
-let cBuffer = cl.createBuffer(context, cl.MEM_WRITE_ONLY, size);
+const cBuffer = cl.createBuffer(context, cl.MEM_WRITE_ONLY, size);
 
 // Create kernel object
 let kernel;
 try {
 	kernel = cl.createKernel(program, 'saxpy_kernel');
 }
-catch (err) {
+catch (_err) {
 	console.console.log(program.getBuildInfo(device, cl.PROGRAM_BUILD_LOG));
 }
 
@@ -108,18 +109,18 @@ cl.setKernelArg(kernel, 2, 'float*', bBuffer);
 cl.setKernelArg(kernel, 3, 'float*', cBuffer);
 
 // Do the work
-let writeEvents = [];
+const writeEvents = [];
 writeEvents[0] = cl.enqueueWriteBuffer (queue, aBuffer, false, 0, size, A, null, true);
 writeEvents[1] = cl.enqueueWriteBuffer (queue, bBuffer, false, 0, size, B, null, true);
 
 // Execute (enqueue) kernel
-let localWS = null; // process one list at a time
-let globalWS = [VECTOR_SIZE]; // process entire list
+const localWS = null; // process one list at a time
+const globalWS = [VECTOR_SIZE]; // process entire list
 
-let kernelEvent = cl.enqueueNDRangeKernel(queue, kernel, 1, null, globalWS, localWS, writeEvents, true);
+const kernelEvent = cl.enqueueNDRangeKernel(queue, kernel, 1, null, globalWS, localWS, writeEvents, true);
 
 // get results and block while getting them
-let readEvent = cl.enqueueReadBuffer (queue, cBuffer, false, 0, size, C, [kernelEvent], true);
+const readEvent = cl.enqueueReadBuffer (queue, cBuffer, false, 0, size, C, [kernelEvent], true);
 
 cl.waitForEvents([readEvent]);
 // cl.finish(queue);

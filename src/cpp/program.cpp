@@ -14,7 +14,6 @@ namespace opencl {
 //                           const size_t *    /* lengths */,
 //                           cl_int *          /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(createProgramWithSource) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, context, cl_context);
 	REQ_STR_ARG(1, str);
 	
@@ -25,7 +24,6 @@ JS_METHOD(createProgramWithSource) { NAPI_ENV;
 	CHECK_ERR(ret);
 	
 	RET_WRAPPER(p);
-	
 }
 
 // extern CL_API_ENTRY cl_program CL_API_CALL
@@ -37,7 +35,6 @@ JS_METHOD(createProgramWithSource) { NAPI_ENV;
 //                           cl_int *                       /* binary_status */,
 //                           cl_int *                       /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(createProgramWithBinary) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, context, cl_context);
 	REQ_ARRAY_ARG(1, js_devices);
 	REQ_ARRAY_ARG(2, js_sizes);
@@ -48,6 +45,7 @@ JS_METHOD(createProgramWithBinary) { NAPI_ENV;
 		RET_UNDEFINED;
 	}
 	
+	// FIXME: remomve sizes
 	const size_t n = js_sizes.Length();
 	if (js_sizes.Length() == 0) {
 		THROW_ERR(CL_INVALID_VALUE)
@@ -68,6 +66,7 @@ JS_METHOD(createProgramWithBinary) { NAPI_ENV;
 		THROW_ERR(CL_INVALID_PROGRAM_EXECUTABLE)
 	}
 	
+	// FIXME: use Buffer | TypedArray
 	std::vector<cl_program_binary> cl_binaries;
 	if (Wrapper::fromJsArray(js_binaries, &cl_binaries)) {
 		RET_UNDEFINED;
@@ -98,7 +97,6 @@ JS_METHOD(createProgramWithBinary) { NAPI_ENV;
 	CHECK_ERR(ret);
 	
 	RET_WRAPPER(p);
-	
 }
 
 // extern CL_API_ENTRY cl_program CL_API_CALL
@@ -108,7 +106,6 @@ JS_METHOD(createProgramWithBinary) { NAPI_ENV;
 //                                   const char *          /* kernel_names */,
 //                                   cl_int *              /* errcode_ret */) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(createProgramWithBuiltInKernels) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, context, cl_context);
 	REQ_ARRAY_ARG(1, js_devices);
 	REQ_ARRAY_ARG(2, js_names);
@@ -146,33 +143,28 @@ JS_METHOD(createProgramWithBuiltInKernels) { NAPI_ENV;
 	CHECK_ERR(err);
 	
 	RET_WRAPPER(prg);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
 // clRetainProgram(cl_program /* program */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(retainProgram) { NAPI_ENV;
-	
 	REQ_WRAP_ARG(0, p);
 	
 	cl_int err = p->acquire();
 	CHECK_ERR(err);
 	
 	RET_NUM(CL_SUCCESS);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
 // clReleaseProgram(cl_program /* program */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(releaseProgram) { NAPI_ENV;
-	
 	REQ_WRAP_ARG(0, p);
 	
 	cl_int err = p->release();
 	CHECK_ERR(err);
 	
 	RET_NUM(CL_SUCCESS);
-	
 }
 
 class ProgramWorker : public Napi::AsyncWorker {
@@ -190,7 +182,6 @@ public:
 	
 	// Executed when the async work is complete
 	// this function will be run inside the main event loop
-	// so it is safe to use V8 again
 	void OnOK () {
 		Napi::Env env = Env();
 		NAPI_HS;
@@ -218,7 +209,6 @@ void CL_CALLBACK notifyPCB (cl_program prog, void *user_data) {
 //                void (CL_CALLBACK *  /* pfn_notify */)(cl_program /* program */, void * /* user_data */),
 //                void *               /* user_data */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(buildProgram) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, p, cl_program);
 	
 	std::vector<cl_device_id> cl_devices;
@@ -258,7 +248,7 @@ JS_METHOD(buildProgram) { NAPI_ENV;
 		err = clBuildProgram(
 			p,
 			(cl_uint) cl_devices.size(),
-			&cl_devices.front(),
+			cl_devices.size() ? &cl_devices.front() : nullptr,
 			options.length() > 0 ? options.c_str() : nullptr,
 			nullptr,
 			nullptr
@@ -268,7 +258,6 @@ JS_METHOD(buildProgram) { NAPI_ENV;
 	CHECK_ERR(err);
 	
 	RET_NUM(CL_SUCCESS);
-	
 }
 
 
@@ -283,7 +272,6 @@ JS_METHOD(buildProgram) { NAPI_ENV;
 //                  void (CL_CALLBACK *  /* pfn_notify */)(cl_program /* program */, void * /* user_data */),
 //                  void *               /* user_data */) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(compileProgram) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, p, cl_program);
 	
 	std::vector<cl_device_id> cl_devices;
@@ -364,7 +352,6 @@ JS_METHOD(compileProgram) { NAPI_ENV;
 	CHECK_ERR(err);
 	
 	RET_NUM(CL_SUCCESS);
-	
 }
 
 // extern CL_API_ENTRY cl_program CL_API_CALL
@@ -378,7 +365,6 @@ JS_METHOD(compileProgram) { NAPI_ENV;
 //               void *               /* user_data */,
 //               cl_int *             /* errcode_ret */ ) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(linkProgram) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, ctx, cl_context);
 	
 	std::vector<cl_device_id> cl_devices;
@@ -444,19 +430,16 @@ JS_METHOD(linkProgram) { NAPI_ENV;
 	CHECK_ERR(ret);
 	
 	RET_WRAPPER(prg);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
 // clUnloadPlatformCompiler(cl_platform_id /* platform */) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(unloadPlatformCompiler) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, platform, cl_platform_id);
 	
 	CHECK_ERR(clUnloadPlatformCompiler(platform));
 	
 	RET_NUM(CL_SUCCESS);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -466,7 +449,6 @@ JS_METHOD(unloadPlatformCompiler) { NAPI_ENV;
 //                  void *             /* param_value */,
 //                  size_t *           /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getProgramInfo) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, prog, cl_program);
 	REQ_UINT32_ARG(1, param_name);
 	
@@ -609,7 +591,6 @@ JS_METHOD(getProgramInfo) { NAPI_ENV;
 	}
 	
 	THROW_ERR(CL_INVALID_VALUE);
-	
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -620,7 +601,6 @@ JS_METHOD(getProgramInfo) { NAPI_ENV;
 //                       void *                /* param_value */,
 //                       size_t *              /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getProgramBuildInfo) { NAPI_ENV;
-	
 	REQ_CL_ARG(0, prog, cl_program);
 	REQ_CL_ARG(1, device, cl_device_id);
 	REQ_UINT32_ARG(2, param_name);
@@ -675,7 +655,6 @@ JS_METHOD(getProgramBuildInfo) { NAPI_ENV;
 	}
 	
 	THROW_ERR(CL_INVALID_VALUE);
-	
 }
 
 } // namespace opencl
