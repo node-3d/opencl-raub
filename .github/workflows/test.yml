@@ -36,8 +36,14 @@ jobs:
       - name: Install Modules
         run: npm ci
 
+      - name: Install OpenCL - Ubuntu ARM
+        if: matrix.os == 'ubuntu-22.04-arm'
+        run: |
+          sudo apt update -qq
+          sudo apt install -qq ocl-icd-opencl-dev pocl-opencl-icd
+
       - name: Install OpenCL - Ubuntu
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-22.04-arm'
+        if: matrix.os == 'ubuntu-22.04'
         run: |
           # download the key to system keyring
           wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
@@ -51,9 +57,9 @@ jobs:
         run: npm run build
 
       - name: Run Unit Tests
-        if: matrix.os != 'macos-14'
+        if: matrix.os != 'macos-14' && matrix.os != 'ubuntu-22.04-arm'
         run: npm run test-ci
 
       - name: Run Index Tests - MacOS
-        if: matrix.os == 'macos-14'
+        if: matrix.os == 'macos-14' || matrix.os == 'ubuntu-22.04-arm'
         run: node index.js
