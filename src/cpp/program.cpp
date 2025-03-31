@@ -18,8 +18,8 @@ JS_METHOD(createProgramWithSource) { NAPI_ENV;
 	REQ_STR_ARG(1, str);
 	
 	cl_int ret = CL_SUCCESS;
-	size_t lengths[]={(size_t) str.length()};
-	const char *strings[]={ str.c_str() };
+	size_t lengths[] = { str.length() };
+	const char *strings[] = { str.c_str() };
 	cl_program p = clCreateProgramWithSource(context, 1, strings, lengths, &ret);
 	CHECK_ERR(ret);
 	
