@@ -9,10 +9,10 @@ const cl = require('../..');
 	
 	// Grab ALL possible devices into a flat array
 	const devicesAll = cl.getPlatformIDs().flatMap((platform) => {
-		console.log('Platform:', platform);
+		const version = cl.getPlatformInfo(platform, cl.PLATFORM_VERSION);
+		console.log('Platform:', platform, version);
 		const platformDevices = cl.getDeviceIDs(platform);
 		console.log('Devices', platformDevices);
-		const version = cl.getPlatformInfo(platform, cl.PLATFORM_VERSION);
 		
 		return platformDevices.map((device) => ({
 			platform,
