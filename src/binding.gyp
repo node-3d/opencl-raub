@@ -2,7 +2,6 @@
 	'variables': {
 		'bin': '<!(node -p "require(\'addon-tools-raub\').bin")',
 		'cl_include': 'include',
-		'cl_bin': '<(module_root_dir)/lib',
 	},
 	'targets': [
 		{
@@ -15,13 +14,12 @@
 				'<!@(node -p "require(\'addon-tools-raub\').getInclude()")',
 				'<(cl_include)',
 			],
-			'library_dirs': ['<(cl_bin)'],
+			'library_dirs': ['<(module_root_dir)/lib'],
 			'conditions': [
 				['OS=="linux"', {
 					'libraries': [
 						"-Wl,-rpath,'$$ORIGIN'",
-						# 'libOpenCL.so',
-						'<(cl_bin)/libOpenCL.so',
+						'libOpenCL.so',
 					],
 				}],
 				['OS=="mac"', {
