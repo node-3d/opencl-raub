@@ -39,8 +39,8 @@ jobs:
       - name: Install OpenCL - Ubuntu
         if: matrix.os == 'ubuntu-22.04'
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -qq intel-opencl-icd ocl-icd-opencl-dev pocl-opencl-icd
+          sudo apt update -qq
+          sudo apt install -qq intel-opencl-icd opencl-headers ocl-icd-opencl-dev
 
       - name: Build Current Binary
         if: matrix.os != 'ubuntu-22.04-arm'

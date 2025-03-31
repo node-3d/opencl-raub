@@ -14,18 +14,18 @@
 				'<!@(node -p "require(\'addon-tools-raub\').getInclude()")',
 				'<(cl_include)',
 			],
-			'library_dirs': ['<(module_root_dir)/lib'],
 			'conditions': [
 				['OS=="linux"', {
 					'libraries': [
 						"-Wl,-rpath,'$$ORIGIN'",
-						'libOpenCL.so',
+						'-lOpenCL',
 					],
 				}],
 				['OS=="mac"', {
 					'libraries': ['-framework OpenCL'],
 				}],
 				['OS=="win"', {
+					'library_dirs': ['<(module_root_dir)/lib'],
 					'libraries': ['OpenCL.lib'],
 				}],
 			],
