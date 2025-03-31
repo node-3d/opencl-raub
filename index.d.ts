@@ -1186,7 +1186,7 @@ declare module "opencl-raub" {
 	 */
 	const getDeviceIDs: (
 		platform: TClPlatform,
-		device_type: number,
+		device_type?: number, // default is `cl.DEVICE_TYPE_ALL`
 	) => TDevice[];
 	
 	/**

@@ -17,6 +17,11 @@ JS_METHOD(getDeviceIDs) { NAPI_ENV;
 	cl_uint n = 0;
 	CHECK_ERR(clGetDeviceIDs(platform, type, 0, nullptr, &n));
 	
+	Napi::Array deviceArray = Napi::Array::New(env);
+	if (!n) {
+		RET_VALUE(deviceArray);
+	}
+	
 	std::unique_ptr<cl_device_id[]> devices(new cl_device_id[n]);
 	CHECK_ERR(clGetDeviceIDs(
 		platform,
@@ -26,7 +31,6 @@ JS_METHOD(getDeviceIDs) { NAPI_ENV;
 		nullptr
 	));
 	
-	Napi::Array deviceArray = Napi::Array::New(env);
 	for (uint32_t i = 0; i < n; i++) {
 		// This is a noop for root-level devices but properly retains sub-devices.
 		CHECK_ERR(clRetainDevice(devices[i]));
