@@ -40,7 +40,7 @@ jobs:
         if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-22.04-arm'
         run: |
           sudo apt update -qq
-          sudo apt install -qq ocl-icd-opencl-dev intel-oneapi-runtime-opencl
+          sudo apt install -qq ocl-icd-opencl-dev intel-oneapi-runtime-libs
 
       - name: Build Current Binary
         run: npm run build
