@@ -15,21 +15,12 @@ JS_METHOD(getDeviceIDs) { NAPI_ENV;
 	USE_OFFS_ARG(1, type, CL_DEVICE_TYPE_ALL);
 	
 	cl_uint n = 0;
-	// cl_platform_id platform2;
-	// CHECK_ERR(clGetPlatformIDs(1, &platform2, nullptr));
-	printf("getDeviceIDs 0\n"); fflush(nullptr);
-	// cl_device_id device2;
-    clGetDeviceIDs(NULL, CL_DEVICE_TYPE_ALL, 0, NULL, &n);
-	printf("getDeviceIDs 1: %u\n", n);
 	CHECK_ERR(clGetDeviceIDs(platform, type, 0, nullptr, &n));
-	printf("getDeviceIDs 11: %u\n", n);
 	Napi::Array deviceArray = Napi::Array::New(env);
 	if (!n) {
-		printf("getDeviceIDs 2\n"); fflush(nullptr);
 		RET_VALUE(deviceArray);
 	}
 	
-	printf("getDeviceIDs 3\n"); fflush(nullptr);
 	std::unique_ptr<cl_device_id[]> devices(new cl_device_id[n]);
 	CHECK_ERR(clGetDeviceIDs(
 		platform,
@@ -39,16 +30,12 @@ JS_METHOD(getDeviceIDs) { NAPI_ENV;
 		nullptr
 	));
 	
-	printf("getDeviceIDs 4\n"); fflush(nullptr);
 	for (uint32_t i = 0; i < n; i++) {
 		// This is a noop for root-level devices but properly retains sub-devices.
-		
-		printf("getDeviceIDs 5: %u\n", i);
 		CHECK_ERR(clRetainDevice(devices[i]));
 		deviceArray.Set(i, Wrapper::fromRaw(env, devices[i]));
 	}
 	
-	printf("getDeviceIDs 6\n"); fflush(nullptr);
 	RET_VALUE(deviceArray);
 }
 

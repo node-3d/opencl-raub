@@ -46,4 +46,9 @@ jobs:
         run: npm run build
 
       - name: Run Unit Tests
+        if: matrix.os != 'macos-14'
         run: npm run test-ci
+
+      - name: Run Index Tests - MacOS
+        if: matrix.os == 'macos-14'
+        run: node index.js
