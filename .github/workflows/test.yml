@@ -37,12 +37,10 @@ jobs:
         run: npm ci
 
       - name: Install OpenCL - Ubuntu
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-22.04-arm'
+        if: matrix.os == 'ubuntu-22.04'
         run: |
-          sudo apt update -qq
-          sudo apt install -qq intel-opencl-icd
           sudo apt-get update -qq
-          sudo apt-get install -qq ocl-icd-opencl-dev pocl-opencl-icd
+          sudo apt-get install -qq intel-opencl-icd ocl-icd-opencl-dev pocl-opencl-icd
 
       - name: Build Current Binary
         if: matrix.os != 'ubuntu-22.04-arm'
