@@ -79,7 +79,9 @@ const char* getExceptionMessage(const cl_int code) {
 		CASE_RET(CL_INVALID_COMPILER_OPTIONS, "Invalid compiler options");
 		CASE_RET(CL_INVALID_LINKER_OPTIONS, "Invalid linker options");
 		CASE_RET(CL_INVALID_DEVICE_PARTITION_COUNT, "Invalid device partition count");
-		default: return "Unknown error";
+		default:
+			printf("Error: %d\n", code);
+			return "Unknown error";
 	}
 }
 
