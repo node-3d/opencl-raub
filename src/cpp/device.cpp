@@ -19,7 +19,7 @@ JS_METHOD(getDeviceIDs) { NAPI_ENV;
 	CHECK_ERR(clGetPlatformIDs(1, &platform2, nullptr));
 	printf("getDeviceIDs 0\n"); fflush(nullptr);
 	cl_device_id device2;
-	CHECK_ERR(clGetDeviceIDs(platform2, CL_DEVICE_TYPE_ALL, 1, &device2, nullptr));
+	CHECK_ERR(clGetDeviceIDs(platform2, CL_DEVICE_TYPE_DEFAULT, 1, &device2, &n));
 	printf("getDeviceIDs 1: %u\n", n);
 	CHECK_ERR(clGetDeviceIDs(platform, type, 0, nullptr, &n));
 	printf("getDeviceIDs 11: %u\n", n);
