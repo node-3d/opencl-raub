@@ -24,14 +24,16 @@
 	#define CL_DEVICES_FOR_GL_CONTEXT_KHR 0x2007
 #endif
 
-#define CHECK_ERR(code) { \
-	cl_int _err = (code); \
-	if (_err != CL_SUCCESS) { THROW_ERR(_err); } \
+#define CHECK_ERR(code) {                                        \
+	cl_int _err = (code);                                        \
+	if (_err != CL_SUCCESS) {                                    \
+		THROW_ERR(_err);                                         \
+	}                                                            \
 }
 
-#define THROW_ERR(code) { \
-	JS_THROW(opencl::getExceptionMessage(code)); \
-	RET_UNDEFINED; \
+#define THROW_ERR(code) {                                        \
+	JS_THROW(opencl::getExceptionMessage(code));                 \
+	RET_UNDEFINED;                                               \
 }
 
 namespace opencl {

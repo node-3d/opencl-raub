@@ -9,7 +9,9 @@ const cl = require('../..');
 	
 	// Grab ALL possible devices into a flat array
 	const devicesAll = cl.getPlatformIDs().flatMap((platform) => {
+		console.log('Platform:', platform);
 		const platformDevices = cl.getDeviceIDs(platform);
+		console.log('Devices', platformDevices);
 		const version = cl.getPlatformInfo(platform, cl.PLATFORM_VERSION);
 		
 		return platformDevices.map((device) => ({
@@ -26,7 +28,7 @@ const cl = require('../..');
 	
 	const devices = devicesNoDx.length ? devicesNoDx : devicesAll;
 	
-	const deviceIdx = 1;
+	const deviceIdx = 0;
 	
 	global.DEVICES = devices;
 	global.MAIN_DEVICE = devices[deviceIdx].device;
