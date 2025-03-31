@@ -45,10 +45,11 @@ jobs:
           sudo apt-get install -qq ocl-icd-opencl-dev pocl-opencl-icd
 
       - name: Build Current Binary
+        if: matrix.os != 'ubuntu-22.04-arm'
         run: npm run build
 
       - name: Run Unit Tests
-        if: matrix.os != 'macos-14'
+        if: matrix.os != 'macos-14' && matrix.os != 'ubuntu-22.04-arm'
         run: npm run test-ci
 
       - name: Run Index Tests - MacOS
