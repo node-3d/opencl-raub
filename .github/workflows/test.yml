@@ -37,17 +37,16 @@ jobs:
         run: npm ci
 
       - name: Install OpenCL - Ubuntu
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-22.04-arm'
         run: |
           sudo apt update -qq
-          sudo apt install -qq opencl-headers ocl-icd-opencl-dev pocl-opencl-icd
+          sudo apt install -qq ocl-icd-opencl-dev pocl-opencl-icd
 
       - name: Build Current Binary
-        if: matrix.os != 'ubuntu-22.04-arm'
         run: npm run build
 
       - name: Run Unit Tests
-        if: matrix.os != 'macos-14' && matrix.os != 'ubuntu-22.04-arm'
+        if: matrix.os != 'macos-14'
         run: npm run test-ci
 
       - name: Run Index Tests - MacOS
