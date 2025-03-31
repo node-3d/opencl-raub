@@ -12,10 +12,14 @@ JS_METHOD(getPlatformIDs) { NAPI_ENV;
 	cl_uint num_entries = 0;
 	CHECK_ERR(clGetPlatformIDs(0, nullptr, &num_entries));
 	
+	Napi::Array platformArray = Napi::Array::New(env);
+	if (!num_entries) {
+		RET_VALUE(platformArray);
+	}
+	
 	std::unique_ptr<cl_platform_id[]> platforms(new cl_platform_id[num_entries]);
 	CHECK_ERR(clGetPlatformIDs(num_entries, platforms.get(), nullptr));
 	
-	Napi::Array platformArray = Napi::Array::New(env);
 	for (size_t i = 0; i < num_entries; i++) {
 		platformArray.Set(i, Wrapper::fromRaw(env, platforms[i]));
 	}

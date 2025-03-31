@@ -15,9 +15,13 @@ JS_METHOD(getDeviceIDs) { NAPI_ENV;
 	USE_OFFS_ARG(1, type, CL_DEVICE_TYPE_ALL);
 	
 	cl_uint n = 0;
+	cl_platform_id platform2;
+	CHECK_ERR(clGetPlatformIDs(1, &platform2, nullptr));
 	printf("getDeviceIDs 0\n"); fflush(nullptr);
-	CHECK_ERR(clGetDeviceIDs(platform, type, 0, nullptr, &n));
+	CHECK_ERR(clGetDeviceIDs(platform2, CL_DEVICE_TYPE_ALL, 0, nullptr, &n));
 	printf("getDeviceIDs 1: %u\n", n);
+	CHECK_ERR(clGetDeviceIDs(platform, type, 0, nullptr, &n));
+	printf("getDeviceIDs 11: %u\n", n);
 	Napi::Array deviceArray = Napi::Array::New(env);
 	if (!n) {
 		printf("getDeviceIDs 2\n"); fflush(nullptr);
