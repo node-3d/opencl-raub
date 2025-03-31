@@ -40,7 +40,7 @@ jobs:
         if: matrix.os == 'ubuntu-22.04'
         run: |
           sudo apt update -qq
-          sudo apt install -qq intel-opencl-icd opencl-headers ocl-icd-opencl-dev
+          sudo apt install -qq opencl-headers ocl-icd-opencl-dev pocl-opencl-icd
 
       - name: Build Current Binary
         if: matrix.os != 'ubuntu-22.04-arm'
