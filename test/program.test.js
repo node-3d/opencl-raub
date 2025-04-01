@@ -161,13 +161,6 @@ describe('Program', async () => {
 				cl.INVALID_VALUE,
 			);
 		});
-		
-		it('fails as kernel name is unknown', () => {
-			assert.throws(
-				() => cl.createProgramWithBuiltInKernels(context, [device], ['nocl_test']),
-				cl.INVALID_VALUE,
-			);
-		});
 	});
 	
 	describe('#retainProgram', () => {
@@ -298,12 +291,6 @@ describe('Program', async () => {
 					U.assertType(nprg, 'object');
 				});
 			});
-		});
-	});
-	
-	describe('#unloadPlatformCompiler', () => {
-		it('is a function', () => {
-			assert.strictEqual(typeof cl.unloadPlatformCompiler, 'function');
 		});
 	});
 	

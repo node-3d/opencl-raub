@@ -10,9 +10,7 @@ const cl = require('../..');
 	// Grab ALL possible devices into a flat array
 	const devicesAll = cl.getPlatformIDs().flatMap((platform) => {
 		const version = cl.getPlatformInfo(platform, cl.PLATFORM_VERSION);
-		console.log('Platform:', platform, version);
 		const platformDevices = cl.getDeviceIDs(platform);
-		console.log('Devices', platformDevices);
 		
 		return platformDevices.map((device) => ({
 			platform,
@@ -35,8 +33,11 @@ const cl = require('../..');
 	global.MAIN_PLATFORM = devices[deviceIdx].platform;
 	global.MAIN_DEVICE_TYPE = devices[deviceIdx].type;
 	
-	// console.log('\n-----------------------------');
-	// console.log('AVAILABLE DEVICES:', global.DEVICES);
-	// console.log('\nACTIVE DEVICE:', devices[deviceIdx].version);
-	// console.log('-----------------------------\n');
+	console.log('\n-----------------------------');
+	console.log(
+		'AVAILABLE DEVICES:',
+		global.DEVICES.map(({ name, version }) => `${version} ${name}`),
+	);
+	console.log('ACTIVE DEVICE:', devices[deviceIdx].version, devices[deviceIdx].name);
+	console.log('-----------------------------\n');
 })();

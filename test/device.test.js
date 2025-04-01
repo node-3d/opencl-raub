@@ -5,7 +5,6 @@ const { describe, it } = require('node:test');
 
 const cl = require('../');
 const U = require('./utils');
-require('./utils/device_selection');
 
 
 describe('Device', () => {
