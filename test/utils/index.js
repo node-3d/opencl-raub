@@ -3,7 +3,7 @@
 const assert = require('node:assert').strict;
 
 const cl = require('../../');
-require('./device_selection');
+require('./device-selection');
 
 
 const Utils = {
