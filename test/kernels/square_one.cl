@@ -1,4 +1,5 @@
-__kernel void square_one(
+__kernel
+void square_one(
 	__global uint* output,
 	const uint x
 ) {

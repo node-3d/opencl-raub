@@ -1,10 +1,11 @@
-__kernel void square_cpy(
-    __global float* input,
-    __global float* output,
-    unsigned int count
+__kernel
+void square_cpy(
+	__global float* input,
+	__global float* output,
+	uint count
 ) {
-    unsigned int i = get_global_id(0);
-    if (i < count) {
-        output[i] = input[i] * input[i];
-    }
+	uint i = get_global_id(0);
+	if (i < count) {
+		output[i] = input[i] * input[i];
+	}
 }

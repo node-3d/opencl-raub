@@ -434,6 +434,8 @@ declare module "opencl-raub" {
 	const COMMAND_MIGRATE_MEM_OBJECTS: number;
 	const COMMAND_FILL_BUFFER: number;
 	const COMMAND_FILL_IMAGE: number;
+	const COMMAND_ACQUIRE_GL_OBJECTS: number;
+	const COMMAND_RELEASE_GL_OBJECTS: number;
 	
 	// command execution status
 	const COMPLETE: number;
@@ -449,12 +451,6 @@ declare module "opencl-raub" {
 	const PROFILING_COMMAND_SUBMIT: number;
 	const PROFILING_COMMAND_START: number;
 	const PROFILING_COMMAND_END: number;
-	
-	// cl_khr_fp64 extension - no extension exports.since it has no functions
-	const DEVICE_DOUBLE_FP_CONFIG: number;
-	
-	// cl_khr_fp16 extension - no extension exports.since it has no functions
-	const DEVICE_HALF_FP_CONFIG: number;
 	
 	// cl_khr_gl_sharing - use GL VBOs
 	const GL_CONTEXT_KHR: number;
@@ -493,21 +489,30 @@ declare module "opencl-raub" {
 		_: number,
 	};
 	
-	type __brand = unique symbol;
-	export type TClPlatform = TClObject & { [__brand]: "cl_platform_id" };
-	export type TClDevice = TClObject & { [__brand]: "cl_device_id" };
-	export type TClContext = TClObject & { [__brand]: "cl_context" };
-	export type TClProgram = TClObject & { [__brand]: "cl_program" };
-	export type TClKernel = TClObject & { [__brand]: "cl_kernel" };
-	export type TClMem = TClObject & { [__brand]: "cl_mem" };
-	export type TClSampler = TClObject & { [__brand]: "cl_sampler" };
-	export type TClQueue = TClObject & { [__brand]: "cl_command_queue" };
-	export type TClEvent = TClObject & { [__brand]: "cl_event" };
-	export type TClBinary = TClObject & { [__brand]: "cl_program_binary" };
-	export type TClMapped = TClObject & { [__brand]: "cl_mapped_ptr" };
+	export type TClPlatform = TClObject & { __brand: "cl_platform_id" };
+	export type TClDevice = TClObject & { __brand: "cl_device_id" };
+	export type TClContext = TClObject & { __brand: "cl_context" };
+	export type TClProgram = TClObject & { __brand: "cl_program" };
+	export type TClKernel = TClObject & { __brand: "cl_kernel" };
+	export type TClMem = TClObject & { __brand: "cl_mem" };
+	export type TClSampler = TClObject & { __brand: "cl_sampler" };
+	export type TClQueue = TClObject & { __brand: "cl_command_queue" };
+	export type TClEvent = TClObject & { __brand: "cl_event" };
+	export type TClBinary = TClObject & { __brand: "cl_program_binary" };
+	export type TClMapped = TClObject & { __brand: "cl_mapped_ptr" };
 	
-	export type TClStatusOrEvent = TClStatus | TEvent;
-	export type TClHostData = ArrayBufferView | Buffer;
+	export type TClEventOrVoid = TClEvent | undefined;
+	export type TClHostData = ArrayBuffer | ArrayBufferView | Buffer;
+	
+	type TClImageFormat = {
+		channel_order?: number,
+		channel_data_type?: number,
+	};
+	
+	type TClSubBufferInfo = {
+		origin: number,
+		size: number,
+	};
 	
 	/**
 	 * @see [clCreateKernel](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateKernel.html)
@@ -576,10 +581,6 @@ declare module "opencl-raub" {
 		buffer?: TClHostData,
 	) => TClMem;
 	
-	type TClSubBufferInfo = {
-		origin: number,
-		size: number,
-	};
 	/**
 	 * Note: only `type = cl.BUFFER_CREATE_TYPE_REGION` is supported.
 	 * @see [clCreateSubBuffer](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateSubBuffer.html)
@@ -591,10 +592,6 @@ declare module "opencl-raub" {
 		info: TClSubBufferInfo,
 	) => TClMem;
 	
-	type TClImageFormat = {
-		channel_order?: number,
-		channel_data_type?: number,
-	};
 	type TClImageDesc = {
 		type?: number,
 		width?: number,
@@ -613,7 +610,7 @@ declare module "opencl-raub" {
 		flags: number,
 		format: TClImageFormat,
 		desc: TClImageDesc,
-		buffer?: TClHostData,
+		host?: TClHostData,
 	) => TClStatus;
 	
 	/**
@@ -626,10 +623,6 @@ declare module "opencl-raub" {
 	 */
 	const releaseMemObject: (mem: TClMem) => TClStatus;
 	
-	type TClImageFormat = {
-		channel_order: number,
-		channel_data_type: number,
-	};
 	/**
 	 * @see [clGetSupportedImageFormats](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetSupportedImageFormats.html)
 	 */
@@ -659,7 +652,7 @@ declare module "opencl-raub" {
 		context: TClContext,
 		flags: number,
 		vboId: number,
-		buffer: TClHostData,
+		host: TClHostData,
 	) => TClMem;
 	
 	
@@ -673,7 +666,6 @@ declare module "opencl-raub" {
 	 */
 	const getPlatformInfo: (platform: TClPlatform, param_name: string) => string;
 	
-	
 	/**
 	 * @see [clCreateProgramWithSource](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateProgramWithSource.html)
 	 */
@@ -685,7 +677,7 @@ declare module "opencl-raub" {
 	const createProgramWithBinary: (
 		context: TClContext,
 		devices: TClDevice[],
-		binaries: TypedArray[] | Buffer[],
+		binaries: TClHostData[],
 	) => TClProgram;
 	
 	/**
@@ -714,10 +706,10 @@ declare module "opencl-raub" {
 	 */
 	const buildProgram: (
 		program: TClProgram,
-		devices: TClDevice[] | null,
-		options: str | null,
-		cb: TBuildProgramCb | null,
-		user_data: Object,
+		devices?: TClDevice[] | null,
+		options?: string | null,
+		cb?: TBuildProgramCb | null,
+		user_data?: Object,
 	) => TClStatus;
 	
 	/**
@@ -726,7 +718,7 @@ declare module "opencl-raub" {
 	const compileProgram: (
 		program: TClProgram,
 		devices: TClDevice[] | null,
-		options: str | null,
+		options: string | null,
 		headers: TClProgram[] | null,
 		names: string[] | null,
 		cb: TBuildProgramCb | null,
@@ -739,7 +731,7 @@ declare module "opencl-raub" {
 	const linkProgram: (
 		context: TClContext,
 		devices: TClDevice[] | null,
-		options: str | null,
+		options: string | null,
 		programs: TClProgram[],
 		cb: TBuildProgramCb | null,
 		user_data: Object,
@@ -800,9 +792,9 @@ declare module "opencl-raub" {
 	 * @see [clCreateCommandQueue](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateCommandQueue.html)
 	 */
 	const createCommandQueue: (
-		context: TContext,
-		device: TDevice,
-		properties: number,
+		context: TClContext,
+		device: TClDevice,
+		properties?: number | null,
 	) => TClQueue;
 	
 	
@@ -843,10 +835,10 @@ declare module "opencl-raub" {
 		blocking_read: boolean,
 		offset: number,
 		size: number,
-		buffer: TClHostData,
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		host: TClHostData,
+		event_wait_list?: TClEvent[] | null,
+		hasEvent?: boolean,
+	) => TClEventOrVoid;
 	
 	/**
 	 * @see [clEnqueueReadBufferRect](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueReadBufferRect.html)
@@ -862,10 +854,10 @@ declare module "opencl-raub" {
 		buffer_slice_pitch: number,
 		host_row_pitch: number,
 		host_slice_pitch: number,
-		buffer: TClHostData,
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		host: TClHostData,
+		event_wait_list?: TClEvent[] | null,
+		hasEvent?: boolean,
+	) => TClEventOrVoid;
 	
 	/**
 	 * @see [clEnqueueWriteBuffer](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueWriteBuffer.html)
@@ -876,10 +868,10 @@ declare module "opencl-raub" {
 		blocking_write: boolean,
 		offset: number,
 		size: number,
-		buffer: TClHostData,
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		host: TClHostData,
+		event_wait_list?: TClEvent[] | null,
+		hasEvent?: boolean,
+	) => TClEventOrVoid;
 	
 	/**
 	 * @see [clEnqueueWriteBufferRect](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueWriteBufferRect.html)
@@ -896,9 +888,9 @@ declare module "opencl-raub" {
 		host_row_pitch: number,
 		host_slice_pitch: number,
 		host: TClHostData,
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		event_wait_list?: TClEvent[] | null,
+		hasEvent?: boolean,
+	) => TClEventOrVoid;
 	
 	/**
 	 * @see [clEnqueueCopyBuffer](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueCopyBuffer.html)
@@ -910,9 +902,9 @@ declare module "opencl-raub" {
 		src_offset: number,
 		dest_ofset: number,
 		size: number,
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		event_wait_list?: TClEvent[] | null,
+		hasEvent?: boolean,
+	) => TClEventOrVoid;
 	
 	/**
 	 * @see [clEnqueueCopyBufferRect](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueCopyBufferRect.html)
@@ -928,9 +920,9 @@ declare module "opencl-raub" {
 		src_slice_pitch: number,
 		dest_row_pitch: number,
 		dest_slice_pitch: number,
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		event_wait_list?: TClEvent[] | null,
+		hasEvent?: boolean,
+	) => TClEventOrVoid;
 	
 	/**
 	 * @see [clEnqueueReadImage](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueReadImage.html)
@@ -944,9 +936,9 @@ declare module "opencl-raub" {
 		row_pitch: number,
 		slice_pitch: number,
 		host: TClHostData,
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		event_wait_list?: TClEvent[] | null,
+		hasEvent?: boolean,
+	) => TClEventOrVoid;
 	
 	/**
 	 * @see [clEnqueueWriteImage](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueWriteImage.html)
@@ -960,9 +952,9 @@ declare module "opencl-raub" {
 		row_pitch: number,
 		slice_pitch: number,
 		host: TClHostData,
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		event_wait_list?: TClEvent[] | null,
+		hasEvent?: boolean,
+	) => TClEventOrVoid;
 	
 	/**
 	 * @see [clEnqueueCopyImage](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueCopyImage.html)
@@ -974,9 +966,9 @@ declare module "opencl-raub" {
 		src_origins: number[],
 		dest_origins: number[],
 		regions: number[],
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		event_wait_list?: TClEvent[] | null,
+		hasEvent?: boolean,
+	) => TClEventOrVoid;
 	
 	/**
 	 * @see [clEnqueueCopyImageToBuffer](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueCopyImageToBuffer.html)
@@ -988,9 +980,9 @@ declare module "opencl-raub" {
 		src_origins: number[],
 		regions: number[],
 		dest_offset: number,
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		event_wait_list?: TClEvent[] | null,
+		hasEvent?: boolean,
+	) => TClEventOrVoid;
 	
 	/**
 	 * @see [clEnqueueCopyBufferToImage](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueCopyBufferToImage.html)
@@ -1002,9 +994,9 @@ declare module "opencl-raub" {
 		src_offset: number,
 		dest_origins: number[],
 		regions: number[],
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		event_wait_list?: TClEvent[] | null,
+		hasEvent?: boolean,
+	) => TClEventOrVoid;
 	
 	/**
 	 * @see [clEnqueueMapBuffer](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueMapBuffer.html)
@@ -1012,13 +1004,15 @@ declare module "opencl-raub" {
 	const enqueueMapBuffer: (
 		queue: TClQueue,
 		mem: TClMem,
-		blocking_map: boolean,
+		blocking_map: boolean, // if false, use result.event
 		map_flags: number,
 		offset: number,
 		size: number,
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		event_wait_list?: TClEvent[] | null,
+	) => Readonly<{
+		buffer: ArrayBuffer,
+		event: TClEvent | null,
+	}>;
 	
 	/**
 	 * @see [clEnqueueMapImage](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueMapImage.html)
@@ -1026,13 +1020,17 @@ declare module "opencl-raub" {
 	const enqueueMapImage: (
 		queue: TClQueue,
 		mem: TClMem,
-		blocking_map: boolean,
+		blocking_map: boolean, // if false, use result.event
 		map_flags: number,
 		offset: number,
 		size: number,
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		event_wait_list?: TClEvent[] | null,
+	) => Readonly<{
+		buffer: ArrayBuffer,
+		event: TClEvent | null,
+		image_row_pitch: number,
+		image_slice_pitch: number,
+	}>;
 	
 	/**
 	 * @see [clEnqueueUnmapMemObject](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueUnmapMemObject.html)
@@ -1041,9 +1039,9 @@ declare module "opencl-raub" {
 		queue: TClQueue,
 		mem: TClMem,
 		host: TClHostData,
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		event_wait_list?: TClEvent[] | null,
+		hasEvent?: boolean,
+	) => TClEventOrVoid;
 	
 	/**
 	 * @see [clEnqueueNDRangeKernel](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueNDRangeKernel.html)
@@ -1052,12 +1050,12 @@ declare module "opencl-raub" {
 		queue: TClQueue,
 		kernel: TClKernel,
 		work_dim: number,
-		work_offset: number[],
-		work_global: number[],
-		work_local: number[],
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		work_offset: number[] | null,
+		work_global: number[] | null,
+		work_local: number[] | null,
+		event_wait_list?: TClEvent[] | null,
+		hasEvent?: boolean,
+	) => TClEventOrVoid;
 	
 	/**
 	 * @see [clEnqueueTask](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueTask.html)
@@ -1065,33 +1063,46 @@ declare module "opencl-raub" {
 	const enqueueTask: (
 		queue: TClQueue,
 		kernel: TClKernel,
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		event_wait_list?: TClEvent[] | null,
+		hasEvent?: boolean,
+	) => TClEventOrVoid;
 	
 	/**
 	 * FIXME: not implemented.
 	 * @see [clEnqueueNativeKernel](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueNativeKernel.html)
 	 */
-	const enqueueNativeKernel: () => TClStatusOrEvent;
+	const enqueueNativeKernel: () => TClEventOrVoid;
+	
+	/**
+	 * @see [clEnqueueMarker](https://registry.khronos.org/OpenCL/sdk/1.0/docs/man/xhtml/clEnqueueMarker.html)
+	 */
+	const enqueueMarker: (
+		queue: TClQueue,
+	) => TClEvent;
 	
 	/**
 	 * @see [clEnqueueMarkerWithWaitList](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueMarkerWithWaitList.html)
 	 */
 	const enqueueMarkerWithWaitList: (
 		queue: TClQueue,
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		event_wait_list: TClEvent[],
+	) => TClEvent;
 	
 	/**
 	 * @see [clEnqueueBarrierWithWaitList](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueBarrierWithWaitList.html)
 	 */
 	const enqueueBarrierWithWaitList: (
 		queue: TClQueue,
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		event_wait_list: TClEvent[],
+		hasEvent?: boolean,
+	) => TClEventOrVoid;
+	
+	/**
+	 * @see [clEnqueueBarrier](https://registry.khronos.org/OpenCL/sdk/1.0/docs/man/xhtml/clEnqueueBarrier.html)
+	 */
+	const enqueueBarrier: (
+		queue: TClQueue,
+	) => TClEventOrVoid;
 	
 	/**
 	 * @see [clEnqueueFillBuffer](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueFillBuffer.html)
@@ -1099,7 +1110,7 @@ declare module "opencl-raub" {
 	const enqueueFillBuffer: (
 		queue: TClQueue,
 		buffer: TClMem,
-	) => TClStatusOrEvent;
+	) => TClEventOrVoid;
 	
 	/**
 	 * @see [clEnqueueFillImage](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueFillImage.html)
@@ -1110,9 +1121,9 @@ declare module "opencl-raub" {
 		host: TClHostData,
 		src_origins: number[],
 		regions: number[],
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		event_wait_list?: TClEvent[] | null,
+		hasEvent?: boolean,
+	) => TClEventOrVoid;
 	
 	/**
 	 * @see [clEnqueueMigrateMemObjects](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueMigrateMemObjects.html)
@@ -1121,9 +1132,9 @@ declare module "opencl-raub" {
 		queue: TClQueue,
 		image: TClMem,
 		flags: number,
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		event_wait_list?: TClEvent[] | null,
+		hasEvent?: boolean,
+	) => TClEventOrVoid;
 	
 	/**
 	 * @see [clEnqueueAcquireGLObjects](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueAcquireGLObjects.html)
@@ -1131,9 +1142,9 @@ declare module "opencl-raub" {
 	const enqueueAcquireGLObjects: (
 		queue: TClQueue,
 		mem: TClMem,
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		event_wait_list?: TClEvent[] | null,
+		hasEvent?: boolean,
+	) => TClEventOrVoid;
 	
 	/**
 	 * @see [clEnqueueReleaseGLObjects](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueReleaseGLObjects.html)
@@ -1141,9 +1152,9 @@ declare module "opencl-raub" {
 	const enqueueReleaseGLObjects: (
 		queue: TClQueue,
 		mem: TClMem,
-		event_wait_list: TEvent[],
-		hasEvent: boolean,
-	) => TClStatusOrEvent;
+		event_wait_list?: TClEvent[] | null,
+		hasEvent?: boolean,
+	) => TClEventOrVoid;
 	
 	
 	/**
@@ -1151,8 +1162,8 @@ declare module "opencl-raub" {
 	 */
 	const createContext: (
 		properties: (number | TClPlatform)[] | null,
-		devices: TDevice[],
-	) => TContext;
+		devices: TClDevice[],
+	) => TClContext;
 	
 	/**
 	 * @see [clCreateContext](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateContextFromType.html)
@@ -1160,25 +1171,25 @@ declare module "opencl-raub" {
 	const createContextFromType: (
 		properties: (number | TClPlatform)[] | null,
 		device_type: number,
-	) => TContext;
+	) => TClContext;
 	
 	/**
 	 * @see [clRetainContext](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clRetainContext.html)
 	 */
-	const retainContext: (context: TContext) => TClStatus;
+	const retainContext: (context: TClContext) => TClStatus;
 	
 	/**
 	 * @see [clReleaseContext](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clReleaseContext.html)
 	 */
-	const releaseContext: (context: TContext) => TClStatus;
+	const releaseContext: (context: TClContext) => TClStatus;
 	
 	/**
 	 * @see [clGetContextInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetContextInfo.html)
 	 */
 	const getContextInfo: (
-		context: TContext,
+		context: TClContext,
 		param_name: string,
-	) => TDevice[] | number | number[] | TClPlatform[];
+	) => TClDevice[] | number | number[] | TClPlatform[];
 	
 	
 	/**
@@ -1187,13 +1198,13 @@ declare module "opencl-raub" {
 	const getDeviceIDs: (
 		platform: TClPlatform,
 		device_type?: number, // default is `cl.DEVICE_TYPE_ALL`
-	) => TDevice[];
+	) => TClDevice[];
 	
 	/**
 	 * @see [clGetDeviceInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetDeviceInfo.html)
 	 */
 	const getDeviceInfo: (
-		device: TDevice,
+		device: TClDevice,
 		param_name: number,
 	) => string | number | boolean | TClPlatform | number[] | null;
 	
@@ -1201,25 +1212,25 @@ declare module "opencl-raub" {
 	 * @see 
 	 */
 	const createSubDevices: (
-		device: TDevice,
+		device: TClDevice,
 		properties: number[] | TClPlatform[],
-	) => TDevice[];
+	) => TClDevice[];
 	
 	/**
 	 * @see [clRetainDevice](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clRetainDevice.html)
 	 */
-	const retainDevice: (device: TDevice) => TClStatus;
+	const retainDevice: (device: TClDevice) => TClStatus;
 	
 	/**
 	 * @see [clReleaseDevice](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clReleaseDevice.html)
 	 */
-	const releaseDevice: (device: TDevice) => TClStatus;
+	const releaseDevice: (device: TClDevice) => TClStatus;
 	
 	
 	/**
 	 * @see [clWaitForEvents](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clWaitForEvents.html)
 	 */
-	const waitForEvents: (event_wait_list: TEvent[]) => TClStatus;
+	const waitForEvents: (event_wait_list: TClEvent[]) => TClStatus;
 	
 	/**
 	 * @see [clGetEventInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetEventInfo.html)
@@ -1256,7 +1267,7 @@ declare module "opencl-raub" {
 		event: TClEvent,
 		status_type: number,
 		cb: (user_data: Object, status: number, event: TClEvent) => void,
-		user_data: Object,
+		user_data?: Object,
 	) => TClStatus;
 	
 	/**
@@ -1267,4 +1278,14 @@ declare module "opencl-raub" {
 		event: TClEvent,
 		param_name: number,
 	) => [number, number];
+	
+	const quickStart: (isLoggingDevices?: boolean) => Readonly<{
+		platform: TClPlatform,
+		device: TClDevice,
+		context: TClContext,
+		version: string,
+		name: string,
+		type: number,
+		label: string,
+	}>;
 }

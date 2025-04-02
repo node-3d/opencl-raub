@@ -403,8 +403,44 @@ JS_METHOD(createFromGLBuffer) { NAPI_ENV;
 		}
 	}
 	
-	cl_int ret=CL_SUCCESS;
+	cl_int ret = CL_SUCCESS;
 	cl_mem mem = clCreateFromGLBuffer(context, flags, vboId, &ret);
+	CHECK_ERR(ret);
+	
+	RET_WRAPPER(mem);
+}
+
+// cl_mem clCreateFromGLRenderbuffer(
+//     cl_context context,
+//     cl_mem_flags flags,
+//     cl_GLuint renderbuffer,
+//     cl_int* errcode_ret);
+JS_METHOD(createFromGLRenderbuffer) { NAPI_ENV;
+	REQ_CL_ARG(0, context, cl_context);
+	REQ_OFFS_ARG(1, flags);
+	REQ_OFFS_ARG(2, rboId);
+	
+	cl_int ret = CL_SUCCESS;
+	cl_mem mem = clCreateFromGLRenderbuffer(context, flags, rboId, &ret);
+	CHECK_ERR(ret);
+	
+	RET_WRAPPER(mem);
+}
+
+// cl_mem clCreateFromGLRenderbuffer(
+//     cl_context context,
+//     cl_mem_flags flags,
+//     cl_GLuint renderbuffer,
+//     cl_int* errcode_ret);
+JS_METHOD(createFromGLTexture) { NAPI_ENV;
+	REQ_CL_ARG(0, context, cl_context);
+	REQ_OFFS_ARG(1, flags);
+	REQ_OFFS_ARG(2, target);
+	REQ_OFFS_ARG(3, mip);
+	REQ_OFFS_ARG(4, texId);
+	
+	cl_int ret = CL_SUCCESS;
+	cl_mem mem = clCreateFromGLTexture(context, flags, target, mip, texId, &ret);
 	CHECK_ERR(ret);
 	
 	RET_WRAPPER(mem);

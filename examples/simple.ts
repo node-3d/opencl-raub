@@ -1,12 +1,6 @@
-'use strict';
+import cl from 'opencl-raub';
 
-const cl = require('../');
-
-
-const platform = cl.getPlatformIDs()[0];
-const devices = cl.getDeviceIDs(platform, cl.DEVICE_TYPE_ALL);
-const context = cl.createContext([cl.CONTEXT_PLATFORM, platform], devices);
-const device = cl.getContextInfo(context, cl.CONTEXT_DEVICES)[0];
+const { context, device } = cl.quickStart(true);
 const queue = cl.createCommandQueue(context, device, null);
 
 const BUFFER_SIZE = 10;
@@ -30,10 +24,12 @@ const bufferC = cl.createBuffer(context, cl.MEM_WRITE_ONLY, BYTE_SIZE);
 
 // Create a program object
 const program = cl.createProgramWithSource(context, `
-	__kernel void vadd(__global int *a, __global int *b, __global int *c, uint num) {
+	__kernel
+	void vadd(__global int *a, __global int *b, __global int *c, uint num) {
 		size_t i = get_global_id(0);
-		if(i >= num) return;
-		c[i] = a[i] + b[i];
+		if (i < num) {
+			c[i] = a[i] + b[i];
+		}
 	}
 `);
 cl.buildProgram(program);

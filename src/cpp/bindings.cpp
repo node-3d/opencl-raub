@@ -23,22 +23,21 @@
 #define JS_CL_ERROR(name)                                                     \
 	exports.Set(#name, JS_ERROR(opencl::getExceptionMessage(CL_ ## name)));
 
-#define JS_CL_SET_METHOD(name)                                                \
+#define JS_CL_SET_METHOD2(key, value)                                         \
 	exports.DefineProperty(                                                   \
 		Napi::PropertyDescriptor::Function(                                   \
 			env,                                                              \
 			exports,                                                          \
-			#name,                                                            \
-			opencl::name,                                                     \
+			#key,                                                             \
+			opencl::value,                                                    \
 			napi_writable                                                     \
 		)                                                                     \
 	);
 
+#define JS_CL_SET_METHOD(name) JS_CL_SET_METHOD2(name, name)
+
 
 Napi::Object initModule(Napi::Env env, Napi::Object exports) {
-	
-	exports.Set("CL_VERSION_1_2", JS_BOOL(true));
-	
 	opencl::Wrapper::init(env, exports);
 	
 	JS_CL_SET_METHOD(createKernel);
@@ -59,10 +58,13 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
 	JS_CL_SET_METHOD(getMemObjectInfo);
 	JS_CL_SET_METHOD(getImageInfo);
 	JS_CL_SET_METHOD(createFromGLBuffer);
+	JS_CL_SET_METHOD(createFromGLRenderbuffer);
+	JS_CL_SET_METHOD(createFromGLTexture);
 	
 	JS_CL_SET_METHOD(getPlatformIDs);
 	JS_CL_SET_METHOD(getPlatformInfo);
 	
+	JS_CL_SET_METHOD2(createProgram, createProgramWithSource);
 	JS_CL_SET_METHOD(createProgramWithSource);
 	JS_CL_SET_METHOD(createProgramWithBinary);
 	JS_CL_SET_METHOD(createProgramWithBuiltInKernels);
@@ -103,7 +105,9 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
 	JS_CL_SET_METHOD(enqueueNDRangeKernel);
 	JS_CL_SET_METHOD(enqueueTask);
 	JS_CL_SET_METHOD(enqueueNativeKernel);
+	JS_CL_SET_METHOD(enqueueMarker);
 	JS_CL_SET_METHOD(enqueueMarkerWithWaitList);
+	JS_CL_SET_METHOD(enqueueBarrier);
 	JS_CL_SET_METHOD(enqueueBarrierWithWaitList);
 	JS_CL_SET_METHOD(enqueueFillBuffer);
 	JS_CL_SET_METHOD(enqueueFillImage);
@@ -133,16 +137,15 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
 	JS_CL_SET_METHOD(getEventProfilingInfo);
 	
 	// Byte sizes
-	JS_CONSTANT("size_CHAR", sizeof(char));
-	JS_CONSTANT("size_SHORT", sizeof(int16_t));
-	JS_CONSTANT("size_INT", sizeof(int));
-	JS_CONSTANT("size_LONG", sizeof(int32_t));
-	JS_CONSTANT("size_FLOAT", sizeof(float));
-	JS_CONSTANT("size_DOUBLE", sizeof(double));
-	JS_CONSTANT("size_HALF", sizeof(float) >> 1);
+	JS_CONSTANT(size_CHAR, sizeof(char));
+	JS_CONSTANT(size_SHORT, sizeof(int16_t));
+	JS_CONSTANT(size_INT, sizeof(int));
+	JS_CONSTANT(size_LONG, sizeof(int32_t));
+	JS_CONSTANT(size_FLOAT, sizeof(float));
+	JS_CONSTANT(size_DOUBLE, sizeof(double));
+	JS_CONSTANT(size_HALF, sizeof(float) >> 1);
 	
-	// Error Codes
-	JS_CL_CONSTANT(SUCCESS);
+	// Error Codes as exceptions
 	JS_CL_ERROR(DEVICE_NOT_FOUND);
 	JS_CL_ERROR(DEVICE_NOT_AVAILABLE);
 	JS_CL_ERROR(COMPILER_NOT_AVAILABLE);
@@ -201,6 +204,10 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
 	JS_CL_ERROR(INVALID_COMPILER_OPTIONS);
 	JS_CL_ERROR(INVALID_LINKER_OPTIONS);
 	JS_CL_ERROR(INVALID_DEVICE_PARTITION_COUNT);
+	// Additional Error Codes
+	JS_CL_ERROR(PLATFORM_NOT_FOUND_KHR);
+	
+	JS_CL_CONSTANT(SUCCESS);
 	
 	// OpenCL Version
 	JS_CL_CONSTANT(VERSION_1_0);
@@ -567,6 +574,8 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
 	JS_CL_CONSTANT(COMMAND_MIGRATE_MEM_OBJECTS);
 	JS_CL_CONSTANT(COMMAND_FILL_BUFFER);
 	JS_CL_CONSTANT(COMMAND_FILL_IMAGE);
+	JS_CL_CONSTANT(COMMAND_ACQUIRE_GL_OBJECTS);
+	JS_CL_CONSTANT(COMMAND_RELEASE_GL_OBJECTS);
 	
 	// command execution status
 	JS_CL_CONSTANT(COMPLETE);
@@ -583,38 +592,24 @@ Napi::Object initModule(Napi::Env env, Napi::Object exports) {
 	JS_CL_CONSTANT(PROFILING_COMMAND_START);
 	JS_CL_CONSTANT(PROFILING_COMMAND_END);
 	
-	// cl_khr_fp64 extension - no extension exports.since it has no functions
-	JS_CL_CONSTANT(DEVICE_DOUBLE_FP_CONFIG);
-	
-	// cl_khr_fp16 extension - no extension exports.since it has no functions
-	JS_CL_CONSTANT(DEVICE_HALF_FP_CONFIG);
-	
 	// cl_khr_gl_sharing - use GL VBOs
 	JS_CL_CONSTANT(GL_CONTEXT_KHR);
 	JS_CL_CONSTANT(WGL_HDC_KHR);
 	JS_CL_CONSTANT(GLX_DISPLAY_KHR);
 	JS_CL_CONSTANT(CGL_SHAREGROUP_KHR);
 	
-	// cl_khr_icd extension
-	#if !defined (__APPLE__)
-		// cl_platform_info
-		JS_CL_CONSTANT(PLATFORM_ICD_SUFFIX_KHR);
-		// Additional Error Codes
-		JS_CL_CONSTANT(PLATFORM_NOT_FOUND_KHR);
-	#endif
-
+	// cl_platform_info
+	JS_CL_CONSTANT(PLATFORM_ICD_SUFFIX_KHR);
+	
 	// cl_nv_device_attribute_query extension
-	#if !defined (__APPLE__)
-		// cl_nv_device_attribute_query extension
-		// no extension exports since it has no functions
-		JS_CL_CONSTANT(DEVICE_COMPUTE_CAPABILITY_MAJOR_NV);
-		JS_CL_CONSTANT(DEVICE_COMPUTE_CAPABILITY_MINOR_NV);
-		JS_CL_CONSTANT(DEVICE_REGISTERS_PER_BLOCK_NV);
-		JS_CL_CONSTANT(DEVICE_WARP_SIZE_NV);
-		JS_CL_CONSTANT(DEVICE_GPU_OVERLAP_NV);
-		JS_CL_CONSTANT(DEVICE_KERNEL_EXEC_TIMEOUT_NV);
-		JS_CL_CONSTANT(DEVICE_INTEGRATED_MEMORY_NV);
-	#endif
+	// no extension exports since it has no functions
+	JS_CL_CONSTANT(DEVICE_COMPUTE_CAPABILITY_MAJOR_NV);
+	JS_CL_CONSTANT(DEVICE_COMPUTE_CAPABILITY_MINOR_NV);
+	JS_CL_CONSTANT(DEVICE_REGISTERS_PER_BLOCK_NV);
+	JS_CL_CONSTANT(DEVICE_WARP_SIZE_NV);
+	JS_CL_CONSTANT(DEVICE_GPU_OVERLAP_NV);
+	JS_CL_CONSTANT(DEVICE_KERNEL_EXEC_TIMEOUT_NV);
+	JS_CL_CONSTANT(DEVICE_INTEGRATED_MEMORY_NV);
 	
 	return exports;
 }

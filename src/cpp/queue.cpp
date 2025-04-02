@@ -872,34 +872,22 @@ void CL_CALLBACK notifyMapCB (
 	//     asyncCB->CallBackIsDone();
 }
 
-// FIXME: events and return format
-// extern CL_API_ENTRY void * CL_API_CALL
-// clEnqueueMapBuffer(cl_command_queue /* command_queue */,
-//                    cl_mem           /* buffer */,
-//                    cl_bool          /* blocking_map */,
-//                    cl_map_flags     /* map_flags */,
-//                    size_t           /* offset */,
-//                    size_t           /* size */,
-//                    cl_uint          /* num_events_in_wait_list */,
-//                    const cl_event * /* event_wait_list */,
-//                    cl_event *       /* event */,
-//                    cl_int *         /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(enqueueMapBuffer) { NAPI_ENV;
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, mem, cl_mem);
-	SOFT_BOOL_ARG(2, blocking_map);
+	GET_EVENT_FLAG(2);
 	REQ_OFFS_ARG(3, map_flags);
 	REQ_OFFS_ARG(4, offset);
 	REQ_OFFS_ARG(5, size);
-	GET_WAIT_LIST_AND_EVENT(6);
-	
+	GET_WAIT_LIST(6);
+
 	void* mPtr = nullptr;
 	cl_int err;
 	
 	mPtr = clEnqueueMapBuffer(
 		clQueue,
 		mem,
-		blocking_map,
+		eventPtr ? CL_TRUE : CL_FALSE,
 		map_flags,
 		offset,
 		size,
@@ -911,46 +899,25 @@ JS_METHOD(enqueueMapBuffer) { NAPI_ENV;
 	
 	CHECK_ERR(err);
 	
-	Napi::ArrayBuffer obj = Napi::ArrayBuffer::New(env, mPtr, size);
-	
+	Napi::Object result = Napi::Object::New(env);
+	result.Set("buffer", Napi::ArrayBuffer::New(env, mPtr, size));
 	if (eventPtr) {
-		obj.Set("event", Wrapper::fromRaw(env, event));
+		result.Set("event", Wrapper::fromRaw(env, event));
+	} else {
+		result.Set("event", JS_NULL);
 	}
 	
-	if (!blocking_map) {
-		// TODO buf->SetIndexedPropertiesToExternalArrayData(
-		// 	nullptr,
-		// 	buf->GetIndexedPropertiesExternalArrayDataType(),
-		// 	0
-		// );
-		// NoCLMapCB* cb = new NoCLMapCB(buf, size, mPtr);
-		// err = clSetEventCallback(event, CL_COMPLETE, notifyMapCB, cb);
-		// CHECK_ERR(err)
-	}
-	
-	RET_VALUE(obj);
+	RET_VALUE(result);
 }
 
-// extern CL_API_ENTRY void * CL_API_CALL
-// clEnqueueMapImage(cl_command_queue  /* command_queue */,
-//                   cl_mem            /* image */,
-//                   cl_bool           /* blocking_map */,
-//                   cl_map_flags      /* map_flags */,
-//                   const size_t *    /* origin[3] */,
-//                   const size_t *    /* region[3] */,
-//                   size_t *          /* image_row_pitch */,
-//                   size_t *          /* image_slice_pitch */,
-//                   cl_uint           /* num_events_in_wait_list */,
-//                   const cl_event *  /* event_wait_list */,
-//                   cl_event *        /* event */,
-//                   cl_int *          /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(enqueueMapImage) { NAPI_ENV;
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, mem, cl_mem);
-	SOFT_BOOL_ARG(2, blocking_map);
+	GET_EVENT_FLAG(2);
 	REQ_OFFS_ARG(3, map_flags);
 	REQ_ARRAY_ARG(4, srcOriginArray);
 	REQ_ARRAY_ARG(5, regionArray);
+	GET_WAIT_LIST(6);
 	
 	size_t origin[] = {0, 0, 0};
 	size_t region[] = {1, 1, 1};
@@ -967,15 +934,13 @@ JS_METHOD(enqueueMapImage) { NAPI_ENV;
 	size_t image_row_pitch;
 	size_t image_slice_pitch;
 	
-	GET_WAIT_LIST_AND_EVENT(6);
-	
 	void* mPtr = nullptr;
 	cl_int err;
 	
 	mPtr = clEnqueueMapImage(
 		clQueue,
 		mem,
-		blocking_map,
+		eventPtr ? CL_TRUE : CL_FALSE,
 		map_flags,
 		origin,
 		region,
@@ -994,45 +959,18 @@ JS_METHOD(enqueueMapImage) { NAPI_ENV;
 		size = image_slice_pitch * region[2];
 	}
 	
-	Napi::ArrayBuffer obj = Napi::ArrayBuffer::New(env, mPtr, size);
-	obj.Set("image_row_pitch", JS_NUM(image_row_pitch));
-	obj.Set("image_slice_pitch", JS_NUM(image_slice_pitch));
+	Napi::Object result = Napi::Object::New(env);
+	result.Set("buffer", Napi::ArrayBuffer::New(env, mPtr, size));
+	result.Set("image_row_pitch", JS_NUM(image_row_pitch));
+	result.Set("image_slice_pitch", JS_NUM(image_slice_pitch));
 	
 	if (eventPtr) {
-		obj.Set("event", Wrapper::fromRaw(env, event));
+		result.Set("event", Wrapper::fromRaw(env, event));
+	} else {
+		result.Set("event", JS_NULL);
 	}
 	
-	if (!blocking_map) {
-		// TODO
-		// buf->SetIndexedPropertiesToExternalArrayData(
-		// 	nullptr,
-		// 	buf->GetIndexedPropertiesExternalArrayDataType(),
-		// 	0
-		// );
-		// NoCLMapCB* cb = new NoCLMapCB(buf, size, mPtr);
-		// err = clSetEventCallback(event, CL_COMPLETE, notifyMapCB, cb);
-		// CHECK_ERR(err)
-	}
-	
-	RET_VALUE(obj);
-//
-//  cl_event event = nullptr;
-//  if (!IS_ARG_EMPTY(9)) {
-//    NOCL_UNWRAP(evt, NoCLEvent, info[9]);
-//    event = evt->getRaw();
-//  }
-//
-//  cl_int ret = CL_SUCCESS;
-//  void *ptr = clEnqueueMapImage(
-//    clQueue, image->getRaw(), blocking_map, map_flags,
-//    origin, region, (size_t*)image_row_pitch, (size_t*)image_slice_pitch,
-//    cl_events.size(), NOCL_TO_CL_ARRAY(cl_events, NoCLEvent),
-//    event ? &event : nullptr,
-//    &ret);
-//
-//  CHECK_ERR(ret);
-//
-//  RET_WRAPPER(ptr);
+	RET_VALUE(result);
 }
 
 // extern CL_API_ENTRY cl_int CL_API_CALL
@@ -1250,11 +1188,16 @@ JS_METHOD(enqueueMarkerWithWaitList) { NAPI_ENV;
 	RET_EVENT;
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clEnqueueBarrierWithWaitList(cl_command_queue /* command_queue */,
-//                              cl_uint           /* num_events_in_wait_list */,
-//                              const cl_event *  /* event_wait_list */,
-//                              cl_event *        /* event */) CL_API_SUFFIX__VERSION_1_2;
+JS_METHOD(enqueueMarker) { NAPI_ENV;
+	REQ_CL_ARG(0, clQueue, cl_command_queue);
+	
+	cl_event event = nullptr;
+	cl_event* eventPtr = &event;
+	CHECK_ERR(clEnqueueMarkerWithWaitList(clQueue, 0, nullptr, eventPtr));
+	
+	RET_EVENT;
+}
+
 JS_METHOD(enqueueBarrierWithWaitList) { NAPI_ENV;
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	
@@ -1268,6 +1211,14 @@ JS_METHOD(enqueueBarrierWithWaitList) { NAPI_ENV;
 	));
 	
 	RET_EVENT;
+}
+
+JS_METHOD(enqueueBarrier) { NAPI_ENV;
+	REQ_CL_ARG(0, clQueue, cl_command_queue);
+	
+	CHECK_ERR(clEnqueueBarrierWithWaitList(clQueue, 0, nullptr, nullptr));
+	
+	RET_UNDEFINED;
 }
 
 

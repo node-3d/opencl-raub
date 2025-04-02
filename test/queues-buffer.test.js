@@ -461,34 +461,33 @@ describe('CommandQueue - Buffer', () => {
 	describe('# enqueueMapBuffer', () => {
 		it('returns a valid buffer', () => {
 			const buf = cl.createBuffer(context, cl.MEM_READ_WRITE, 8, null);
-			const ret = cl.enqueueMapBuffer(cq, buf, true, cl.MAP_READ, 0, 8,[], false);
-			const u8s = new Uint8Array(ret);
-			assert.strictEqual(u8s.buffer instanceof ArrayBuffer, true);
-			assert.equal(u8s.buffer.byteLength, 8);
-			U.assertType(u8s[0], 'number');
+			const ret = cl.enqueueMapBuffer(cq, buf, true, cl.MAP_READ, 0, 8);
+			assert.ok(ret.buffer instanceof ArrayBuffer);
+			assert.ok(!ret.event);
 		});
 		
 		it('fails to read from a not-allocated pointer', () => {
 			const buf = cl.createBuffer(context, 0, 8, null);
-			const ret = cl.enqueueMapBuffer(cq, buf, false, cl.MAP_READ, 0, 8, [], true);
-			const u8s = new Uint8Array(ret);
-			U.assertType(u8s[0], 'number');
-			assert.equal(u8s.buffer.byteLength, 8);
+			const ret = cl.enqueueMapBuffer(cq, buf, false, cl.MAP_READ, 0, 8);
+			assert.ok(ret.buffer instanceof ArrayBuffer);
+			assert.ok(ret.event);
 		});
 		
 		it('doesn\'t throw as we are using the pointer from an event', (t, done) => {
-			const buf = cl.createBuffer(context, 0, 8, null);
-			const ret = cl.enqueueMapBuffer(cq, buf, false, 0, 0, 8, [], true);
+			const buf = cl.createBuffer(context, cl.MEM_COPY_HOST_PTR, 8, Buffer.alloc(8).fill(3));
+			const ret = cl.enqueueMapBuffer(cq, buf, false, 0, 0, 8);
 			
-			cl.setEventCallback(ret.event, cl.COMPLETE, () => {
-				const u8s = new Uint8Array(ret);
-				assert.strictEqual(u8s.buffer instanceof ArrayBuffer, true);
-				assert.equal(u8s.buffer.byteLength, 8);
-				U.assertType(u8s[0], 'number');
-				cl.releaseMemObject(buf);
-				cl.releaseEvent(ret.event);
-				done();
-			});
+			cl.setEventCallback(
+				ret.event,
+				cl.COMPLETE,
+				() => {
+					const u8s = new Uint8Array(ret.buffer);
+					assert.strictEqual(u8s[0], 3);
+					cl.releaseMemObject(buf);
+					cl.releaseEvent(ret.event);
+					done();
+				},
+			);
 		});
 	});
 });

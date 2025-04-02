@@ -13,7 +13,7 @@ npm i -s opencl-raub
 
 > This addon is ABI-compatible across Node.js versions. **There is no compilation** during `npm i`.
 
-**Node.js** addon with **OpenCL** bindings.
+**Node.js** addon with **OpenCL** bindings. This is not WebCL.
 
 The API directly reflects the low-level **OpenCL** interface. There are minor changes
 similar to how WebGL is different from OpenGL.

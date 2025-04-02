@@ -1,0 +1,18 @@
+{
+	"name": "example",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"saxpy": "node --experimental-strip-types saxpy.ts",
+		"simple": "node --experimental-strip-types simple.ts",
+		"square": "node --experimental-strip-types square.ts",
+		"square-events": "node --experimental-strip-types square-events.ts",
+		"vector-add": "node --experimental-strip-types vector-add.ts",
+		"vector-add-mapped": "node --experimental-strip-types vector-add-mapped.ts"
+	},
+	"dependencies": {
+		"opencl-raub": "file:..",
+		"tsconfig-paths": "^4.2.0"
+	}
+}

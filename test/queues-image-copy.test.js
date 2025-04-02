@@ -347,18 +347,20 @@ describe('CommandQueue - Image Copy', () => {
 		it('returns a valid buffer', () => {
 			const image = cl.createImage(context, 0, imageFormat, imageDesc, null);
 			const ret = cl.enqueueMapImage(cq, image, true, cl.MAP_READ, zeroArray, [2, 2, 1]);
-			const u8s = new Uint8Array(ret);
-			assert.strictEqual(u8s.buffer instanceof ArrayBuffer, true);
-			U.assertType(u8s[0], 'number');
+			assert.ok(ret.buffer instanceof ArrayBuffer);
+			assert.ok(!ret.event);
+			U.assertType(ret.image_row_pitch, 'number');
+			U.assertType(ret.image_slice_pitch, 'number');
 			cl.releaseMemObject(image);
 		});
 		
 		it('returns a valid buffer', () => {
 			const image = cl.createImage(context, 0, imageFormat, imageDesc, null);
 			const ret = cl.enqueueMapImage(cq, image, true, cl.MAP_WRITE, zeroArray, [2, 2, 1]);
-			const u8s = new Uint8Array(ret);
-			assert.strictEqual(u8s.buffer instanceof ArrayBuffer, true);
-			U.assertType(u8s[0], 'number');
+			assert.ok(ret.buffer instanceof ArrayBuffer);
+			assert.ok(!ret.event);
+			U.assertType(ret.image_row_pitch, 'number');
+			U.assertType(ret.image_slice_pitch, 'number');
 			cl.releaseMemObject(image);
 		});
 		
@@ -372,9 +374,10 @@ describe('CommandQueue - Image Copy', () => {
 				zeroArray,
 				[2, 2, 1]
 			);
-			const u8s = new Uint8Array(ret);
-			assert.strictEqual(u8s.buffer instanceof ArrayBuffer, true);
-			U.assertType(u8s[0], 'number');
+			assert.ok(ret.buffer instanceof ArrayBuffer);
+			assert.ok(!ret.event);
+			U.assertType(ret.image_row_pitch, 'number');
+			U.assertType(ret.image_slice_pitch, 'number');
 			cl.releaseMemObject(image);
 		});
 		
@@ -387,18 +390,22 @@ describe('CommandQueue - Image Copy', () => {
 				cl.MAP_READ,
 				zeroArray,
 				[2, 2, 1],
-				[],
-				true
 			);
 			
-			cl.setEventCallback(ret.event, cl.COMPLETE, () => {
-				const u8s = new Uint8Array(ret);
-				assert.strictEqual(u8s.buffer instanceof ArrayBuffer, true);
-				U.assertType(u8s[0], 'number');
-				cl.releaseMemObject(image);
-				cl.releaseEvent(ret.event);
-				done();
-			});
+			assert.ok(ret.buffer instanceof ArrayBuffer);
+			assert.ok(ret.event);
+			U.assertType(ret.image_row_pitch, 'number');
+			U.assertType(ret.image_slice_pitch, 'number');
+			
+			cl.setEventCallback(
+				ret.event,
+				cl.COMPLETE,
+				() => {
+					cl.releaseMemObject(image);
+					cl.releaseEvent(ret.event);
+					done();
+				},
+			);
 		});
 		
 		it('doesnt throw as we are using the pointer from an event', (t, done) => {
@@ -410,14 +417,14 @@ describe('CommandQueue - Image Copy', () => {
 				cl.MAP_WRITE,
 				zeroArray,
 				[2, 2, 1],
-				[],
-				true
 			);
 			
+			assert.ok(ret.buffer instanceof ArrayBuffer);
+			assert.ok(ret.event);
+			U.assertType(ret.image_row_pitch, 'number');
+			U.assertType(ret.image_slice_pitch, 'number');
+			
 			cl.setEventCallback(ret.event, cl.COMPLETE, () => {
-				const u8s = new Uint8Array(ret);
-				assert.strictEqual(u8s.buffer instanceof ArrayBuffer, true);
-				U.assertType(u8s[0], 'number');
 				cl.releaseMemObject(image);
 				cl.releaseEvent(ret.event);
 				done();

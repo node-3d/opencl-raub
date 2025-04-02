@@ -59,6 +59,8 @@ JS_METHOD(getSupportedImageFormats);
 JS_METHOD(getMemObjectInfo);
 JS_METHOD(getImageInfo);
 JS_METHOD(createFromGLBuffer);
+JS_METHOD(createFromGLRenderbuffer);
+JS_METHOD(createFromGLTexture);
 
 JS_METHOD(getPlatformIDs);
 JS_METHOD(getPlatformInfo);
@@ -104,7 +106,9 @@ JS_METHOD(enqueueNDRangeKernel);
 JS_METHOD(enqueueTask);
 JS_METHOD(enqueueNativeKernel);
 JS_METHOD(enqueueMarkerWithWaitList);
+JS_METHOD(enqueueMarker);
 JS_METHOD(enqueueBarrierWithWaitList);
+JS_METHOD(enqueueBarrier);
 JS_METHOD(enqueueFillBuffer);
 JS_METHOD(enqueueFillImage);
 JS_METHOD(enqueueMigrateMemObjects);

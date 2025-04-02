@@ -248,9 +248,7 @@ JS_METHOD(setEventCallback) { NAPI_ENV;
 	REQ_CL_ARG(0, ev, cl_event);
 	REQ_UINT32_ARG(1, callbackStatusType);
 	REQ_FUN_ARG(2, callback);
-	// FIXME bug in AT5
-	// LET_OBJ_ARG(3, userData);
-	USE_OBJ_ARG(3, userData, Napi::Object::New(env));
+	LET_OBJ_ARG(3, userData);
 	
 	EventWorker* asyncCB = new EventWorker(
 		callback,

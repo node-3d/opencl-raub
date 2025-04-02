@@ -100,10 +100,8 @@ describe('CommandQueue - Common', () => {
 		
 		it('returns success', () => {
 			const buf = cl.createBuffer(context, 0, 8, null);
-			const ret = cl.enqueueMapBuffer(cq, buf, true, cl.MAP_READ, 0, 8,[], false);
-			const u8s = new Uint8Array(ret);
-			assert.strictEqual(u8s.buffer instanceof ArrayBuffer, true);
-			const res = cl.enqueueUnmapMemObject(cq, buf, u8s.buffer);
+			const mapped = cl.enqueueMapBuffer(cq, buf, true, cl.MAP_READ, 0, 8);
+			const res = cl.enqueueUnmapMemObject(cq, buf, mapped.buffer);
 			assert.equal(res, cl.SUCCESS);
 			cl.releaseMemObject(buf);
 		});
@@ -224,10 +222,8 @@ describe('CommandQueue - Common', () => {
 				
 				cl.enqueueTask(cq, kern);
 				
-				const ret = cl.enqueueMapBuffer(
-					cq, outputsMem, true, cl.MAP_READ, 0, 4, null, false,
-				);
-				const outputs = new Uint32Array(ret);
+				const ret = cl.enqueueMapBuffer(cq, outputsMem, true, cl.MAP_READ, 0, 4);
+				const outputs = new Uint32Array(ret.buffer);
 				assert.strictEqual(81, outputs[0]);
 				
 				cl.releaseMemObject(outputsMem);

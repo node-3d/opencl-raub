@@ -138,8 +138,8 @@ const char* getExceptionMessage(const cl_int code) {
 			return "Invalid linker options";
 		case CL_INVALID_DEVICE_PARTITION_COUNT:
 			return "Invalid device partition count";
-		case -1001:
-			return "OpenCL ICD failed";
+		case CL_PLATFORM_NOT_FOUND_KHR:
+			return "Platform not found (ICD)";
 		default:
 			printf("OpenCL Unknown error: %d\n", code);
 			return "Unknown error";
