@@ -42,6 +42,8 @@ cl.finish(cq);
 
 // contains i^2 for i=0,..., 10000-1
 const lastValue2 = outputs2[NVALUES - 1];
-console.log('Last value is : ' + lastValue2 + ' should be ' + ((NVALUES - 1) * (NVALUES - 1)));
+const correctValue = (NVALUES - 1) * (NVALUES - 1);
+console.log('Last value is:', lastValue2);
+console.log('Correct value is:', correctValue);
 
 console.log('DONE');

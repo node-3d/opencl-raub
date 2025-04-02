@@ -11,6 +11,12 @@ namespace opencl {
 		(!IS_ARG_EMPTY(n) && info[n].ToBoolean().Value())                     \
 		? &event : nullptr;
 
+#define GET_BLOCK_FLAG(n)                                                     \
+	cl_event event = nullptr;                                                 \
+	cl_event* eventPtr =                                                      \
+		(!IS_ARG_EMPTY(n) && info[n].ToBoolean().Value())                     \
+		? nullptr : &event;
+
 #define GET_WAIT_LIST_AND_EVENT(n)                                            \
 	GET_WAIT_LIST(n);                                                         \
 	GET_EVENT_FLAG(n + 1);
@@ -860,22 +866,10 @@ JS_METHOD(enqueueCopyBufferToImage) { NAPI_ENV;
 	RET_EVENT;
 }
 
-// static std::unordered_map<void*, int> mapPointers;
-
-void CL_CALLBACK notifyMapCB (
-	cl_event event,
-	cl_int event_command_exec_status,
-	void *user_data
-) {
-	// NoCLMapCB* asyncCB = static_cast<NoCLMapCB*>(user_data);
-	// if (asyncCB!=nullptr)
-	//     asyncCB->CallBackIsDone();
-}
-
 JS_METHOD(enqueueMapBuffer) { NAPI_ENV;
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, mem, cl_mem);
-	GET_EVENT_FLAG(2);
+	GET_BLOCK_FLAG(2);
 	REQ_OFFS_ARG(3, map_flags);
 	REQ_OFFS_ARG(4, offset);
 	REQ_OFFS_ARG(5, size);
@@ -887,7 +881,7 @@ JS_METHOD(enqueueMapBuffer) { NAPI_ENV;
 	mPtr = clEnqueueMapBuffer(
 		clQueue,
 		mem,
-		eventPtr ? CL_TRUE : CL_FALSE,
+		eventPtr ? CL_FALSE : CL_TRUE,
 		map_flags,
 		offset,
 		size,
@@ -913,7 +907,7 @@ JS_METHOD(enqueueMapBuffer) { NAPI_ENV;
 JS_METHOD(enqueueMapImage) { NAPI_ENV;
 	REQ_CL_ARG(0, clQueue, cl_command_queue);
 	REQ_CL_ARG(1, mem, cl_mem);
-	GET_EVENT_FLAG(2);
+	GET_BLOCK_FLAG(2);
 	REQ_OFFS_ARG(3, map_flags);
 	REQ_ARRAY_ARG(4, srcOriginArray);
 	REQ_ARRAY_ARG(5, regionArray);
@@ -940,7 +934,7 @@ JS_METHOD(enqueueMapImage) { NAPI_ENV;
 	mPtr = clEnqueueMapImage(
 		clQueue,
 		mem,
-		eventPtr ? CL_TRUE : CL_FALSE,
+		eventPtr ? CL_FALSE : CL_TRUE,
 		map_flags,
 		origin,
 		region,

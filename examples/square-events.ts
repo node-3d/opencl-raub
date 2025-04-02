@@ -37,11 +37,15 @@ const ev = cl.enqueueReadBuffer(
 	cq, outputsMem, true, 0, NVALUES * 4, outputs, [], true,
 ) as cl.TClEvent;
 
+const correctValue = (NVALUES - 1) * (NVALUES - 1);
+
 cl.setEventCallback(
 	ev,
 	cl.COMPLETE,
 	() => {
-		console.log('\nASYNC EVENT: Last value is : ' + outputs.readUInt32LE(4 * (NVALUES - 1)));
+		console.log('\nASYNC EVENT:');
+		console.log('\tLast value is:', outputs.readUInt32LE(4 * (NVALUES - 1)));
+		console.log('\tCorrect value is:', correctValue);
 		process.exit();
 	},
 );

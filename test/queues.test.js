@@ -209,7 +209,7 @@ describe('CommandQueue - Common', () => {
 	
 	describe('#enqueueTask', () => {
 		it('works with a valid call', () => {
-			U.withProgram( context, squareOneKern, (prg) => {
+			U.withProgram(context, squareOneKern, (prg) => {
 				cl.buildProgram(prg);
 				const kern = cl.createKernel(prg, 'square_one');
 				
@@ -224,6 +224,7 @@ describe('CommandQueue - Common', () => {
 				
 				const ret = cl.enqueueMapBuffer(cq, outputsMem, true, cl.MAP_READ, 0, 4);
 				const outputs = new Uint32Array(ret.buffer);
+				assert.ok(!ret.event);
 				assert.strictEqual(81, outputs[0]);
 				
 				cl.releaseMemObject(outputsMem);
