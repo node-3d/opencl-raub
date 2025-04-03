@@ -177,7 +177,7 @@ describe('Program', async () => {
 			cl.releaseProgram(prg);
 		});
 		
-		it('fails as ain\'t no name for header', () => {
+		it('fails with unnamed header', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
 			const prg2 = cl.createProgramWithSource(context, squareKern);
 			
@@ -194,7 +194,7 @@ describe('Program', async () => {
 		it('fails as context is invalid', () => {
 			U.withProgram(context, squareKern, (prg) => {
 				assert.throws(
-					() => cl.linkProgram(platform as unknown as cl.TClContext, null, null, [prg]),
+					() => cl.linkProgram({} as unknown as cl.TClContext, null, null, [prg]),
 				);
 			});
 		});
@@ -203,7 +203,7 @@ describe('Program', async () => {
 			U.withProgram(context, squareKern, () => {
 				assert.throws(
 					() => cl.linkProgram(
-						context, [device], null, [context as unknown as cl.TClProgram],
+						context, [device], null, [{} as unknown as cl.TClProgram],
 					),
 				);
 			});
@@ -212,7 +212,7 @@ describe('Program', async () => {
 		it('links one compiled program', () => {
 			U.withProgram(context, squareKern, (prg) => {
 				cl.compileProgram(prg);
-				const nprg = cl.linkProgram(context, [device], null, [prg]);
+				const nprg = cl.linkProgram(context, null, null, [prg]);
 				U.assertType(nprg, 'object');
 			});
 		});
@@ -265,6 +265,7 @@ describe('Program', async () => {
 		testForType('PROGRAM_NUM_DEVICES', (v) => U.assertType(v, 'number'));
 		testForType('PROGRAM_CONTEXT', (v) => U.assertType(v, 'object'));
 		testForType('PROGRAM_DEVICES', (v) => U.assertType(v, 'array'));
+		testForType('PROGRAM_BINARIES', (v) => U.assertType(v, 'array'));
 		testForType('PROGRAM_BINARY_SIZES', (v) => U.assertType(v, 'array'));
 		testForType('PROGRAM_SOURCE', (v) => U.assertType(v, 'string'));
 		
