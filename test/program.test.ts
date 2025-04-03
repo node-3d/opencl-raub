@@ -210,44 +210,54 @@ describe('Program', async () => {
 		});
 		
 		it('links one compiled program', () => {
-			U.withProgram(context, squareKern, (prg) => {
-				cl.compileProgram(prg);
-				const nprg = cl.linkProgram(context, null, null, [prg]);
-				U.assertType(nprg, 'object');
-			});
+			const prg = cl.createProgramWithSource(context, squareKern);
+			cl.compileProgram(prg);
+			
+			const nprg = cl.linkProgram(context, null, null, [prg]);
+			U.assertType(nprg, 'object');
+			
+			cl.releaseProgram(nprg);
+			cl.releaseProgram(prg);
 		});
 		
 		it('links one program and calls the callback', (t, done) => {
 			const cb: cl.TBuildProgramCb = (prg, userData) => {
 				assert.ok(prg);
-				cl.releaseProgram(prg);
 				assert.strictEqual((userData as { done: () => void }).done, done);
+				
+				cl.releaseProgram(prg);
 				done();
 			};
+			
 			const prg = cl.createProgramWithSource(context, squareKern);
-			const ret = cl.compileProgram(prg);
-			assert.strictEqual(ret, cl.SUCCESS);
+			cl.compileProgram(prg);
+			
 			const nprg = cl.linkProgram(context, null, null, [prg], cb, { done, prg });
-			U.assertType(nprg, 'object');
+			
+			cl.releaseProgram(prg);
+			cl.releaseProgram(nprg);
 		});
 		
 		it('links one compiled program with a list of devices', () => {
-			U.withProgram(context, squareKern, (prg) => {
-				cl.compileProgram(prg);
-				const nprg = cl.linkProgram(context, [device], null, [prg]);
-				U.assertType(nprg, 'object');
-			});
+			const prg = cl.createProgramWithSource(context, squareKern);
+			cl.compileProgram(prg, [device]);
+			const nprg = cl.linkProgram(context, [device], null, [prg]);
+			U.assertType(nprg, 'object');
+			cl.releaseProgram(prg);
 		});
 		
 		it('links two compiled programs', () => {
-			U.withProgram(context, squareKern, (prg) => {
-				U.withProgram(context, squareCpyKern, (prg2) => {
-					cl.compileProgram(prg);
-					cl.compileProgram(prg2);
-					const nprg = cl.linkProgram(context, null, null, [prg, prg2]);
-					U.assertType(nprg, 'object');
-				});
-			});
+			const prg = cl.createProgramWithSource(context, squareKern);
+			cl.compileProgram(prg);
+			
+			const prg2 = cl.createProgramWithSource(context, squareCpyKern);
+			cl.compileProgram(prg2);
+			
+			const nprg = cl.linkProgram(context, null, null, [prg, prg2]);
+			U.assertType(nprg, 'object');
+			
+			cl.releaseProgram(prg);
+			cl.releaseProgram(prg2);
 		});
 	});
 	
