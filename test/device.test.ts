@@ -50,16 +50,6 @@ describe('Device', () => {
 		});
 	};
 	
-	const test64Array = (name: keyof typeof cl) => {
-		it(name + ' returns a 2 integers array', (t, done) => {
-			const val = cl.getDeviceInfo(device, cl[name] as number) as [number, number];
-			U.assertType(val, 'array');
-			U.assertType(val[0], 'number');
-			U.assertType(val[1], 'number');
-			done();
-		});
-	};
-	
 	describe('#getDeviceInfo()', () => {
 		testString('DEVICE_NAME');
 		testString('DEVICE_VENDOR');
@@ -111,11 +101,11 @@ describe('Device', () => {
 		testInteger('DEVICE_REFERENCE_COUNT');
 		testInteger('DEVICE_PARTITION_MAX_SUB_DEVICES');
 		
-		test64Array('DEVICE_GLOBAL_MEM_CACHE_SIZE');
-		test64Array('DEVICE_GLOBAL_MEM_SIZE');
-		test64Array('DEVICE_LOCAL_MEM_SIZE');
-		test64Array('DEVICE_MAX_CONSTANT_BUFFER_SIZE');
-		test64Array('DEVICE_MAX_MEM_ALLOC_SIZE');
+		testInteger('DEVICE_GLOBAL_MEM_CACHE_SIZE');
+		testInteger('DEVICE_GLOBAL_MEM_SIZE');
+		testInteger('DEVICE_LOCAL_MEM_SIZE');
+		testInteger('DEVICE_MAX_CONSTANT_BUFFER_SIZE');
+		testInteger('DEVICE_MAX_MEM_ALLOC_SIZE');
 		testInteger('DEVICE_IMAGE2D_MAX_HEIGHT');
 		testInteger('DEVICE_IMAGE2D_MAX_WIDTH');
 		testInteger('DEVICE_IMAGE3D_MAX_DEPTH');

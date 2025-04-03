@@ -1,12 +1,9 @@
 import cl from '../index.js';
 
 const getEventExecTime = (event: cl.TClEvent): number => {
-	// times are 64-bit values in nanoseconds. They are returned as [hi, lo] a 2-integer array
-	// here we use the lo parts since this example is unlikely to go beyond 2^31 nanseconds per event.
 	const startTime = cl.getEventProfilingInfo(event, cl.PROFILING_COMMAND_START);
 	const endTime = cl.getEventProfilingInfo(event, cl.PROFILING_COMMAND_END);
-
-	return (endTime[1] - startTime[1]) * 1e-6; // report in millisecond (from nanoseconds)
+	return (endTime - startTime) * 1e-6; // nanoseconds to milliseconds
 };
 
 const VECTOR_SIZE = 512 * 1024;

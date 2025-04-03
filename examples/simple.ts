@@ -46,7 +46,7 @@ cl.setKernelArg(kernel, 3, 'uint', BUFFER_SIZE);
 // Do the work
 cl.enqueueWriteBuffer(queue, bufferA, true, 0, BYTE_SIZE, arrayA);
 cl.enqueueWriteBuffer(queue, bufferB, true, 0, BYTE_SIZE, arrayB);
-cl.enqueueNDRangeKernel(queue, kernel, 1, null, [BUFFER_SIZE], null);
+cl.enqueueNDRangeKernel(queue, kernel, 1, null, [BUFFER_SIZE]);
 cl.enqueueReadBuffer(queue, bufferC, true, 0, BYTE_SIZE, arrayC);
 
 // print results

@@ -58,9 +58,7 @@ cl.enqueueWriteBuffer (queue, aBuffer, true, 0, A.length * Uint32Array.BYTES_PER
 cl.enqueueWriteBuffer (queue, bBuffer, true, 0, B.length * Uint32Array.BYTES_PER_ELEMENT, B);
 
 // Execute (enqueue) kernel
-cl.enqueueNDRangeKernel(
-	queue, kernel, 1, null, [BUFFER_SIZE], null,
-);
+cl.enqueueNDRangeKernel(queue, kernel, 1, null, [BUFFER_SIZE]);
 
 // get results and block while getting them
 const C = new Uint32Array(BUFFER_SIZE);

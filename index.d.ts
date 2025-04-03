@@ -68,6 +68,9 @@ declare namespace cl {
 	const INVALID_COMPILER_OPTIONS: Error;
 	const INVALID_LINKER_OPTIONS: Error;
 	const INVALID_DEVICE_PARTITION_COUNT: Error;
+	// Additional Error Codes
+	const PLATFORM_NOT_FOUND_KHR: Error;
+	const INVALID_GL_SHAREGROUP_REFERENCE_KHR: Error;
 	
 	// OpenCL Version
 	const VERSION_1_0: number;
@@ -457,13 +460,13 @@ declare namespace cl {
 	const WGL_HDC_KHR: number;
 	const GLX_DISPLAY_KHR: number;
 	const CGL_SHAREGROUP_KHR: number;
+	const CURRENT_DEVICE_FOR_GL_CONTEXT_KHR: number;
+	const DEVICES_FOR_GL_CONTEXT_KHR: number;
 	
 	// ---- Not available on Apple:
 	// cl_khr_icd extension:
 	// cl_platform_info
 	const PLATFORM_ICD_SUFFIX_KHR: number;
-	// Additional Error Codes
-	const PLATFORM_NOT_FOUND_KHR: number;
 	
 	// cl_nv_device_attribute_query extension:
 	// no extension exports since it has no functions
@@ -567,7 +570,7 @@ declare namespace cl {
 		kernel: TClKernel,
 		device: TClDevice,
 		param_name: number,
-	) => TClStatus;
+	) => (number | number[]);
 	
 	
 	/**
@@ -1068,9 +1071,9 @@ declare namespace cl {
 		queue: TClQueue,
 		kernel: TClKernel,
 		work_dim: number,
-		work_offset: number[] | null,
-		work_global: number[] | null,
-		work_local: number[] | null,
+		work_offset?: number[] | null,
+		work_global?: number[] | null,
+		work_local?: number[] | null,
 		event_wait_list?: TClEvent[] | null,
 		hasEvent?: boolean,
 	) => TClEventOrVoid;
@@ -1300,8 +1303,14 @@ declare namespace cl {
 	const getEventProfilingInfo: (
 		event: TClEvent,
 		param_name: number,
-	) => [number, number];
+	) => number;
 	
+	/**
+	 * A small helper to quickly grab a good CL context.
+	 * 
+	 * Multiple calls to this function will return the same `context`.
+	 * Pass `true` to see the intermediate device list (from where we choose).
+	 */
 	const quickStart: (isLoggingDevices?: boolean) => Readonly<{
 		platform: TClPlatform,
 		device: TClDevice,

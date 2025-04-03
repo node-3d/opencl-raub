@@ -37,11 +37,8 @@ See [TypeScript declarations](/index.d.ts) for more details.
 	```
 2. Fetch the CL control objects:
 	```ts
-	const platform = cl.getPlatformIDs()[0];
-	const devices = cl.getDeviceIDs(platform, cl.DEVICE_TYPE_ALL);
-	const context = cl.createContext([cl.CONTEXT_PLATFORM, platform], devices);
-	const device = cl.getContextInfo(context, cl.CONTEXT_DEVICES)[0];
-	const queue = cl.createCommandQueue(context, device, null);
+	const { context, device } = cl.quickStart(); // see /index.js
+	const queue = cl.createCommandQueue(context, device);
 	```
 3. Prepare the data input/output buffers:
 	```ts
@@ -67,7 +64,8 @@ See [TypeScript declarations](/index.d.ts) for more details.
 4. Create a valid CL program, e.g. from source:
 	```ts
 	const program = cl.createProgramWithSource(context, `
-		__kernel void vadd(__global int *a, __global int *b, __global int *c, uint num) {
+		__kernel
+		void vadd(__global int *a, __global int *b, __global int *c, uint num) {
 			size_t i = get_global_id(0);
 			if (i < num) {
 				c[i] = a[i] + b[i];
@@ -92,7 +90,7 @@ See [TypeScript declarations](/index.d.ts) for more details.
 	// Do the work
 	cl.enqueueWriteBuffer(queue, bufferA, true, 0, BYTE_SIZE, arrayA);
 	cl.enqueueWriteBuffer(queue, bufferB, true, 0, BYTE_SIZE, arrayB);
-	cl.enqueueNDRangeKernel(queue, kernel, 1, null, [BUFFER_SIZE], null);
+	cl.enqueueNDRangeKernel(queue, kernel, 1, null, [BUFFER_SIZE]);
 	cl.enqueueReadBuffer(queue, bufferC, true, 0, BYTE_SIZE, arrayC);
 	```
 7. See if it worked:

@@ -125,7 +125,7 @@ describe('CommandQueue - Common', () => {
 				cl.setKernelArg(kern, 1, 'uint*', outputsMem);
 				cl.setKernelArg(kern, 2, 'uint', 10000);
 				
-				cl.enqueueNDRangeKernel(cq, kern, 1, null, [100], null);
+				cl.enqueueNDRangeKernel(cq, kern, 1, null, [100]);
 				
 				cl.releaseMemObject(inputsMem);
 				cl.releaseMemObject(outputsMem);
@@ -142,7 +142,6 @@ describe('CommandQueue - Common', () => {
 						1,
 						null,
 						[100],
-						null,
 					),
 					new Error('Argument 1 must be of type `Object`'),
 				);
@@ -171,7 +170,6 @@ describe('CommandQueue - Common', () => {
 						1,
 						null,
 						[100, 200],
-						null,
 					),
 					cl.INVALID_GLOBAL_WORK_SIZE,
 				);

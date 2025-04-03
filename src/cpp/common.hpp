@@ -17,13 +17,6 @@
 	#define strncasecmp _strnicmp
 #endif
 
-#ifndef CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR
-	#define CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR 0x2006
-#endif
-#ifndef CL_DEVICES_FOR_GL_CONTEXT_KHR
-	#define CL_DEVICES_FOR_GL_CONTEXT_KHR 0x2007
-#endif
-
 #define CHECK_ERR(code) {                                        \
 	cl_int _err = (code);                                        \
 	if (_err != CL_SUCCESS) {                                    \
@@ -40,6 +33,15 @@ namespace opencl {
 
 void getPtrAndLen(Napi::Object obj, void** ptr, size_t *len);
 const char* getExceptionMessage(cl_int code);
+
+inline Napi::Number NewInt64(napi_env env, int64_t val) {
+	napi_value value;
+	napi_status status = napi_create_int64(env, val, &value);
+	NAPI_THROW_IF_FAILED(env, status, Napi::Number());
+	return Napi::Number(env, value);
+}
+
+#define RET_X64(VAL) return NewInt64(env, static_cast<int64_t>(VAL))
 
 JS_METHOD(createKernel);
 JS_METHOD(createKernelsInProgram);

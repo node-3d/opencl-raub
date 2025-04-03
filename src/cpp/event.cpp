@@ -1,6 +1,7 @@
 #include <uv.h>
 
 #include "types.hpp"
+#include "common.hpp"
 
 
 namespace opencl {
@@ -115,16 +116,6 @@ JS_METHOD(getEventProfilingInfo) { NAPI_ENV;
 		case CL_PROFILING_COMMAND_SUBMIT:
 		case CL_PROFILING_COMMAND_START:
 		case CL_PROFILING_COMMAND_END: {
-			/**
-				JS Compatibility
-				
-				As JS does not support 64 bits integer, we return a 2-integer array with
-					output_values[0] = (input_value >> 32) & 0xffffffff;
-					output_values[1] = input_value & 0xffffffff;
-				
-				and reconstruction as
-					input_value = ((int64_t) output_values[0]) << 32) | output_values[1];
-			*/
 			cl_ulong val;
 			CHECK_ERR(clGetEventProfilingInfo(
 				ev,
@@ -134,10 +125,7 @@ JS_METHOD(getEventProfilingInfo) { NAPI_ENV;
 				nullptr
 			));
 			
-			Napi::Array arr = Napi::Array::New(env);
-			arr.Set(0u, JS_NUM(val>>32)); // hi
-			arr.Set(1u, JS_NUM(val & 0xffffffff)); // lo
-			RET_VALUE(arr);
+			RET_X64(val);
 		}
 	}
 	

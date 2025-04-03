@@ -27,9 +27,9 @@ cl.setKernelArg(kern, 0, 'uint*', inputsMem);
 cl.setKernelArg(kern, 1, 'uint*', outputsMem);
 cl.setKernelArg(kern, 2, 'uint', NVALUES);
 
-const cq = cl.createCommandQueue(context, device, null);
+const cq = cl.createCommandQueue(context, device);
 
-cl.enqueueNDRangeKernel(cq, kern, 1, null, [NVALUES], null);
+cl.enqueueNDRangeKernel(cq, kern, 1, null, [NVALUES]);
 
 // here we use the returned user event to associate a callback that will be called from OpenCL
 // once read buffer is complete.

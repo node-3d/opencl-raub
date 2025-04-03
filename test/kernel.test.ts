@@ -323,8 +323,8 @@ describe('Kernel', () => {
 		testForType('KERNEL_COMPILE_WORK_GROUP_SIZE', (v) => U.assertType(v, 'array'));
 		testForType('KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE', (v) => U.assertType(v, 'number'));
 		testForType('KERNEL_WORK_GROUP_SIZE', (v) => U.assertType(v, 'number'));
-		testForType('KERNEL_LOCAL_MEM_SIZE', (v) => U.assertType(v, 'array'));
-		testForType('KERNEL_PRIVATE_MEM_SIZE', (v) => U.assertType(v, 'array'));
+		testForType('KERNEL_LOCAL_MEM_SIZE', (v) => U.assertType(v, 'number'));
+		testForType('KERNEL_PRIVATE_MEM_SIZE', (v) => U.assertType(v, 'number'));
 		
 		it('throws INVALID_VALUE when looking for KERNEL_GLOBAL_WORK_SIZE', () => {
 			U.withProgram(context, squareKern, (prg) => {

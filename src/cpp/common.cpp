@@ -140,6 +140,8 @@ const char* getExceptionMessage(const cl_int code) {
 			return "Invalid device partition count";
 		case CL_PLATFORM_NOT_FOUND_KHR:
 			return "Platform not found (ICD)";
+		case CL_INVALID_GL_SHAREGROUP_REFERENCE_KHR:
+			return "Invalid GL sharegroup reference";
 		default:
 			printf("OpenCL Unknown error: %d\n", code);
 			return "Unknown error";

@@ -197,22 +197,7 @@ inline Napi::Value getDeviceInfoUlong(Napi::Env env, cl_device_id device_id, uin
 		&param_value,
 		nullptr
 	));
-	
-	/**
-		JS Compatibility
-		
-		As JS does not support 64 bits integer, we return a 2-integer array with
-			output_values[0] = (input_value >> 32) & 0xffffffff;
-			output_values[1] = input_value & 0xffffffff;
-		
-		and reconstruction as
-			input_value = ((int64_t) output_values[0]) << 32) | output_values[1];
-	*/
-	// TODO: maybe bollox, try modern x64 values
-	Napi::Array arr = Napi::Array::New(env);
-	arr.Set(0u, JS_NUM(param_value>>32)); // hi
-	arr.Set(1u, JS_NUM(param_value & 0xffffffff)); // lo
-	RET_VALUE(arr);
+	RET_X64(param_value);
 }
 
 inline Napi::Value getDeviceInfoSize(Napi::Env env, cl_device_id device_id, uint32_t param_name) {
