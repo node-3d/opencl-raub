@@ -39,7 +39,6 @@ JS_METHOD(createProgramWithBinary) { NAPI_ENV;
 		void *host_ptr = nullptr;
 		size_t len = 0;
 		getPtrAndLen(js_binaries.Get(i).As<Napi::Object>(), &host_ptr, &len);
-		
 		cl_binary_lengths.push_back(len);
 		cl_binaries_str.push_back(static_cast<const unsigned char*>(host_ptr));
 	}
@@ -439,7 +438,7 @@ JS_METHOD(getProgramInfo) { NAPI_ENV;
 			}
 			RET_VALUE(arr);
 		}
-		// DRIVER ISSUE : segfault if program has not been compiled
+		
 		case CL_PROGRAM_BINARIES: {
 			cl_uint nsizes;
 			CHECK_ERR(clGetProgramInfo(
@@ -459,17 +458,28 @@ JS_METHOD(getProgramInfo) { NAPI_ENV;
 				nullptr
 			));
 			
+			size_t n_size_total = 0;
 			unsigned char** bn = new unsigned char* [nsizes];
 			for(size_t i = 0; i < nsizes; i++) {
+				n_size_total += sizes[i];
 				bn[i] = new unsigned char[sizes[i]];
 			}
+			
+			size_t n_ret_size = 0;
+			CHECK_ERR(clGetProgramInfo(
+				prog,
+				CL_PROGRAM_BINARIES,
+				n_size_total,
+				nullptr,
+				&n_ret_size
+			));
 			
 			CHECK_ERR(clGetProgramInfo(
 				prog,
 				CL_PROGRAM_BINARIES,
-				sizeof(unsigned char*) *nsizes,
+				n_ret_size,
 				bn,
-				sizes.get()
+				nullptr
 			));
 			
 			Napi::Array arr = Napi::Array::New(env);
