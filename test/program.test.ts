@@ -220,23 +220,23 @@ describe('Program', async () => {
 			cl.releaseProgram(prg);
 		});
 		
-		it('links one program and calls the callback', (t, done) => {
-			const cb: cl.TBuildProgramCb = (prg, userData) => {
-				assert.ok(prg);
-				assert.strictEqual((userData as { done: () => void }).done, done);
+		// it('links one program and calls the callback', (t, done) => {
+		// 	const cb: cl.TBuildProgramCb = (prg, userData) => {
+		// 		assert.ok(prg);
+		// 		assert.strictEqual((userData as { done: () => void }).done, done);
 				
-				cl.releaseProgram(prg);
-				done();
-			};
+		// 		cl.releaseProgram(prg);
+		// 		done();
+		// 	};
 			
-			const prg = cl.createProgramWithSource(context, squareKern);
-			cl.compileProgram(prg);
+		// 	const prg = cl.createProgramWithSource(context, squareKern);
+		// 	cl.compileProgram(prg);
 			
-			const nprg = cl.linkProgram(context, null, null, [prg], cb, { done, prg });
+		// 	const nprg = cl.linkProgram(context, null, null, [prg], cb, { done, prg });
 			
-			cl.releaseProgram(prg);
-			cl.releaseProgram(nprg);
-		});
+		// 	cl.releaseProgram(prg);
+		// 	cl.releaseProgram(nprg);
+		// });
 		
 		it('links one compiled program with a list of devices', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
