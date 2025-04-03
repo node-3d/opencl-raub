@@ -1,10 +1,7 @@
-'use strict';
-
-const assert = require('node:assert').strict;
-const { describe, it, after } = require('node:test');
-
-const cl = require('../');
-const U = require('./utils');
+import { strict as assert } from 'node:assert';
+import { describe, it, after } from 'node:test';
+import cl from '../index.js';
+import * as U from './utils.ts';
 
 const imageFormat = {
 	'channel_order': cl.RGBA,
@@ -26,8 +23,9 @@ const color = Buffer.from(grayColor);
 
 
 describe('CommandQueue - Image', () => {
-	const context = U.newContext();
-	const cq = U.newQueue(context);
+	const { context, device } = cl.quickStart();
+	const cq = U.newQueue(context, device);
+	
 	const buffer = cl.createBuffer(context, cl.MEM_WRITE_ONLY, 8, null);
 	const image = cl.createImage(context, 0, imageFormat, imageDesc);
 	
@@ -35,7 +33,6 @@ describe('CommandQueue - Image', () => {
 		cl.releaseMemObject(image);
 		cl.releaseMemObject(buffer);
 		cl.releaseCommandQueue(cq);
-		cl.releaseContext(context);
 	});
 	
 	describe('#enqueueReadImage', () => {
@@ -221,9 +218,10 @@ describe('CommandQueue - Image', () => {
 		});
 		
 		it('throws cl.INVALID_VALUE if color is null', () => {
-			const color = null;
 			assert.throws(
-				() => cl.enqueueFillImage(cq, image, color, zeroArray, validRegion),
+				() => cl.enqueueFillImage(
+					cq, image, null as unknown as ArrayBuffer, zeroArray, validRegion,
+				),
 				new Error('Argument 2 must be of type `Object`'),
 			);
 		});

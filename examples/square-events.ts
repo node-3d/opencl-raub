@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import cl from 'opencl-raub';
+import cl from '../index.js';
 
 const { context, device } = cl.quickStart(true);
 

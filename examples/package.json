@@ -4,15 +4,11 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"saxpy": "node --experimental-strip-types saxpy.ts",
-		"simple": "node --experimental-strip-types simple.ts",
-		"square": "node --experimental-strip-types square.ts",
-		"square-events": "node --experimental-strip-types square-events.ts",
-		"vector-add": "node --experimental-strip-types vector-add.ts",
-		"vector-add-mapped": "node --experimental-strip-types vector-add-mapped.ts"
-	},
-	"dependencies": {
-		"opencl-raub": "file:..",
-		"tsconfig-paths": "^4.2.0"
+		"saxpy": "node --no-warnings=ExperimentalWarning --experimental-strip-types saxpy.ts",
+		"simple": "node --no-warnings=ExperimentalWarning --experimental-strip-types simple.ts",
+		"square": "node --no-warnings=ExperimentalWarning --experimental-strip-types square.ts",
+		"square-events": "node --no-warnings=ExperimentalWarning --experimental-strip-types square-events.ts",
+		"vector-add": "node --no-warnings=ExperimentalWarning --experimental-strip-types vector-add.ts",
+		"vector-add-mapped": "node --no-warnings=ExperimentalWarning --experimental-strip-types vector-add-mapped.ts"
 	}
 }

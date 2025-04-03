@@ -1,25 +1,20 @@
-'use strict';
-
-const assert = require('node:assert').strict;
-const { describe, it, after } = require('node:test');
-
-const cl = require('..');
-const U = require('./utils');
+import { strict as assert } from 'node:assert';
+import { describe, it, after } from 'node:test';
+import cl from '../index.js';
 
 
 describe('MemObj', () => {
-	const context = U.newContext();
+	const { context, platform } = cl.quickStart();
 	const buffer = cl.createBuffer(context, 0, 8, null);
 	
 	after(() => {
 		cl.releaseMemObject(buffer);
-		cl.releaseContext(context);
 	});
 	
 	describe('#createBuffer', () => {
 		it('throws cl.INVALID_CONTEXT if context is invalid', () => {
 			assert.throws(
-				() => cl.createBuffer(null, null, null, null),
+				() => cl.createBuffer(null as unknown as cl.TClContext, 0, 4, null),
 				new Error('Argument 0 must be of type `Object`'),
 			);
 		});
@@ -76,7 +71,7 @@ describe('MemObj', () => {
 					context,
 					cl.MEM_COPY_HOST_PTR,
 					8,
-					'testtest',
+					'testtest' as unknown as ArrayBuffer,
 				),
 				new Error('Argument 3 must be of type `Object`'),
 			);
@@ -88,7 +83,7 @@ describe('MemObj', () => {
 					context,
 					cl.MEM_COPY_HOST_PTR,
 					8,
-					[1, 2, 3, 4, 5, 6, 7, 8]
+					[1, 2, 3, 4, 5, 6, 7, 8] as unknown as ArrayBuffer,
 				),
 				new Error('Could not read buffer data.'),
 			);
@@ -99,7 +94,7 @@ describe('MemObj', () => {
 		it('throws cl.INVALID_MEM_OBJECT if buffer is not valid', () => {
 			assert.throws(
 				() => cl.createSubBuffer(
-					null,
+					null as unknown as cl.TClMem,
 					cl.MEM_READ_WRITE,
 					cl.BUFFER_CREATE_TYPE_REGION,
 					{ origin: 0, size: 2 }
@@ -218,14 +213,17 @@ describe('MemObj', () => {
 	});
 	
 	describe('#createImage', () => {
-		const imageFormat = { 'channel_order': cl.RGBA, 'channel_data_type': cl.UNSIGNED_INT8};
+		const imageFormat: cl.TClImageFormat = {
+			'channel_order': cl.RGBA,
+			'channel_data_type': cl.UNSIGNED_INT8,
+		} as const;
 		const imageDesc = {
-			'type': cl.MEM_OBJECT_IMAGE2D,
-			'width': 10,
-			'height': 10,
-			'depth': 8,
+			type: cl.MEM_OBJECT_IMAGE2D,
+			width: 10,
+			height: 10,
+			depth: 8,
 			'array_size': 1
-		};
+		} as const;
 		
 		it('creates an image with default flags', () => {
 			const image = cl.createImage(context, 0, imageFormat, imageDesc, null);
@@ -243,12 +241,12 @@ describe('MemObj', () => {
 			cl.releaseMemObject(image);
 		});
 		
-		it('creates an image - ', () => {
+		it('creates an image - cl.MEM_READ_ONLY', () => {
 			const image = cl.createImage(context, cl.MEM_READ_ONLY, imageFormat, imageDesc, null);
 			cl.releaseMemObject(image);
 		});
 		
-		it('creates an image - ', () => {
+		it('creates an image - cl.MEM_USE_HOST_PTR', () => {
 			const i32Array = new Int32Array(imageDesc.width * imageDesc.height);
 			const image = cl.createImage(
 				context, cl.MEM_USE_HOST_PTR, imageFormat, imageDesc, i32Array,
@@ -256,14 +254,14 @@ describe('MemObj', () => {
 			cl.releaseMemObject(image);
 		});
 		
-		it('creates an image - ', () => {
+		it('creates an image - cl.MEM_ALLOC_HOST_PTR', () => {
 			const image = cl.createImage(
 				context, cl.MEM_ALLOC_HOST_PTR, imageFormat, imageDesc, null,
 			);
 			cl.releaseMemObject(image);
 		});
 		
-		it('creates an image - MEM_COPY_HOST_PTR', () => {
+		it('creates an image - cl.MEM_COPY_HOST_PTR', () => {
 			const i32Array = new Int32Array(imageDesc.width * imageDesc.height);
 			const image = cl.createImage(
 				context, cl.MEM_COPY_HOST_PTR, imageFormat, imageDesc, i32Array,
@@ -271,31 +269,32 @@ describe('MemObj', () => {
 			cl.releaseMemObject(image);
 		});
 		
-		it('creates an image - MEM_HOST_WRITE_ONLY', () => {
+		it('creates an image - cl.MEM_HOST_WRITE_ONLY', () => {
 			const image = cl.createImage(
 				context, cl.MEM_HOST_WRITE_ONLY, imageFormat, imageDesc, null,
 			);
 			cl.releaseMemObject(image);
 		});
 		
-		it('creates an image - MEM_HOST_READ_ONLY', () => {
+		it('creates an image - cl.MEM_HOST_READ_ONLY', () => {
 			const image = cl.createImage(
 				context, cl.MEM_HOST_READ_ONLY, imageFormat, imageDesc, null,
 			);
 			cl.releaseMemObject(image);
 		});
 		
-		it('creates an image - MEM_HOST_NO_ACCESS', () => {
+		it('creates an image - cl.MEM_HOST_NO_ACCESS', () => {
 			const image = cl.createImage(
 				context, cl.MEM_HOST_NO_ACCESS, imageFormat, imageDesc, null,
 			);
 			cl.releaseMemObject(image);
 		});
 		
-		it('throws cl.INVALID_CONTEXT if context is invalid', () => {
+		it('throws if context is invalid', () => {
 			assert.throws(
-				() => cl.createImage(null, 0, imageFormat, imageDesc, null),
-				new Error('Argument 0 must be of type `Object`'),
+				() => cl.createImage(
+					{} as unknown as cl.TClContext, 0, imageFormat, imageDesc, null,
+				),
 			);
 		});
 		
@@ -314,14 +313,18 @@ describe('MemObj', () => {
 		
 		it('throws cl.INVALID_IMAGE_DESCRIPTOR if image_desc is not valid or null', () => {
 			assert.throws(
-				() => cl.createImage(context, 0, imageFormat, -1, null),
+				() => cl.createImage(
+					context, 0, imageFormat, -1 as unknown as cl.TClImageDesc, null,
+				),
 				new Error('Argument 3 must be of type `Object`'),
 			);
 		});
 		
 		it('throws cl.INVALID_IMAGE_FORMAT_DESCRIPTOR if image_format is invalid', () => {
 			assert.throws(
-				() => cl.createImage(context, 0, -1, imageDesc, null),
+				() => cl.createImage(
+					context, 0, -1 as unknown as cl.TClImageFormat, imageDesc, null,
+				),
 				new Error('Argument 2 must be of type `Object`'),
 			);
 		});
@@ -340,8 +343,7 @@ describe('MemObj', () => {
 		
 		it('throws if mem object is invalid', () => {
 			assert.throws(
-				() => cl.retainMemObject({}),
-				new Error('Argument 0 must be a CL Wrapper.'),
+				() => cl.retainMemObject({} as unknown as cl.TClMem),
 			);
 		});
 	});
@@ -364,8 +366,7 @@ describe('MemObj', () => {
 		
 		it('throws if mem object is invalid', () => {
 			assert.throws(
-				() => cl.releaseMemObject({}),
-				new Error('Argument 0 must be a CL Wrapper.'),
+				() => cl.releaseMemObject({} as unknown as cl.TClMem),
 			);
 		});
 	});

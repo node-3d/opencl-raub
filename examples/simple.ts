@@ -1,4 +1,4 @@
-import cl from 'opencl-raub';
+import cl from '../index.js';
 
 const { context, device } = cl.quickStart(true);
 const queue = cl.createCommandQueue(context, device, null);
@@ -61,4 +61,3 @@ cl.releaseProgram(program);
 cl.releaseMemObject(bufferA);
 cl.releaseMemObject(bufferB);
 cl.releaseMemObject(bufferC);
-cl.releaseContext(context);

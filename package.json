@@ -36,8 +36,8 @@
 		"postinstall": "node install",
 		"eslint": "eslint .",
 		"build": "cd src && node-gyp rebuild -j max --silent && node -e \"require('addon-tools-raub').cpbin('opencl')\"",
-		"test": "node --test --watch",
-		"test-ci": "node --test --test-reporter spec"
+		"test": "node --no-warnings=ExperimentalWarning --experimental-strip-types --test --watch",
+		"test-ci": "node --no-warnings=ExperimentalWarning --experimental-strip-types --test --test-reporter spec"
 	},
 	"repository": {
 		"type": "git",

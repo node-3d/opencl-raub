@@ -1,31 +1,29 @@
-'use strict';
-
-const assert = require('node:assert').strict;
-const { describe, it, after } = require('node:test');
-
-const cl = require('../');
-const U = require('./utils');
+import { strict as assert } from 'node:assert';
+import { describe, it, after } from 'node:test';
+import cl from '../index.js';
+import * as U from './utils.ts';
 
 
 describe('Context', () => {
-	const properties = [cl.CONTEXT_PLATFORM, global.MAIN_PLATFORM];
-	const devices = [global.MAIN_DEVICE];
+	const { platform, device, context } = cl.quickStart();
+	const properties = [cl.CONTEXT_PLATFORM, platform];
+	const devices = [device];
 	
 	describe('#createContext', () => {
-		it('throws if devices = null', () => {
+		it('throws if bad devices list', () => {
 			assert.throws(
-				() => cl.createContext(null, null),
-				new Error('Argument 1 must be of type `Array`'),
+				() => cl.createContext(null, []),
+				cl.INVALID_VALUE,
 			);
 		});
 		
-		it('creates a context with default properties for a platform', () => {
+		it('creates a context with defined platform', () => {
 			const ctx = cl.createContext(properties, devices);
 			assert.ok(ctx);
 			cl.releaseContext(ctx);
 		});
 		
-		it('returns a device even if properties are null', () => {
+		it('creates a context if properties are `null`', () => {
 			const ctx = cl.createContext(null, devices);
 			assert.ok(ctx);
 			cl.releaseContext(ctx);
@@ -33,11 +31,6 @@ describe('Context', () => {
 	});
 	
 	describe('#getContextInfo', () => {
-		const context = U.newContext();
-		after(() => {
-			cl.releaseContext(context);
-		});
-		
 		it('returns valid info for CONTEXT_REFERENCE_COUNT', () => {
 			const info = cl.getContextInfo(context, cl.CONTEXT_REFERENCE_COUNT);
 			U.assertType(info, 'number');
@@ -56,7 +49,7 @@ describe('Context', () => {
 		});
 		
 		it('returns at least one device', () => {
-			const info = cl.getContextInfo(context, cl.CONTEXT_DEVICES);
+			const info = cl.getContextInfo(context, cl.CONTEXT_DEVICES) as cl.TClDevice[];
 			U.assertType(info[0], 'object');
 		});
 		
@@ -75,11 +68,10 @@ describe('Context', () => {
 	
 	describe('#retainContext', () => {
 		it('increments ref count', () => {
-			const ctx = U.newContext();
-			const before = cl.getContextInfo(ctx, cl.CONTEXT_REFERENCE_COUNT);
+			const ctx = cl.createContext(properties, devices);
 			cl.retainContext(ctx);
 			const after = cl.getContextInfo(ctx, cl.CONTEXT_REFERENCE_COUNT);
-			assert(before + 1 == after);
+			assert.strictEqual(after, 2);
 			cl.releaseContext(ctx);
 			cl.releaseContext(ctx);
 		});
@@ -87,12 +79,11 @@ describe('Context', () => {
 	
 	describe('#releaseContext', () => {
 		it('decrements ref count after call', () => {
-			const ctx = U.newContext();
-			const before = cl.getContextInfo(ctx, cl.CONTEXT_REFERENCE_COUNT);
+			const ctx = cl.createContext(properties, devices);
 			cl.retainContext(ctx);
 			cl.releaseContext(ctx);
 			const after = cl.getContextInfo(ctx, cl.CONTEXT_REFERENCE_COUNT);
-			assert(before == after);
+			assert.strictEqual(after, 1);
 			cl.releaseContext(ctx);
 		});
 	});

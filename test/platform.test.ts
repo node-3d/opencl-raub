@@ -1,14 +1,11 @@
-'use strict';
-
-const assert = require('node:assert').strict;
-const { describe, it } = require('node:test');
-
-const cl = require('../');
-const U = require('./utils');
+import { strict as assert } from 'node:assert';
+import { describe, it, after } from 'node:test';
+import cl from '../index.js';
+import * as U from './utils.ts';
 
 
 describe('Platform', () => {
-	const platform = global.MAIN_PLATFORM;
+	const { platform, device } = cl.quickStart();
 	
 	describe('#getPlatformIDs()', () => {
 		it('returns an array', () => {
@@ -18,19 +15,19 @@ describe('Platform', () => {
 		});
 	});
 	
-	const testString = (platform, name) => {
+	const testString = (name: keyof typeof cl) => {
 		it(name + ' returns a string', (t, done) => {
-			const val = cl.getPlatformInfo(platform, eval('cl.' + name));
+			const val = cl.getPlatformInfo(platform, cl[name] as number);
 			U.assertType(val, 'string');
 			done();
 		});
 	};
 	
 	describe('#getPlatformInfo()', () => {
-		testString(platform, 'PLATFORM_VERSION');
-		testString(platform, 'PLATFORM_PROFILE');
-		testString(platform, 'PLATFORM_NAME');
-		testString(platform, 'PLATFORM_VENDOR');
+		testString('PLATFORM_VERSION');
+		testString('PLATFORM_PROFILE');
+		testString('PLATFORM_NAME');
+		testString('PLATFORM_VENDOR');
 		
 		// negative test cases
 		it('throws cl.INVALID_VALUE with name=cl.DEVICE_TYPE_CPU', () => {
@@ -49,7 +46,7 @@ describe('Platform', () => {
 		
 		it('throws cl.INVALID_VALUE with name=\'a string\'', () => {
 			assert.throws(
-				() => cl.getPlatformInfo(platform, 'a string'),
+				() => cl.getPlatformInfo(platform, 'a string' as unknown as number),
 				new Error('Argument 1 must be of type `Number`'),
 			);
 		});
@@ -61,38 +58,38 @@ describe('Platform', () => {
 			);
 		});
 		
-		it('throws cl.INVALID_PLATFORM with platform = null', () => {
+		it('throws with platform = null', () => {
 			assert.throws(
-				() => cl.getPlatformInfo(null, 123),
+				() => cl.getPlatformInfo(null as unknown as cl.TClPlatform, 123),
 				new Error('Argument 0 must be of type `Object`'),
 			);
 		});
 		
-		it('throws cl.INVALID_PLATFORM with platform = \'a string\'', () => {
+		it('throws with platform = \'a string\'', () => {
 			assert.throws(
-				() => cl.getPlatformInfo('a string', 123),
+				() => cl.getPlatformInfo('a string' as unknown as cl.TClPlatform, 123),
 				new Error('Argument 0 must be of type `Object`'),
 			);
 		});
 		
-		it('throws cl.INVALID_PLATFORM with platform = 123', () => {
+		it('throws with platform = 123', () => {
 			assert.throws(
-				() => cl.getPlatformInfo(123, 123),
+				() => cl.getPlatformInfo(123 as unknown as cl.TClPlatform, 123),
 				new Error('Argument 0 must be of type `Object`'),
 			);
 		});
 		
-		it('throws cl.INVALID_PLATFORM with platform = [1, 2, 3]', () => {
+		it('throws with platform = [1, 2, 3]', () => {
 			assert.throws(
-				() => cl.getPlatformInfo([1, 2, 3], 123),
+				() => cl.getPlatformInfo([1, 2, 3] as unknown as cl.TClPlatform, 123),
 				new Error('Argument 0 must be a CL Wrapper.'),
 			);
 		});
 		
-		it('throws cl.INVALID_PLATFORM with platform = new Array()', () => {
+		it('throws cl.INVALID_PLATFORM', () => {
 			assert.throws(
-				() => cl.getPlatformInfo([], 123),
-				new Error('Argument 0 must be a CL Wrapper.'),
+				() => cl.getPlatformInfo(device as unknown as cl.TClPlatform, 123),
+				cl.INVALID_PLATFORM,
 			);
 		});
 	});

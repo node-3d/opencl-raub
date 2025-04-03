@@ -1,33 +1,31 @@
-'use strict';
-
-const assert = require('node:assert').strict;
-const { describe, it, after } = require('node:test');
-
-const cl = require('..');
-const U = require('./utils');
+import { strict as assert } from 'node:assert';
+import { describe, it, after } from 'node:test';
+import cl from '../index.js';
+import * as U from './utils.ts';
 
 
 describe('MemObj', () => {
-	const context = U.newContext();
+	const { context } = cl.quickStart();
+	
 	const buffer = cl.createBuffer(context, cl.MEM_WRITE_ONLY, 8, null);
-	const format = {
+	const format: cl.TClImageFormat = {
 		'channel_order': cl.RGBA,
 		'channel_data_type': cl.UNSIGNED_INT8,
+	};
+	const desc: cl.TClImageDesc = {
+		type: cl.MEM_OBJECT_IMAGE1D,
+		width: 8,
 	};
 	const image = cl.createImage(
 		context,
 		cl.MEM_WRITE_ONLY,
 		format,
-		{
-			type: cl.MEM_OBJECT_IMAGE1D,
-			width: 8,
-		},
+		desc,
 	);
 	
 	after(() => {
 		cl.releaseMemObject(image);
 		cl.releaseMemObject(buffer);
-		cl.releaseContext(context);
 	});
 	
 	describe('#getSupportedImageFormats', () => {
@@ -63,7 +61,9 @@ describe('MemObj', () => {
 		
 		it('throws if context is invalid', () => {
 			assert.throws(
-				() => cl.getSupportedImageFormats(buffer, 0, cl.MEM_OBJECT_IMAGE2D),
+				() => cl.getSupportedImageFormats(
+					buffer as unknown as cl.TClContext, 0, cl.MEM_OBJECT_IMAGE2D,
+				),
 			);
 		});
 	});

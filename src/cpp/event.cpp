@@ -5,10 +5,6 @@
 
 namespace opencl {
 
-// /* Event Object APIs */
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clWaitForEvents(cl_uint             /* num_events */,
-//                 const cl_event *    /* event_list */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(waitForEvents) { NAPI_ENV;
 	GET_WAIT_LIST(0);
 	
@@ -20,12 +16,6 @@ JS_METHOD(waitForEvents) { NAPI_ENV;
 	RET_NUM(CL_SUCCESS);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clGetEventInfo(cl_event         /* event */,
-//                cl_event_info    /* param_name */,
-//                size_t           /* param_value_size */,
-//                void *           /* param_value */,
-//                size_t *         /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getEventInfo) { NAPI_ENV;
 	REQ_CL_ARG(0, ev, cl_event);
 	REQ_UINT32_ARG(1, param_name);
@@ -80,9 +70,6 @@ JS_METHOD(getEventInfo) { NAPI_ENV;
 	THROW_ERR(CL_INVALID_VALUE);
 }
 
-// extern CL_API_ENTRY cl_event CL_API_CALL
-// clCreateUserEvent(cl_context    /* context */,
-//                   cl_int *      /* errcode_ret */) CL_API_SUFFIX__VERSION_1_1;
 JS_METHOD(createUserEvent) { NAPI_ENV;
 	REQ_CL_ARG(0, context, cl_context);
 	
@@ -93,8 +80,6 @@ JS_METHOD(createUserEvent) { NAPI_ENV;
 	RET_WRAPPER(uev);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clRetainEvent(cl_event /* event */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(retainEvent) { NAPI_ENV;
 	REQ_WRAP_ARG(0, eventWrapper);
 	
@@ -104,8 +89,6 @@ JS_METHOD(retainEvent) { NAPI_ENV;
 	RET_NUM(CL_SUCCESS);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clReleaseEvent(cl_event /* event */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(releaseEvent) { NAPI_ENV;
 	REQ_WRAP_ARG(0, eventWrapper);
 	cl_int err = eventWrapper->release();
@@ -114,9 +97,6 @@ JS_METHOD(releaseEvent) { NAPI_ENV;
 	RET_NUM(CL_SUCCESS);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clSetUserEventStatus(cl_event   /* event */,
-//                      cl_int     /* execution_status */) CL_API_SUFFIX__VERSION_1_1;
 JS_METHOD(setUserEventStatus) { NAPI_ENV;
 	REQ_CL_ARG(0, ev, cl_event);
 	REQ_UINT32_ARG(1, exec_status);
@@ -126,13 +106,6 @@ JS_METHOD(setUserEventStatus) { NAPI_ENV;
 	RET_NUM(CL_SUCCESS);
 }
 
-// /* Profiling APIs */
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clGetEventProfilingInfo(cl_event            /* event */,
-//                         cl_profiling_info   /* param_name */,
-//                         size_t              /* param_value_size */,
-//                         void *              /* param_value */,
-//                         size_t *            /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getEventProfilingInfo) { NAPI_ENV;
 	REQ_CL_ARG(0, ev, cl_event);
 	REQ_UINT32_ARG(1, param_name);
@@ -173,7 +146,6 @@ JS_METHOD(getEventProfilingInfo) { NAPI_ENV;
 
 
 class EventWorker : public Napi::AsyncWorker {
-	
 public:
 	EventWorker(Napi::Function callback, Napi::Object userData, Napi::Object wrapper):
 	Napi::AsyncWorker(callback, "CL::EventWorker") {

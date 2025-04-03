@@ -1,5 +1,4 @@
-import cl from 'opencl-raub';
-
+import cl from '../index.js';
 
 const getEventExecTime = (event: cl.TClEvent): number => {
 	// times are 64-bit values in nanoseconds. They are returned as [hi, lo] a 2-integer array
@@ -87,7 +86,7 @@ const readEvent = cl.enqueueReadBuffer(
 ) as cl.TClEvent;
 
 cl.waitForEvents([readEvent]);
-// cl.finish(queue);
+
 console.log(
 	`C[${VECTOR_SIZE - 1}] =`,
 	C[VECTOR_SIZE - 1],

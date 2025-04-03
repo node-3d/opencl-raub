@@ -1,23 +1,15 @@
-'use strict';
-
-const assert = require('node:assert').strict;
-const { describe, it, after } = require('node:test');
-
-const cl = require('../');
-const U = require('./utils');
-
-const makeCommandQueue = (context, device) => {
-	return cl.createCommandQueue(context, device, null);
-};
+import { strict as assert } from 'node:assert';
+import { describe, it, after } from 'node:test';
+import cl from '../index.js';
+import * as U from './utils.ts';
 
 
 describe('CommandQueue - Buffer', () => {
-	const context = U.newContext();
-	const cq = U.newQueue(context);
+	const { context, device } = cl.quickStart();
+	const cq = U.newQueue(context, device);
 	
 	after(() => {
 		cl.releaseCommandQueue(cq);
-		cl.releaseContext(context);
 	});
 	
 	describe('#enqueueReadBuffer', () => {
@@ -32,7 +24,7 @@ describe('CommandQueue - Buffer', () => {
 		it('fails if buffer is null', () => {
 			const nbuffer = Buffer.alloc(5);
 			assert.throws(
-				() => cl.enqueueReadBuffer(cq, null, true, 0, 8, nbuffer),
+				() => cl.enqueueReadBuffer(cq, null as unknown as cl.TClMem, true, 0, 8, nbuffer),
 				new Error('Argument 1 must be of type `Object`'),
 			);
 		});
@@ -40,7 +32,7 @@ describe('CommandQueue - Buffer', () => {
 		it('fails if output buffer is null', () => {
 			const buffer = cl.createBuffer(context, cl.MEM_WRITE_ONLY, 8, null);
 			assert.throws(
-				() => cl.enqueueReadBuffer(cq, buffer, true, 0, 8, null),
+				() => cl.enqueueReadBuffer(cq, buffer, true, 0, 8, null as unknown as ArrayBuffer),
 				new Error('Argument 5 must be of type `Object`'),
 			);
 			cl.releaseMemObject(buffer);
@@ -49,26 +41,27 @@ describe('CommandQueue - Buffer', () => {
 		it('returns an event', () => {
 			const buffer = cl.createBuffer(context, cl.MEM_READ_ONLY, 8, null);
 			const nbuffer = Buffer.alloc(5);
-			const ret = cl.enqueueReadBuffer(cq, buffer, true, 0, 8, nbuffer, null, true);
+			const ret = cl.enqueueReadBuffer(
+				cq, buffer, true, 0, 8, nbuffer, null, true,
+			) as cl.TClEvent;
 			U.assertType(ret, 'object');
 			cl.releaseEvent(ret);
 			cl.releaseMemObject(buffer);
 		});
 		
 		it('calls cb', (t, done) => {
-			U.withAsyncContext((context, device, platform, ctxDone) => {
-				const cq = makeCommandQueue(context, device);
-
-				const buffer = cl.createBuffer(context, cl.MEM_READ_ONLY, 8, null);
-				const nbuffer = Buffer.alloc(5);
-				const ret = cl.enqueueReadBuffer(cq, buffer, true, 0, 8, nbuffer, null, true);
-
-				cl.setEventCallback(ret, cl.COMPLETE, () => {
-					cl.releaseEvent(ret);
-					cl.releaseMemObject(buffer);
-					ctxDone();
-					done();
-				}, {});
+			const cq = U.newQueue(context, device);
+			
+			const buffer = cl.createBuffer(context, cl.MEM_READ_ONLY, 8, null);
+			const nbuffer = Buffer.alloc(5);
+			const ret = cl.enqueueReadBuffer(
+				cq, buffer, true, 0, 8, nbuffer, null, true,
+			) as cl.TClEvent;
+			
+			cl.setEventCallback(ret, cl.COMPLETE, () => {
+				cl.releaseEvent(ret);
+				cl.releaseMemObject(buffer);
+				done();
 			});
 		});
 	});
@@ -90,9 +83,9 @@ describe('CommandQueue - Buffer', () => {
 		it('fails if buffer is null', () => {
 			const nbuffer = Buffer.alloc(5);
 			assert.throws(
-				() => cl.enqueueReadBuffer(
+				() => cl.enqueueReadBufferRect(
 					cq,
-					null,
+					null as unknown as cl.TClMem,
 					true,
 					[0, 0, 0],
 					[0, 0, 0],
@@ -121,7 +114,7 @@ describe('CommandQueue - Buffer', () => {
 					0,
 					8 * 4,
 					0,
-					null,
+					null as unknown as ArrayBuffer,
 				),
 				new Error('Argument 10 must be of type `Object`'),
 			);
@@ -143,7 +136,7 @@ describe('CommandQueue - Buffer', () => {
 		it('fails if buffer is null', () => {
 			const nbuffer = Buffer.alloc(5);
 			assert.throws(
-				() => cl.enqueueWriteBuffer(cq, null, true, 0, 8, nbuffer),
+				() => cl.enqueueWriteBuffer(cq, null as unknown as cl.TClMem, true, 0, 8, nbuffer),
 				new Error('Argument 1 must be of type `Object`'),
 			);
 		});
@@ -151,7 +144,7 @@ describe('CommandQueue - Buffer', () => {
 		it('fails if output buffer is null', () => {
 			const buffer = cl.createBuffer(context, cl.MEM_WRITE_ONLY, 8, null);
 			assert.throws(
-				() => cl.enqueueWriteBuffer(cq, buffer, true, 0, 8, null),
+				() => cl.enqueueWriteBuffer(cq, buffer, true, 0, 8, null as unknown as ArrayBuffer),
 				new Error('Argument 5 must be of type `Object`'),
 			);
 					
@@ -178,7 +171,7 @@ describe('CommandQueue - Buffer', () => {
 			assert.throws(
 				() => cl.enqueueWriteBufferRect(
 					cq,
-					null,
+					null as unknown as cl.TClMem,
 					true,
 					[0, 0, 0],
 					[0, 0, 0],
@@ -207,7 +200,7 @@ describe('CommandQueue - Buffer', () => {
 					0,
 					8 * 4,
 					0,
-					null,
+					null as unknown as ArrayBuffer,
 				),
 				new Error('Argument 10 must be of type `Object`'),
 			);
@@ -478,13 +471,13 @@ describe('CommandQueue - Buffer', () => {
 			const ret = cl.enqueueMapBuffer(cq, buf, false, 0, 0, 8);
 			
 			cl.setEventCallback(
-				ret.event,
+				ret.event as cl.TClEvent,
 				cl.COMPLETE,
 				() => {
 					const u8s = new Uint8Array(ret.buffer);
 					assert.strictEqual(u8s[0], 3);
 					cl.releaseMemObject(buf);
-					cl.releaseEvent(ret.event);
+					cl.releaseEvent(ret.event as cl.TClEvent);
 					done();
 				},
 			);

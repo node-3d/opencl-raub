@@ -3,13 +3,6 @@
 
 namespace opencl {
 
-// /* Sampler APIs */
-// extern CL_API_ENTRY cl_sampler CL_API_CALL
-// clCreateSampler(cl_context          /* context */,
-//                 cl_bool             /* normalized_coords */,
-//                 cl_addressing_mode  /* addressing_mode */,
-//                 cl_filter_mode      /* filter_mode */,
-//                 cl_int *            /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(createSampler) { NAPI_ENV;
 	REQ_CL_ARG(0, context, cl_context);
 	
@@ -30,9 +23,6 @@ JS_METHOD(createSampler) { NAPI_ENV;
 	RET_WRAPPER(sw);
 }
 
-
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clRetainSampler(cl_sampler /* sampler */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(retainSampler) { NAPI_ENV;
 	REQ_WRAP_ARG(0, sampler);
 	
@@ -42,8 +32,6 @@ JS_METHOD(retainSampler) { NAPI_ENV;
 	RET_NUM(err);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clReleaseSampler(cl_sampler /* sampler */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(releaseSampler) { NAPI_ENV;
 	REQ_WRAP_ARG(0, sampler);
 	
@@ -53,12 +41,6 @@ JS_METHOD(releaseSampler) { NAPI_ENV;
 	RET_NUM(err);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clGetSamplerInfo(cl_sampler         /* sampler */,
-//                  cl_sampler_info    /* param_name */,
-//                  size_t             /* param_value_size */,
-//                  void *             /* param_value */,
-//                  size_t *           /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getSamplerInfo) { NAPI_ENV;
 	REQ_CL_ARG(0, sampler, cl_sampler);
 	REQ_UINT32_ARG(1, param_name);

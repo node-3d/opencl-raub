@@ -1,10 +1,7 @@
-'use strict';
-
-const assert = require('node:assert').strict;
-const { describe, it } = require('node:test');
-
-const { parseSpec } = require('./specs/parse-spec');
-const webgl = require('..');
+import { strict as assert } from 'node:assert';
+import { describe, it, after } from 'node:test';
+import cl from '../index.js';
+import { parseSpec } from './specs/parse-spec.js';
 
 
 const parsedWebcl = parseSpec('webcl');
@@ -19,13 +16,13 @@ const exclude = [
 describe('WebCL Spec Coverage (not conformance)', () => {
 	parsedWebcl.constants.forEach((constant) => {
 		it(`\`${constant}\` constant exposed`, () => {
-			assert.ok(webgl[constant] !== undefined);
+			assert.ok(cl[constant as keyof typeof cl] !== undefined);
 		});
 	});
 	
 	parsedWebcl.methods.filter((x) => !exclude.includes(x)).forEach((method) => {
 		it(`\`${method}()\` method exposed`, () => {
-			assert.strictEqual(typeof webgl[method], 'function');
+			assert.strictEqual(typeof cl[method as keyof typeof cl], 'function');
 		});
 	});
 });

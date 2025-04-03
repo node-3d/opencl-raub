@@ -1,10 +1,7 @@
-'use strict';
-
-const assert = require('node:assert').strict;
-const { describe, it, after } = require('node:test');
-
-const cl = require('../');
-const U = require('./utils');
+import { strict as assert } from 'node:assert';
+import { describe, it, after } from 'node:test';
+import cl from '../index.js';
+import * as U from './utils.ts';
 
 
 const imageFormat = {
@@ -23,12 +20,11 @@ const validRegion = [8, 8, 1];
 
 
 describe('CommandQueue - Image Copy', () => {
-	const context = U.newContext();
-	const cq = U.newQueue(context);
+	const { context, device } = cl.quickStart();
+	const cq = U.newQueue(context, device);
 	
 	after(() => {
 		cl.releaseCommandQueue(cq);
-		cl.releaseContext(context);
 	});
 	
 	describe('#enqueueCopyImage', () => {
@@ -402,7 +398,7 @@ describe('CommandQueue - Image Copy', () => {
 				cl.COMPLETE,
 				() => {
 					cl.releaseMemObject(image);
-					cl.releaseEvent(ret.event);
+					cl.releaseEvent(ret.event as unknown as cl.TClEvent);
 					done();
 				},
 			);
@@ -426,7 +422,7 @@ describe('CommandQueue - Image Copy', () => {
 			
 			cl.setEventCallback(ret.event, cl.COMPLETE, () => {
 				cl.releaseMemObject(image);
-				cl.releaseEvent(ret.event);
+				cl.releaseEvent(ret.event as unknown as cl.TClEvent);
 				done();
 			});
 		});
@@ -479,14 +475,14 @@ describe('CommandQueue - Image Copy', () => {
 			assert.throws(
 				() => cl.enqueueMigrateMemObjects(
 					cq,
-					null,
+					null as unknown as cl.TClMem[],
 					cl.MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED
 				),
 				new Error('Argument 1 must be of type `Array`'),
 			);
 		});
 		
-		it('throws cl.INVALID_MEM_OBJECT if any memory object is null', () => {
+		it('throws cl.INVALID_MEM_OBJECT', () => {
 			const image = cl.createImage(
 				context,
 				cl.MEM_COPY_HOST_PTR,
@@ -494,12 +490,11 @@ describe('CommandQueue - Image Copy', () => {
 				imageDesc,
 				Buffer.alloc(64)
 			);
-			const buffer = null;
 			
 			assert.throws(
 				() => cl.enqueueMigrateMemObjects(
 					cq,
-					[image, buffer],
+					[image, null as unknown as cl.TClMem],
 					cl.MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED
 				),
 				cl.INVALID_MEM_OBJECT,

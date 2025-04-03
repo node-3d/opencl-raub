@@ -5,14 +5,6 @@
 
 namespace opencl {
 
-// /* Program Object APIs  */
-
-// extern CL_API_ENTRY cl_program CL_API_CALL
-// clCreateProgramWithSource(cl_context        /* context */,
-//                           cl_uint           /* count */,
-//                           const char **     /* strings */,
-//                           const size_t *    /* lengths */,
-//                           cl_int *          /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(createProgramWithSource) { NAPI_ENV;
 	REQ_CL_ARG(0, context, cl_context);
 	REQ_STR_ARG(1, str);
@@ -26,64 +18,32 @@ JS_METHOD(createProgramWithSource) { NAPI_ENV;
 	RET_WRAPPER(p);
 }
 
-// extern CL_API_ENTRY cl_program CL_API_CALL
-// clCreateProgramWithBinary(cl_context                     /* context */,
-//                           cl_uint                        /* num_devices */,
-//                           const cl_device_id *           /* device_list */,
-//                           const size_t *                 /* lengths */,
-//                           const unsigned char **         /* binaries */,
-//                           cl_int *                       /* binary_status */,
-//                           cl_int *                       /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(createProgramWithBinary) { NAPI_ENV;
 	REQ_CL_ARG(0, context, cl_context);
 	REQ_ARRAY_ARG(1, js_devices);
-	REQ_ARRAY_ARG(2, js_sizes);
-	REQ_ARRAY_ARG(3, js_binaries);
+	REQ_ARRAY_ARG(2, js_binaries); // ArrayBuffer[]
+	
+	if (!js_binaries.Length()) {
+		THROW_ERR(CL_INVALID_VALUE);
+		RET_UNDEFINED;
+	}
 	
 	std::vector<cl_device_id> cl_devices;
 	if (Wrapper::fromJsArray(js_devices, &cl_devices)) {
 		RET_UNDEFINED;
 	}
 	
-	// FIXME: remomve sizes
-	const size_t n = js_sizes.Length();
-	if (js_sizes.Length() == 0) {
-		THROW_ERR(CL_INVALID_VALUE)
-	}
-	
 	std::vector<size_t> cl_binary_lengths;
-	std::unique_ptr<size_t[]> originalLengths(new size_t[n]);
-	
-	for (size_t i = 0; i < n; i++) {
-		size_t len = js_sizes.Get(i).ToNumber().Int64Value();
-		originalLengths[i] = len;
-		if (len > 0) {
-			cl_binary_lengths.push_back(len);
-		}
+	std::vector<const unsigned char*> cl_binaries_str;
+	for (size_t i = 0; i < js_binaries.Length(); i++) {
+		void *host_ptr = nullptr;
+		size_t len = 0;
+		getPtrAndLen(js_binaries.Get(i).As<Napi::Object>(), &host_ptr, &len);
+		
+		cl_binary_lengths.push_back(len);
+		cl_binaries_str.push_back(static_cast<const unsigned char*>(host_ptr));
 	}
 	
-	if (cl_binary_lengths.size() == 0) {
-		THROW_ERR(CL_INVALID_PROGRAM_EXECUTABLE)
-	}
-	
-	// FIXME: use Buffer | TypedArray
-	std::vector<cl_program_binary> cl_binaries;
-	if (Wrapper::fromJsArray(js_binaries, &cl_binaries)) {
-		RET_UNDEFINED;
-	}
-	
-	if (js_sizes.Length() != js_binaries.Length()) {
-		THROW_ERR(CL_INVALID_VALUE)
-	}
-
-	std::vector<const unsigned char *> cl_binaries_str;
-	for (size_t i = 0; i < n; i++) {
-		int32_t len = originalLengths[i];
-		if (len > 0) {
-			cl_binaries_str.push_back(cl_binaries[i]);
-		}
-	}
-
 	cl_int ret = CL_SUCCESS;
 	cl_program p = clCreateProgramWithBinary(
 		context,
@@ -99,12 +59,6 @@ JS_METHOD(createProgramWithBinary) { NAPI_ENV;
 	RET_WRAPPER(p);
 }
 
-// extern CL_API_ENTRY cl_program CL_API_CALL
-// clCreateProgramWithBuiltInKernels(cl_context            /* context */,
-//                                   cl_uint               /* num_devices */,
-//                                   const cl_device_id *  /* device_list */,
-//                                   const char *          /* kernel_names */,
-//                                   cl_int *              /* errcode_ret */) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(createProgramWithBuiltInKernels) { NAPI_ENV;
 	REQ_CL_ARG(0, context, cl_context);
 	REQ_ARRAY_ARG(1, js_devices);
@@ -118,7 +72,7 @@ JS_METHOD(createProgramWithBuiltInKernels) { NAPI_ENV;
 	std::vector<std::string> strNames;
 	std::vector<const char*> names;
 	for (size_t i = 0; i < namesLen; i++) {
-		if ( ! js_names.Get(i).IsString() ) {
+		if (!js_names.Get(i).IsString()) {
 			THROW_ERR(CL_INVALID_VALUE);
 			RET_UNDEFINED;
 		}
@@ -145,8 +99,6 @@ JS_METHOD(createProgramWithBuiltInKernels) { NAPI_ENV;
 	RET_WRAPPER(prg);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clRetainProgram(cl_program /* program */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(retainProgram) { NAPI_ENV;
 	REQ_WRAP_ARG(0, p);
 	
@@ -156,8 +108,6 @@ JS_METHOD(retainProgram) { NAPI_ENV;
 	RET_NUM(CL_SUCCESS);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clReleaseProgram(cl_program /* program */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(releaseProgram) { NAPI_ENV;
 	REQ_WRAP_ARG(0, p);
 	
@@ -201,18 +151,11 @@ void CL_CALLBACK notifyPCB (cl_program prog, void *user_data) {
 	asyncCB->Queue();
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clBuildProgram(cl_program           /* program */,
-//                cl_uint              /* num_devices */,
-//                const cl_device_id * /* device_list */,
-//                const char *         /* options */,
-//                void (CL_CALLBACK *  /* pfn_notify */)(cl_program /* program */, void * /* user_data */),
-//                void *               /* user_data */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(buildProgram) { NAPI_ENV;
 	REQ_CL_ARG(0, p, cl_program);
 	
 	std::vector<cl_device_id> cl_devices;
-	if ( ! IS_ARG_EMPTY(1) ) {
+	if (!IS_ARG_EMPTY(1)) {
 		REQ_ARRAY_ARG(1, js_devices);
 		if (Wrapper::fromJsArray(js_devices, &cl_devices)) {
 			RET_UNDEFINED;
@@ -220,7 +163,7 @@ JS_METHOD(buildProgram) { NAPI_ENV;
 	}
 	
 	std::string options;
-	if ( ! IS_ARG_EMPTY(2) ) {
+	if (!IS_ARG_EMPTY(2)) {
 		REQ_STR_ARG(2, str);
 		options = str;
 	}
@@ -228,7 +171,7 @@ JS_METHOD(buildProgram) { NAPI_ENV;
 	int err;
 	
 	// callback + userdata
-	if ( ! IS_ARG_EMPTY(3) ) {
+	if (!IS_ARG_EMPTY(3)) {
 		REQ_FUN_ARG(3, callback);
 		ProgramWorker* cb = new ProgramWorker(
 			callback,
@@ -260,22 +203,11 @@ JS_METHOD(buildProgram) { NAPI_ENV;
 	RET_NUM(CL_SUCCESS);
 }
 
-
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clCompileProgram(cl_program           /* program */,
-//                  cl_uint              /* num_devices */,
-//                  const cl_device_id * /* device_list */,
-//                  const char *         /* options */,
-//                  cl_uint              /* num_input_headers */,
-//                  const cl_program *   /* input_headers */,
-//                  const char **        /* header_include_names */,
-//                  void (CL_CALLBACK *  /* pfn_notify */)(cl_program /* program */, void * /* user_data */),
-//                  void *               /* user_data */) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(compileProgram) { NAPI_ENV;
 	REQ_CL_ARG(0, p, cl_program);
 	
 	std::vector<cl_device_id> cl_devices;
-	if ( ! IS_ARG_EMPTY(1) ) {
+	if (!IS_ARG_EMPTY(1)) {
 		REQ_ARRAY_ARG(1, js_devices);
 		if (Wrapper::fromJsArray(js_devices, &cl_devices)) {
 			RET_UNDEFINED;
@@ -283,13 +215,13 @@ JS_METHOD(compileProgram) { NAPI_ENV;
 	}
 	
 	std::string options;
-	if ( ! IS_ARG_EMPTY(2) ) {
+	if (!IS_ARG_EMPTY(2)) {
 		REQ_STR_ARG(2, str);
 		options = str;
 	}
 	
 	std::vector<cl_program> program_headers;
-	if ( ! IS_ARG_EMPTY(3) ) {
+	if (!IS_ARG_EMPTY(3)) {
 		REQ_ARRAY_ARG(3, js_programs);
 		if (Wrapper::fromJsArray(js_programs, &program_headers)) {
 			RET_UNDEFINED;
@@ -298,11 +230,11 @@ JS_METHOD(compileProgram) { NAPI_ENV;
 	
 	std::vector<std::string> strNames;
 	std::vector<const char*> names;
-	if ( ! IS_ARG_EMPTY(4) ) {
+	if (!IS_ARG_EMPTY(4)) {
 		REQ_ARRAY_ARG(4, js_names);
 		size_t namesLen = js_names.Length();
 		for (size_t i = 0; i < namesLen; i++) {
-			if ( ! js_names.Get(i).IsString())   {
+			if (!js_names.Get(i).IsString()) {
 				THROW_ERR(CL_INVALID_VALUE);
 				RET_UNDEFINED;
 			}
@@ -317,7 +249,7 @@ JS_METHOD(compileProgram) { NAPI_ENV;
 	
 	int err;
 	
-	if ( ! IS_ARG_EMPTY(5) ) {
+	if (!IS_ARG_EMPTY(5)) {
 		REQ_FUN_ARG(5, callback);
 		ProgramWorker* cb = new ProgramWorker(
 			callback,
@@ -354,21 +286,11 @@ JS_METHOD(compileProgram) { NAPI_ENV;
 	RET_NUM(CL_SUCCESS);
 }
 
-// extern CL_API_ENTRY cl_program CL_API_CALL
-// clLinkProgram(cl_context           /* context */,
-//               cl_uint              /* num_devices */,
-//               const cl_device_id * /* device_list */,
-//               const char *         /* options */,
-//               cl_uint              /* num_input_programs */,
-//               const cl_program *   /* input_programs */,
-//               void (CL_CALLBACK *  /* pfn_notify */)(cl_program /* program */, void * /* user_data */),
-//               void *               /* user_data */,
-//               cl_int *             /* errcode_ret */ ) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(linkProgram) { NAPI_ENV;
 	REQ_CL_ARG(0, ctx, cl_context);
 	
 	std::vector<cl_device_id> cl_devices;
-	if ( ! IS_ARG_EMPTY(1) ) {
+	if (!IS_ARG_EMPTY(1)) {
 		REQ_ARRAY_ARG(1, js_devices);
 		if (Wrapper::fromJsArray(js_devices, &cl_devices)) {
 			RET_UNDEFINED;
@@ -377,25 +299,25 @@ JS_METHOD(linkProgram) { NAPI_ENV;
 	
 
 	std::string options;
-	if ( ! IS_ARG_EMPTY(2) ) {
+	if (!IS_ARG_EMPTY(2)) {
 		REQ_STR_ARG(2, str);
 		options = str;
 	}
 	
 	std::vector<cl_program> cl_programs;
-	if ( ! IS_ARG_EMPTY(3) ) {
+	if (!IS_ARG_EMPTY(3)) {
 		REQ_ARRAY_ARG(3, js_programs);
 		if (Wrapper::fromJsArray(js_programs, &cl_programs)) {
 			RET_UNDEFINED;
 		}
 	}
 	
-	// OSX ISSUE: ret is always equals to CL_SUCCESS
+	// OSX ISSUE: ret always equals to CL_SUCCESS
 	cl_int ret = CL_SUCCESS;
 	
 	cl_program prg;
 	
-	if ( ! IS_ARG_EMPTY(4) ) {
+	if (!IS_ARG_EMPTY(4)) {
 		REQ_FUN_ARG(4, callback);
 		ProgramWorker* cb = new ProgramWorker(
 			callback,
@@ -432,8 +354,6 @@ JS_METHOD(linkProgram) { NAPI_ENV;
 	RET_WRAPPER(prg);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clUnloadPlatformCompiler(cl_platform_id /* platform */) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(unloadPlatformCompiler) { NAPI_ENV;
 	REQ_CL_ARG(0, platform, cl_platform_id);
 	
@@ -442,12 +362,6 @@ JS_METHOD(unloadPlatformCompiler) { NAPI_ENV;
 	RET_NUM(CL_SUCCESS);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clGetProgramInfo(cl_program         /* program */,
-//                  cl_program_info    /* param_name */,
-//                  size_t             /* param_value_size */,
-//                  void *             /* param_value */,
-//                  size_t *           /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getProgramInfo) { NAPI_ENV;
 	REQ_CL_ARG(0, prog, cl_program);
 	REQ_UINT32_ARG(1, param_name);
@@ -546,27 +460,30 @@ JS_METHOD(getProgramInfo) { NAPI_ENV;
 			));
 			
 			unsigned char** bn = new unsigned char* [nsizes];
-			for(size_t i = 0; i < nsizes; i++)  {
+			for(size_t i = 0; i < nsizes; i++) {
 				bn[i] = new unsigned char[sizes[i]];
 			}
 			
 			CHECK_ERR(clGetProgramInfo(
 				prog,
 				CL_PROGRAM_BINARIES,
-				sizeof(unsigned char*) * nsizes,
+				sizeof(unsigned char*) *nsizes,
 				bn,
 				sizes.get()
 			));
 			
 			Napi::Array arr = Napi::Array::New(env);
 			for (cl_uint i = 0; i < nsizes; i++) {
-				Napi::Object bin = Wrapper::fromRaw(env, bn[i]);
 				void* data = reinterpret_cast<void*>(bn[i]);
-				// FIXME: (memleak) add finalizer delete
 				Napi::ArrayBuffer buf = Napi::ArrayBuffer::New(env, data, sizes[i]);
-				bin.Set("buffer", buf);
-				arr.Set(i, bin);
+				arr.Set(i, buf);
 			}
+			
+			for(size_t i = 0; i < nsizes; i++) {
+				delete [] bn[i];
+			}
+			delete [] bn;
+			
 			RET_VALUE(arr);
 		}
 		case CL_PROGRAM_NUM_KERNELS: {
@@ -593,13 +510,6 @@ JS_METHOD(getProgramInfo) { NAPI_ENV;
 	THROW_ERR(CL_INVALID_VALUE);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clGetProgramBuildInfo(cl_program            /* program */,
-//                       cl_device_id          /* device */,
-//                       cl_program_build_info /* param_name */,
-//                       size_t                /* param_value_size */,
-//                       void *                /* param_value */,
-//                       size_t *              /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getProgramBuildInfo) { NAPI_ENV;
 	REQ_CL_ARG(0, prog, cl_program);
 	REQ_CL_ARG(1, device, cl_device_id);

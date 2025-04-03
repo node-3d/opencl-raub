@@ -8,11 +8,6 @@
 
 namespace opencl {
 
-// /* Kernel Object APIs */
-// extern CL_API_ENTRY cl_kernel CL_API_CALL
-// clCreateKernel(cl_program      /* program */,
-//                const char *    /* kernel_name */,
-//                cl_int *        /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(createKernel) { NAPI_ENV;
 	REQ_CL_ARG(0, program, cl_program);
 	REQ_STR_ARG(1, name);
@@ -24,11 +19,6 @@ JS_METHOD(createKernel) { NAPI_ENV;
 	RET_WRAPPER(k);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clCreateKernelsInProgram(cl_program     /* program */,
-//                          cl_uint        /* num_kernels */,
-//                          cl_kernel *    /* kernels */,
-//                          cl_uint *      /* num_kernels_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(createKernelsInProgram) { NAPI_ENV;
 	REQ_CL_ARG(0, program, cl_program);
 	
@@ -50,8 +40,6 @@ JS_METHOD(createKernelsInProgram) { NAPI_ENV;
 	RET_VALUE(karr);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clRetainKernel(cl_kernel    /* kernel */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(retainKernel) { NAPI_ENV;
 	REQ_WRAP_ARG(0, k);
 	
@@ -61,8 +49,6 @@ JS_METHOD(retainKernel) { NAPI_ENV;
 	RET_NUM(CL_SUCCESS);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clReleaseKernel(cl_kernel   /* kernel */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(releaseKernel) { NAPI_ENV;
 	REQ_WRAP_ARG(0, k);
 	
@@ -72,7 +58,7 @@ JS_METHOD(releaseKernel) { NAPI_ENV;
 	RET_NUM(CL_SUCCESS);
 }
 
-// caches OpenCL type name to conversion function mapping in a hash table
+// Caches OpenCL type name to conversion function mapping in a hash table
 // (unordered_map) for fast retrieval. This is much faster than the previous
 // approach of checking each possible type with strcmp in a huge if-else
 class PrimitiveTypeMapCache {
@@ -94,7 +80,7 @@ public:
 		
 		#define CONVERT_NUMBER(NAME, TYPE, CONV) {                                    \
 			func_t f = [](Napi::Value val) -> std::tuple<size_t, void*, cl_int> {     \
-				if ( ! val.IsNumber() ) {                                             \
+				if (!val.IsNumber()) {                                             \
 					return std::tuple<size_t, void*, cl_int>(                         \
 						0,                                                            \
 						nullptr,                                                      \
@@ -131,7 +117,7 @@ public:
 		
 		#define CONVERT_VECT(NAME, TYPE, I, COND) {                                   \
 			func_t f = [](Napi::Value val) -> std::tuple<size_t, void*, cl_int> {     \
-				if ( ! val.IsArray() ) {                                              \
+				if (!val.IsArray()) {                                              \
 					/*THROW_ERR(CL_INVALID_ARG_VALUE);  */                            \
 					return std::tuple<size_t, void*, cl_int>(                         \
 						0,                                                            \
@@ -152,7 +138,7 @@ public:
 				size_t ptr_size = sizeof(TYPE) * I;                                   \
 				void* ptr_data = vvc;                                                 \
 				for (unsigned int i = 0; i < I; ++ i) {                               \
-					if ( ! arr.Get(i).IsNumber() ) {                                  \
+					if (!arr.Get(i).IsNumber()) {                                  \
 						/*THROW_ERR(CL_INVALID_ARG_VALUE);*/                          \
 						/*THROW_ERR(CL_INVALID_ARG_VALUE);*/                          \
 						return std::tuple<size_t, void*, cl_int>(                     \
@@ -215,11 +201,6 @@ public:
 	}
 };
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clSetKernelArg(cl_kernel    /* kernel */,
-//                cl_uint      /* arg_index */,
-//                size_t       /* arg_size */,
-//                const void * /* arg_value */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(setKernelArg) { NAPI_ENV;
 	// static member of the function gets initialized by the first thread
 	// which calls this function. This is thread-safe according to the C++11 standard.
@@ -321,13 +302,6 @@ JS_METHOD(setKernelArg) { NAPI_ENV;
 	RET_NUM(err);
 }
 
-
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clGetKernelInfo(cl_kernel       /* kernel */,
-//                 cl_kernel_info  /* param_name */,
-//                 size_t          /* param_value_size */,
-//                 void *          /* param_value */,
-//                 size_t *        /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getKernelInfo) { NAPI_ENV;
 	REQ_CL_ARG(0, kernel, cl_kernel);
 	REQ_UINT32_ARG(1, param_name);
@@ -388,13 +362,6 @@ JS_METHOD(getKernelInfo) { NAPI_ENV;
 	THROW_ERR(CL_INVALID_VALUE);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clGetKernelArgInfo(cl_kernel       /* kernel */,
-//                    cl_uint         /* arg_indx */,
-//                    cl_kernel_arg_info  /* param_name */,
-//                    size_t          /* param_value_size */,
-//                    void *          /* param_value */,
-//                    size_t *        /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(getKernelArgInfo) { NAPI_ENV;
 	REQ_CL_ARG(0, kernel, cl_kernel);
 	REQ_UINT32_ARG(1, arg_idx);
@@ -464,13 +431,6 @@ JS_METHOD(getKernelArgInfo) { NAPI_ENV;
 	THROW_ERR(CL_INVALID_VALUE);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clGetKernelWorkGroupInfo(cl_kernel                  /* kernel */,
-//                          cl_device_id               /* device */,
-//                          cl_kernel_work_group_info  /* param_name */,
-//                          size_t                     /* param_value_size */,
-//                          void *                     /* param_value */,
-//                          size_t *                   /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getKernelWorkGroupInfo) { NAPI_ENV;
 	REQ_CL_ARG(0, kernel, cl_kernel);
 	REQ_CL_ARG(1, device, cl_device_id);

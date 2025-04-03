@@ -3,13 +3,6 @@
 
 namespace opencl {
 
-/* Device APIs */
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clGetDeviceIDs(cl_platform_id   /* platform */,
-//                cl_device_type   /* device_type */,
-//                cl_uint          /* num_entries */,
-//                cl_device_id *   /* devices */,
-//                cl_uint *        /* num_devices */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getDeviceIDs) { NAPI_ENV;
 	REQ_CL_ARG(0, platform, cl_platform_id);
 	USE_OFFS_ARG(1, type, CL_DEVICE_TYPE_ALL);
@@ -345,12 +338,6 @@ inline Napi::Value getDeviceInfoSize(Napi::Env env, cl_device_id device_id, uint
 	case CL_DEVICE_IMAGE_MAX_BUFFER_SIZE:                                              \
 	case CL_DEVICE_IMAGE_MAX_ARRAY_SIZE:
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clGetDeviceInfo(cl_device_id    /* device */,
-//                 cl_device_info  /* param_name */,
-//                 size_t          /* param_value_size */,
-//                 void *          /* param_value */,
-//                 size_t *        /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getDeviceInfo) { NAPI_ENV;
 	REQ_CL_ARG(0, device_id, cl_device_id);
 	REQ_UINT32_ARG(1, param_name);
@@ -388,32 +375,18 @@ JS_METHOD(getDeviceInfo) { NAPI_ENV;
 	THROW_ERR(CL_INVALID_VALUE);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clCreateSubDevices(cl_device_id                         /* in_device */,
-//                    const cl_device_partition_property * /* properties */,
-//                    cl_uint                              /* num_devices */,
-//                    cl_device_id *                       /* out_devices */,
-//                    cl_uint *                            /* num_devices_ret */) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(createSubDevices) { NAPI_ENV;
 	REQ_CL_ARG(0, deviceId, cl_device_id);
 	
-	// Arg 2
 	std::vector<cl_device_partition_property> cl_properties;
 	REQ_ARRAY_ARG(1, js_properties);
 	for (unsigned int i = 0; i < js_properties.Length(); ++ i) {
 		cl_properties.push_back(js_properties.Get(i).ToNumber().Int64Value());
 	}
+	cl_properties.push_back(0);
 
 	cl_uint capacity = 0;
-	cl_device_partition_property pps[] = {
-		CL_DEVICE_PARTITION_BY_COUNTS,
-		3,
-		1,
-		CL_DEVICE_PARTITION_BY_COUNTS_LIST_END,
-		0
-	};
-
-	cl_int ret = clCreateSubDevices(deviceId, pps, 0, nullptr, &capacity);
+	cl_int ret = clCreateSubDevices(deviceId, &cl_properties.front(), 0, nullptr, &capacity);
 	CHECK_ERR(ret);
 	
 	std::unique_ptr<cl_device_id[]> subDevices(new cl_device_id[capacity]);
@@ -434,8 +407,6 @@ JS_METHOD(createSubDevices) { NAPI_ENV;
 	RET_VALUE(subDevicesArray);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clRetainDevice(cl_device_id /* device */) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(retainDevice) { NAPI_ENV;
 	REQ_CL_ARG(0, deviceId, cl_device_id);
 	
@@ -459,8 +430,6 @@ JS_METHOD(retainDevice) { NAPI_ENV;
 	RET_NUM(ret);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clReleaseDevice(cl_device_id /* device */) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(releaseDevice) { NAPI_ENV;
 	REQ_CL_ARG(0, deviceId, cl_device_id);
 	

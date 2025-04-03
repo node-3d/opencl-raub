@@ -25,21 +25,13 @@ cl_context_properties *readCtxProperties(Napi::Array jsProperties) {
 			continue;
 		}
 		
-		bufferCtxProperties[valueIdx] = jsProperties.Get(++at).ToNumber().Int64Value();
+		bufferCtxProperties[valueIdx] = jsProperties.Get(valueIdx).ToNumber().Int64Value();
 	}
 	
 	bufferCtxProperties[at] = 0;
 	return bufferCtxProperties;
 }
 
-// /* Context APIs  */
-// extern CL_API_ENTRY cl_context CL_API_CALL
-// clCreateContext(const cl_context_properties * /* properties */,
-//                 cl_uint                 /* num_devices */,
-//                 const cl_device_id *    /* devices */,
-//                 void (CL_CALLBACK * /* pfn_notify */)(const char *, const void *, size_t, void *),
-//                 void *                  /* user_data */,
-//                 cl_int *                /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(createContext) { NAPI_ENV;
 	LET_ARRAY_ARG(0, jsProperties);
 	REQ_ARRAY_ARG(1, jsDevices);
@@ -54,7 +46,7 @@ JS_METHOD(createContext) { NAPI_ENV;
 		clProperties,
 		static_cast<cl_uint>(clDevices.size()),
 		&clDevices.front(),
-		nullptr, // TODO: callback support
+		nullptr, // TODO: callback support?
 		nullptr,
 		&err
 	);
@@ -64,13 +56,6 @@ JS_METHOD(createContext) { NAPI_ENV;
 	RET_WRAPPER(ctx);
 }
 
-
-// extern CL_API_ENTRY cl_context CL_API_CALL
-// clCreateContextFromType(const cl_context_properties * /* properties */,
-//    cl_device_type      /* device_type */,
-//    void (CL_CALLBACK * /* pfn_notify*/ )(const char *, const void *, size_t, void *),
-//    void *              /* user_data */,
-//    cl_int *            /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(createContextFromType) { NAPI_ENV;
 	REQ_ARRAY_ARG(0, jsProperties);
 	REQ_UINT32_ARG(1, device_type);
@@ -91,9 +76,6 @@ JS_METHOD(createContextFromType) { NAPI_ENV;
 	RET_WRAPPER(ctx);
 }
 
-
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clRetainContext(cl_context /* context */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(retainContext) { NAPI_ENV;
 	REQ_WRAP_ARG(0, ctx);
 	
@@ -103,8 +85,6 @@ JS_METHOD(retainContext) { NAPI_ENV;
 	RET_NUM(err);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clReleaseContext(cl_context /* context */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(releaseContext) { NAPI_ENV;
 	REQ_WRAP_ARG(0, ctx);
 	
@@ -114,12 +94,6 @@ JS_METHOD(releaseContext) { NAPI_ENV;
 	RET_NUM(err);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clGetContextInfo(cl_context         /* context */,
-//                  cl_context_info    /* param_name */,
-//                  size_t             /* param_value_size */,
-//                  void *             /* param_value */,
-//                  size_t *           /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getContextInfo) { NAPI_ENV;
 	REQ_CL_ARG(0, context, cl_context);
 	REQ_UINT32_ARG(1, param_name);

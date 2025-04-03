@@ -1,4 +1,4 @@
-declare module "opencl-raub" {
+declare namespace cl {
 	// Byte sizes
 	const size_CHAR: number;
 	const size_SHORT: number;
@@ -498,7 +498,6 @@ declare module "opencl-raub" {
 	export type TClSampler = TClObject & { __brand: "cl_sampler" };
 	export type TClQueue = TClObject & { __brand: "cl_command_queue" };
 	export type TClEvent = TClObject & { __brand: "cl_event" };
-	export type TClBinary = TClObject & { __brand: "cl_program_binary" };
 	export type TClMapped = TClObject & { __brand: "cl_mapped_ptr" };
 	
 	export type TClEventOrVoid = TClEvent | undefined;
@@ -578,7 +577,7 @@ declare module "opencl-raub" {
 		context: TClContext,
 		flags: number,
 		size: number,
-		buffer?: TClHostData,
+		buffer?: TClHostData | null,
 	) => TClMem;
 	
 	/**
@@ -600,7 +599,7 @@ declare module "opencl-raub" {
 		array_size?: number,
 		row_pitch?: number,
 		slice_pitch?: number,
-		buffer: TClMem | null,
+		buffer?: TClMem | null,
 	};
 	/**
 	 * @see [clCreateImage](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateImage.html)
@@ -610,8 +609,8 @@ declare module "opencl-raub" {
 		flags: number,
 		format: TClImageFormat,
 		desc: TClImageDesc,
-		host?: TClHostData,
-	) => TClStatus;
+		host?: TClHostData | null,
+	) => TClMem;
 	
 	/**
 	 * @see [clRetainMemObject](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clRetainMemObject.html)
@@ -652,7 +651,26 @@ declare module "opencl-raub" {
 		context: TClContext,
 		flags: number,
 		vboId: number,
-		host: TClHostData,
+	) => TClMem;
+	
+	/**
+	 * @see [clCreateFromGLRenderbuffer](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateFromGLRenderbuffer.html)
+	 */
+	const createFromGLRenderbuffer: (
+		context: TClContext,
+		flags: number,
+		rboId: number,
+	) => TClMem;
+	
+	/**
+	 * @see [clCreateFromGLTexture](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateFromGLTexture.html)
+	 */
+	const createFromGLTexture: (
+		context: TClContext,
+		flags: number,
+		target: number,
+		mip: number,
+		vboId: number,
 	) => TClMem;
 	
 	
@@ -664,7 +682,7 @@ declare module "opencl-raub" {
 	/**
 	 * @see [clGetPlatformInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetPlatformInfo.html)
 	 */
-	const getPlatformInfo: (platform: TClPlatform, param_name: string) => string;
+	const getPlatformInfo: (platform: TClPlatform, param_name: number) => string;
 	
 	/**
 	 * @see [clCreateProgramWithSource](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateProgramWithSource.html)
@@ -699,7 +717,7 @@ declare module "opencl-raub" {
 	 */
 	const releaseProgram: (program: TClProgram) => TClStatus;
 	
-	type TBuildProgramCb = (program: TClProgram, user_data: Object) => undefined;
+	export type TBuildProgramCb = (program: TClProgram, user_data: Object) => undefined;
 	
 	/**
 	 * @see [clBuildProgram](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clBuildProgram.html)
@@ -717,12 +735,12 @@ declare module "opencl-raub" {
 	 */
 	const compileProgram: (
 		program: TClProgram,
-		devices: TClDevice[] | null,
-		options: string | null,
-		headers: TClProgram[] | null,
-		names: string[] | null,
-		cb: TBuildProgramCb | null,
-		user_data: Object,
+		devices?: TClDevice[] | null,
+		options?: string | null,
+		headers?: TClProgram[] | null,
+		names?: string[] | null,
+		cb?: TBuildProgramCb | null,
+		user_data?: Object,
 	) => TClStatus;
 	
 	/**
@@ -730,11 +748,11 @@ declare module "opencl-raub" {
 	 */
 	const linkProgram: (
 		context: TClContext,
-		devices: TClDevice[] | null,
-		options: string | null,
-		programs: TClProgram[],
-		cb: TBuildProgramCb | null,
-		user_data: Object,
+		devices?: TClDevice[] | null,
+		options?: string | null,
+		programs?: TClProgram[],
+		cb?: TBuildProgramCb | null,
+		user_data?: Object,
 	) => TClProgram;
 	
 	/**
@@ -783,7 +801,7 @@ declare module "opencl-raub" {
 	 */
 	const createSampler: (
 		context: TClContext,
-		normalized: boolean,
+		normalized: boolean | number,
 		addressing_mode: number,
 		filter_mode: number,
 	) => TClSampler;
@@ -1022,8 +1040,8 @@ declare module "opencl-raub" {
 		mem: TClMem,
 		blocking_map: boolean, // if false, use result.event
 		map_flags: number,
-		offset: number,
-		size: number,
+		origins: number[],
+		regions: number[],
 		event_wait_list?: TClEvent[] | null,
 	) => Readonly<{
 		buffer: ArrayBuffer,
@@ -1110,6 +1128,11 @@ declare module "opencl-raub" {
 	const enqueueFillBuffer: (
 		queue: TClQueue,
 		buffer: TClMem,
+		pattern: number | TClHostData,
+		offset: number,
+		size: number,
+		event_wait_list?: TClEvent[] | null,
+		hasEvent?: boolean,
 	) => TClEventOrVoid;
 	
 	/**
@@ -1130,7 +1153,7 @@ declare module "opencl-raub" {
 	 */
 	const enqueueMigrateMemObjects: (
 		queue: TClQueue,
-		image: TClMem,
+		objectt: TClMem[],
 		flags: number,
 		event_wait_list?: TClEvent[] | null,
 		hasEvent?: boolean,
@@ -1188,7 +1211,7 @@ declare module "opencl-raub" {
 	 */
 	const getContextInfo: (
 		context: TClContext,
-		param_name: string,
+		param_name: number,
 	) => TClDevice[] | number | number[] | TClPlatform[];
 	
 	
@@ -1213,7 +1236,7 @@ declare module "opencl-raub" {
 	 */
 	const createSubDevices: (
 		device: TClDevice,
-		properties: number[] | TClPlatform[],
+		properties: number[],
 	) => TClDevice[];
 	
 	/**
@@ -1289,3 +1312,5 @@ declare module "opencl-raub" {
 		label: string,
 	}>;
 }
+
+export = cl;

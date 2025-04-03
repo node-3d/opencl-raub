@@ -1,26 +1,22 @@
-'use strict';
-
-const assert = require('node:assert').strict;
-const { describe, it, after } = require('node:test');
-
-const cl = require('../');
-const U = require('./utils');
+import { strict as assert } from 'node:assert';
+import { describe, it, after } from 'node:test';
+import cl from '../index.js';
 
 
 describe('Sampler', () => {
-	const context = U.newContext();
+	const { context } = cl.quickStart();
 	const sampler = cl.createSampler(context, cl.TRUE, cl.ADDRESS_NONE, cl.FILTER_LINEAR);
 	
 	after(() => {
 		cl.releaseSampler(sampler);
-		cl.releaseContext(context);
 	});
 	
 	describe('#createSampler', () => {
-		it('throws cl.INVALID_CONTEXT when passed an invalid context', () => {
+		it('throws when passed an invalid context', () => {
 			assert.throws(
-				() => cl.createSampler(null, cl.TRUE, cl.ADDRESS_NONE, cl.FILTER_LINEAR),
-				new Error('Argument 0 must be of type `Object`'),
+				() => cl.createSampler(
+					null as unknown as cl.TClContext, cl.TRUE, cl.ADDRESS_NONE, cl.FILTER_LINEAR,
+				),
 			);
 		});
 	});

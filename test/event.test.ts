@@ -1,18 +1,11 @@
-'use strict';
-
-const assert = require('node:assert').strict;
-const { describe, it, after } = require('node:test');
-
-const cl = require('../');
-const U = require('./utils');
+import { strict as assert } from 'node:assert';
+import { describe, it, after } from 'node:test';
+import cl from '../index.js';
+import * as U from './utils.ts';
 
 
 describe('Event', () => {
-	const context = U.newContext();
-	
-	after(() => {
-		cl.releaseContext(context);
-	});
+	const { context } = cl.quickStart();
 	
 	describe('#createUserEvent', () => {
 		it('creates a user Event', () => {
@@ -25,10 +18,10 @@ describe('Event', () => {
 	});
 	
 	describe('#getEventInfo', () => {
-		const testNumber = (info, name, expected) => {
-			it('returns the good value for ' + name, () => {
+		const testNumber = (name: keyof typeof cl, expected: number) => {
+			it('returns value for ' + name, () => {
 				const uEvent = cl.createUserEvent(context);
-				const val = cl.getEventInfo(uEvent, cl[name]);
+				const val = cl.getEventInfo(uEvent, cl[name] as number);
 				U.assertType(val, 'number');
 				assert.strictEqual(expected, val);
 				
@@ -37,11 +30,11 @@ describe('Event', () => {
 			});
 		};
 		
-		const testObject = (info, name) => {
+		const testObject = (name: keyof typeof cl) => {
 			it('returns the good value for ' + name, () => {
 				const uEvent = cl.createUserEvent(context);
 				
-				const val = cl.getEventInfo(uEvent, cl[name]);
+				const val = cl.getEventInfo(uEvent, cl[name] as number);
 				U.assertType(val, 'object');
 				
 				cl.setUserEventStatus(uEvent, cl.COMPLETE); // on NVIDIA hangs if not set
@@ -49,7 +42,7 @@ describe('Event', () => {
 			});
 		};
 		
-		testNumber('event status to cl.SUBMITTED','EVENT_COMMAND_EXECUTION_STATUS', cl.SUBMITTED);
+		testNumber('EVENT_COMMAND_EXECUTION_STATUS', cl.SUBMITTED);
 		
 		it('returns the good value for EVENT_REFERENCE_COUNT', () => {
 			const uEvent = cl.createUserEvent(context);
@@ -61,9 +54,8 @@ describe('Event', () => {
 			cl.releaseEvent(uEvent);
 		});
 		
-		testNumber('event type to UserEvent','EVENT_COMMAND_TYPE', cl.COMMAND_USER);
-		testObject('the context','EVENT_CONTEXT');
-		// testObject("the command queue","EVENT_COMMAND_QUEUE");
+		testNumber('EVENT_COMMAND_TYPE', cl.COMMAND_USER);
+		testObject('EVENT_CONTEXT');
 	});
 	
 	describe('#setUserEventStatus', () => {
@@ -90,10 +82,9 @@ describe('Event', () => {
 	describe('#retainEvent', () => {
 		it('increments ref count after call', () => {
 			const uEvent = cl.createUserEvent(context);
-			const before = cl.getEventInfo(uEvent, cl.EVENT_REFERENCE_COUNT);
 			cl.retainEvent(uEvent);
 			const after = cl.getEventInfo(uEvent, cl.EVENT_REFERENCE_COUNT);
-			assert(before + 1 == after);
+			assert.strictEqual(after, 2);
 				
 			cl.setUserEventStatus(uEvent, cl.COMPLETE); // on NVIDIA hangs if not set
 			cl.releaseEvent(uEvent);
@@ -104,11 +95,10 @@ describe('Event', () => {
 	describe('#releaseEvent', () => {
 		it('decrements ref count after call', () => {
 			const uEvent = cl.createUserEvent(context);
-			const before = cl.getEventInfo(uEvent, cl.EVENT_REFERENCE_COUNT);
 			cl.retainEvent(uEvent);
 			cl.releaseEvent(uEvent);
 			const after = cl.getEventInfo(uEvent, cl.EVENT_REFERENCE_COUNT);
-			assert.equal(before, after, 'refcount before == refcount after');
+			assert.strictEqual(after, 1);
 				
 			cl.setUserEventStatus(uEvent, cl.COMPLETE); // on NVIDIA hangs if not set
 			cl.releaseEvent(uEvent);
@@ -121,10 +111,10 @@ describe('Event', () => {
 			cl.setEventCallback(
 				uEvent,
 				cl.COMPLETE,
-				(userData, status, e) => {
+				(userData: Object, status: number, e: cl.TClEvent): void => {
 					assert.strictEqual(e, uEvent);
 					cl.releaseEvent(e);
-					userData.done();
+					(userData as { done: () => void }).done();
 				},
 				{ done },
 			);

@@ -53,7 +53,6 @@ TypeInfo typeInfo[] = {
 		reinterpret_cast<cl_func>(clReleaseEvent),
 		reinterpret_cast<cl_func>(clRetainEvent)
 	},
-	{ "cl_program_binary", noop, noop },
 	{ "cl_mapped_ptr", noop, noop }
 };
 
@@ -95,11 +94,8 @@ Napi::Object Wrapper::fromRaw(Napi::Env env, cl_command_queue raw) {
 Napi::Object Wrapper::fromRaw(Napi::Env env, cl_event raw) {
 	return _ctorEs5.New({ JS_EXT(raw), JS_NUM(9) });
 }
-Napi::Object Wrapper::fromRaw(Napi::Env env, cl_program_binary raw) {
-	return _ctorEs5.New({ JS_EXT(raw), JS_NUM(10) });
-}
 Napi::Object Wrapper::fromRaw(Napi::Env env, cl_mapped_ptr raw) {
-	return _ctorEs5.New({ JS_EXT(raw), JS_NUM(11) });
+	return _ctorEs5.New({ JS_EXT(raw), JS_NUM(10) });
 }
 
 

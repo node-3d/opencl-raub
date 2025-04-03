@@ -10,7 +10,6 @@
 namespace opencl {
 
 typedef void *cl_mapped_ptr;
-typedef unsigned char *cl_program_binary;
 typedef int (*cl_func)(void*);
 
 
@@ -29,7 +28,6 @@ public:
 	static Napi::Object fromRaw(Napi::Env env, cl_sampler raw);
 	static Napi::Object fromRaw(Napi::Env env, cl_command_queue raw);
 	static Napi::Object fromRaw(Napi::Env env, cl_event raw);
-	static Napi::Object fromRaw(Napi::Env env, cl_program_binary raw);
 	static Napi::Object fromRaw(Napi::Env env, cl_mapped_ptr raw);
 	
 	explicit Wrapper(const Napi::CallbackInfo& info);

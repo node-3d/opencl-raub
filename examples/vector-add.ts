@@ -1,4 +1,4 @@
-import cl from 'opencl-raub';
+import cl from '../index.js';
 
 const { context, device } = cl.quickStart(true);
 
@@ -78,6 +78,5 @@ cl.releaseProgram(program);
 cl.releaseMemObject(aBuffer);
 cl.releaseMemObject(bBuffer);
 cl.releaseMemObject(cBuffer);
-cl.releaseContext(context);
 
 console.log('DONE');

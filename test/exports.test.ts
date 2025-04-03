@@ -1,12 +1,9 @@
-'use strict';
-
-const assert = require('node:assert').strict;
-const { describe, it } = require('node:test');
-
-const webgl = require('..');
+import { strict as assert } from 'node:assert';
+import { describe, it, after } from 'node:test';
+import cl from '../index.js';
 
 
-const constants = [
+const constants: ReadonlyArray<keyof typeof cl> = [
 	'size_CHAR', 'size_SHORT', 'size_INT', 'size_LONG', 'size_FLOAT', 'size_DOUBLE', 'size_HALF',
 	'DEVICE_NOT_FOUND', 'DEVICE_NOT_AVAILABLE', 'COMPILER_NOT_AVAILABLE',
 	'MEM_OBJECT_ALLOCATION_FAILURE', 'OUT_OF_RESOURCES', 'OUT_OF_HOST_MEMORY',
@@ -131,7 +128,7 @@ const constants = [
 	'DEVICE_KERNEL_EXEC_TIMEOUT_NV', 'DEVICE_INTEGRATED_MEMORY_NV',
 ];
 
-const methods = [
+const methods: ReadonlyArray<keyof typeof cl> = [
 	'createKernel', 'createKernelsInProgram', 'retainKernel', 'releaseKernel',
 	'setKernelArg', 'getKernelInfo', 'getKernelArgInfo', 'getKernelWorkGroupInfo',
 	'createBuffer', 'createSubBuffer', 'createImage', 'retainMemObject',
@@ -163,13 +160,13 @@ const methods = [
 describe('OpenCL Exported API', () => {
 	constants.forEach((constant) => {
 		it(`\`${constant}\` constant exposed`, () => {
-			assert.ok(webgl[constant] !== undefined);
+			assert.ok(cl[constant] !== undefined);
 		});
 	});
 	
 	methods.forEach((method) => {
 		it(`\`${method}()\` method exposed`, () => {
-			assert.strictEqual(typeof webgl[method], 'function');
+			assert.strictEqual(typeof cl[method], 'function');
 		});
 	});
 });

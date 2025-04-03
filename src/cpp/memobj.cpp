@@ -3,13 +3,6 @@
 
 namespace opencl {
 
-// /* Memory Object APIs */
-// extern CL_API_ENTRY cl_mem CL_API_CALL
-// clCreateBuffer(cl_context   /* context */,
-//                cl_mem_flags /* flags */,
-//                size_t       /* size */,
-//                void *       /* host_ptr */,
-//                cl_int *     /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(createBuffer) { NAPI_ENV;
 	REQ_CL_ARG(0, context, cl_context);
 	REQ_OFFS_ARG(1, flags);
@@ -38,12 +31,6 @@ JS_METHOD(createBuffer) { NAPI_ENV;
 	RET_WRAPPER(mem);
 }
 
-// extern CL_API_ENTRY cl_mem CL_API_CALL
-// clCreateSubBuffer(cl_mem                   /* buffer */,
-//                   cl_mem_flags             /* flags */,
-//                   cl_buffer_create_type    /* buffer_create_type */,
-//                   const void *             /* buffer_create_info */,
-//                   cl_int *                 /* errcode_ret */) CL_API_SUFFIX__VERSION_1_1;
 JS_METHOD(createSubBuffer) { NAPI_ENV;
 	REQ_CL_ARG(0, buffer, cl_mem);
 	REQ_OFFS_ARG(1, flags);
@@ -72,13 +59,6 @@ JS_METHOD(createSubBuffer) { NAPI_ENV;
 	RET_UNDEFINED;
 }
 
-// extern CL_API_ENTRY cl_mem CL_API_CALL
-// clCreateImage(cl_context              /* context */,
-//               cl_mem_flags            /* flags */,
-//               const cl_image_format * /* image_format */,
-//               const cl_image_desc *   /* image_desc */,
-//               void *                  /* host_ptr */,
-//               cl_int *                /* errcode_ret */) CL_API_SUFFIX__VERSION_1_2;
 JS_METHOD(createImage) { NAPI_ENV;
 	REQ_CL_ARG(0, context, cl_context);
 	REQ_OFFS_ARG(1, flags);
@@ -156,8 +136,6 @@ JS_METHOD(createImage) { NAPI_ENV;
 	RET_WRAPPER(mem);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clRetainMemObject(cl_mem /* memobj */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(retainMemObject) { NAPI_ENV;
 	REQ_WRAP_ARG(0, mem);
 	
@@ -167,8 +145,6 @@ JS_METHOD(retainMemObject) { NAPI_ENV;
 	RET_NUM(CL_SUCCESS);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clReleaseMemObject(cl_mem /* memobj */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(releaseMemObject) { NAPI_ENV;
 	REQ_WRAP_ARG(0, mem);
 	
@@ -178,13 +154,6 @@ JS_METHOD(releaseMemObject) { NAPI_ENV;
 	RET_NUM(CL_SUCCESS);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clGetSupportedImageFormats(cl_context           /* context */,
-//                            cl_mem_flags         /* flags */,
-//                            cl_mem_object_type   /* image_type */,
-//                            cl_uint              /* num_entries */,
-//                            cl_image_format *    /* image_formats */,
-//                            cl_uint *            /* num_image_formats */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getSupportedImageFormats) { NAPI_ENV;
 	REQ_CL_ARG(0, context, cl_context);
 	REQ_OFFS_ARG(1, flags);
@@ -225,12 +194,6 @@ JS_METHOD(getSupportedImageFormats) { NAPI_ENV;
 	RET_VALUE(imageFormats);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clGetMemObjectInfo(cl_mem           /* memobj */,
-//                    cl_mem_info      /* param_name */,
-//                    size_t           /* param_value_size */,
-//                    void *           /* param_value */,
-//                    size_t *         /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getMemObjectInfo) { NAPI_ENV;
 	REQ_CL_ARG(0, mem, cl_mem);
 	REQ_OFFS_ARG(1, param_name);
@@ -322,12 +285,6 @@ JS_METHOD(getMemObjectInfo) { NAPI_ENV;
 	THROW_ERR(CL_INVALID_VALUE);
 }
 
-// extern CL_API_ENTRY cl_int CL_API_CALL
-// clGetImageInfo(cl_mem           /* image */,
-//                cl_image_info    /* param_name */,
-//                size_t           /* param_value_size */,
-//                void *           /* param_value */,
-//                size_t *         /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 JS_METHOD(getImageInfo) { NAPI_ENV;
 	REQ_CL_ARG(0, mem, cl_mem);
 	REQ_OFFS_ARG(1, param_name);
@@ -390,18 +347,6 @@ JS_METHOD(createFromGLBuffer) { NAPI_ENV;
 	REQ_CL_ARG(0, context, cl_context);
 	REQ_OFFS_ARG(1, flags);
 	REQ_OFFS_ARG(2, vboId);
-
-	void *host_ptr = nullptr;
-	if (!IS_ARG_EMPTY(3)) {
-		REQ_OBJ_ARG(3, buffer);
-		size_t len = 0;
-		getPtrAndLen(buffer, &host_ptr, &len);
-		
-		if (!host_ptr || !len) {
-			JS_THROW("Could not read buffer data.");
-			RET_UNDEFINED;
-		}
-	}
 	
 	cl_int ret = CL_SUCCESS;
 	cl_mem mem = clCreateFromGLBuffer(context, flags, vboId, &ret);
@@ -410,11 +355,6 @@ JS_METHOD(createFromGLBuffer) { NAPI_ENV;
 	RET_WRAPPER(mem);
 }
 
-// cl_mem clCreateFromGLRenderbuffer(
-//     cl_context context,
-//     cl_mem_flags flags,
-//     cl_GLuint renderbuffer,
-//     cl_int* errcode_ret);
 JS_METHOD(createFromGLRenderbuffer) { NAPI_ENV;
 	REQ_CL_ARG(0, context, cl_context);
 	REQ_OFFS_ARG(1, flags);
@@ -427,11 +367,6 @@ JS_METHOD(createFromGLRenderbuffer) { NAPI_ENV;
 	RET_WRAPPER(mem);
 }
 
-// cl_mem clCreateFromGLRenderbuffer(
-//     cl_context context,
-//     cl_mem_flags flags,
-//     cl_GLuint renderbuffer,
-//     cl_int* errcode_ret);
 JS_METHOD(createFromGLTexture) { NAPI_ENV;
 	REQ_CL_ARG(0, context, cl_context);
 	REQ_OFFS_ARG(1, flags);

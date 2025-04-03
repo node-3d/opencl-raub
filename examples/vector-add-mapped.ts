@@ -1,4 +1,4 @@
-import cl from 'opencl-raub';
+import cl from '../index.js';
 
 const { context, device } = cl.quickStart(true);
 
@@ -96,8 +96,5 @@ cl.finish(queue); // Finish all the operations
 console.log(`A = [${A.join(', ')}]`);
 console.log(`B = [${B.join(', ')}]`);
 console.log(`C = [${C.join(', ')}]`);
-
-// cleanup
-// cl.releaseAll();
 
 console.log('DONE');

@@ -53,15 +53,15 @@ cl.quickStart = (isLoggingDevices = false) => {
 		});
 	});
 	
-	// Remove "D3D" devices. The bugs are strong with those ones!
+	// Try to remove "D3D" devices. The bugs are strong with those ones!
 	const devicesNoDx = devicesAll.filter((d) => !d.version.includes('D3D'));
 	
 	const devices = devicesNoDx.length ? devicesNoDx : devicesAll;
 	
-	const devicesGpu = devices.filter((d) => (
-		d.type === cl.DEVICE_TYPE_GPU
-	));
+	// Prefer GPU devices if any
+	const devicesGpu = devices.filter((d) => (d.type === cl.DEVICE_TYPE_GPU));
 	
+	// Best device might be the one declaring the highest version
 	const mainDevice = (devicesGpu.length ? devicesGpu : devices).sort(
 		(a, b) => (b.version > a.version ? 1 : -1),
 	)[0];

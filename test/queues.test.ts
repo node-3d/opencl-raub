@@ -1,25 +1,19 @@
-'use strict';
+import fs from 'node:fs';
+import { strict as assert } from 'node:assert';
+import { describe, it, after } from 'node:test';
+import cl from '../index.js';
+import * as U from './utils.ts';
 
-const fs = require('node:fs');
-
-const assert = require('node:assert').strict;
-const { describe, it, after } = require('node:test');
-
-const cl = require('../');
-const U = require('./utils');
-
-const squareKern = fs.readFileSync(__dirname + '/kernels/square.cl').toString();
-const squareOneKern = fs.readFileSync(__dirname + '/kernels/square_one.cl').toString();
+const squareKern = fs.readFileSync('test/kernels/square.cl').toString();
+const squareOneKern = fs.readFileSync('test/kernels/square_one.cl').toString();
 
 
 describe('CommandQueue - Common', () => {
-	const context = U.newContext();
-	const cq = U.newQueue(context);
-	const device = global.MAIN_DEVICE;
+	const { context, device } = cl.quickStart();
+	const cq = U.newQueue(context, device);
 	
 	after(() => {
 		cl.releaseCommandQueue(cq);
-		cl.releaseContext(context);
 	});
 	
 	describe('#createCommandQueue', () => {
@@ -31,7 +25,7 @@ describe('CommandQueue - Common', () => {
 		
 		it('fails given an invalid device', () => {
 			assert.throws(
-				() => cl.createCommandQueue(context, 'test', []),
+				() => cl.createCommandQueue(context, 'test' as unknown as cl.TClDevice),
 				new Error('Argument 1 must be of type `Object`'),
 			);
 		});
@@ -39,7 +33,7 @@ describe('CommandQueue - Common', () => {
 	
 	describe('#retainCommandQueue', () => {
 		it('increments ref count', () => {
-			const cq = U.newQueue(context);
+			const cq = U.newQueue(context, device);
 			cl.retainCommandQueue(cq);
 			const after = cl.getCommandQueueInfo(cq, cl.QUEUE_REFERENCE_COUNT);
 			assert.strictEqual(after, 2);
@@ -50,7 +44,7 @@ describe('CommandQueue - Common', () => {
 	
 	describe('#releaseCommandQueue', () => {
 		it('decrements ref count', () => {
-			const cq = U.newQueue(context);
+			const cq = U.newQueue(context, device);
 			cl.retainCommandQueue(cq);
 			cl.releaseCommandQueue(cq);
 			const after = cl.getCommandQueueInfo(cq, cl.QUEUE_REFERENCE_COUNT);
@@ -141,24 +135,10 @@ describe('CommandQueue - Common', () => {
 		
 		it('fails if kern is invalid', () => {
 			U.withProgram(context, squareKern, (prg) => {
-				cl.buildProgram(prg);
-				const kern = cl.createKernel(prg, 'square');
-				
-				const inputsMem = cl.createBuffer(
-					context, cl.MEM_COPY_HOST_PTR, 10000 * 4, inputs
-				);
-				const outputsMem = cl.createBuffer(
-					context, cl.MEM_COPY_HOST_PTR, 10000 * 4, outputs
-				);
-				
-				cl.setKernelArg(kern, 0, 'uint*', inputsMem);
-				cl.setKernelArg(kern, 1, 'uint*', outputsMem);
-				cl.setKernelArg(kern, 2, 'uint', 10000);
-				
 				assert.throws(
 					() => cl.enqueueNDRangeKernel(
 						cq,
-						null,
+						null as unknown as cl.TClKernel,
 						1,
 						null,
 						[100],
@@ -166,10 +146,6 @@ describe('CommandQueue - Common', () => {
 					),
 					new Error('Argument 1 must be of type `Object`'),
 				);
-				
-				cl.releaseMemObject(inputsMem);
-				cl.releaseMemObject(outputsMem);
-				cl.releaseKernel(kern);
 			});
 		});
 		
@@ -234,7 +210,7 @@ describe('CommandQueue - Common', () => {
 		
 		it('fails if kern is invalid', () => {
 			assert.throws(
-				() => cl.enqueueTask(cq, null),
+				() => cl.enqueueTask(cq, null as unknown as cl.TClKernel),
 				new Error('Argument 1 must be of type `Object`'),
 			);
 		});
@@ -251,9 +227,11 @@ describe('CommandQueue - Common', () => {
 			const array = Buffer.from([0, 0, 0, 0, 0, 0, 0, 0]);
 			
 			const buffer = cl.createBuffer(context, cl.MEM_USE_HOST_PTR, 32, array);
-			const event = cl.enqueueFillBuffer(cq, buffer, Buffer.from([1, 2]), 0, 16, null, true);
+			const event = cl.enqueueFillBuffer(
+				cq, buffer, Buffer.from([1, 2]), 0, 16, null, true,
+			) as cl.TClEvent;
 			
-			const ret = cl.enqueueMarkerWithWaitList(cq, [event], true);
+			const ret = cl.enqueueMarkerWithWaitList(cq, [event]);
 			U.assertType(ret, 'object');
 			
 			cl.setEventCallback(ret, cl.COMPLETE, () => {
@@ -269,9 +247,11 @@ describe('CommandQueue - Common', () => {
 			const array = Buffer.from([0, 0, 0, 0, 0, 0, 0, 0]);
 			
 			const buffer = cl.createBuffer(context, cl.MEM_USE_HOST_PTR, 32, array);
-			const event = cl.enqueueFillBuffer(cq, buffer, Buffer.from([1, 2]), 0, 16, null, true);
+			const event = cl.enqueueFillBuffer(
+				cq, buffer, Buffer.from([1, 2]), 0, 16, null, true,
+			) as cl.TClEvent;
 			
-			const ret = cl.enqueueBarrierWithWaitList(cq, [event], true);
+			const ret = cl.enqueueBarrierWithWaitList(cq, [event], true) as cl.TClEvent;
 			U.assertType(ret, 'object');
 			
 			cl.setEventCallback(ret, cl.COMPLETE, () => {
