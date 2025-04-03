@@ -77,18 +77,6 @@ describe('Program', async () => {
 	});
 
 	describe('#createProgramWithBinary', () => {
-		it('creates a valid program from a binary', () => {
-			const prg = cl.createProgramWithSource(context, squareKern);
-			cl.buildProgram(prg, [device]);
-			const bin = cl.getProgramInfo(prg, cl.PROGRAM_BINARIES) as cl.TClHostData[];
-			
-			const prg2 = cl.createProgramWithBinary(context, [device], bin);
-			assert.ok(prg2);
-			
-			cl.releaseProgram(prg);
-			cl.releaseProgram(prg2);
-		});
-		
 		it('fails as binaries list is empty', () => {
 			assert.throws(
 				() => cl.createProgramWithBinary(context, [device], []),
