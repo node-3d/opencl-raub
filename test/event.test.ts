@@ -106,7 +106,7 @@ describe('Event', () => {
 	});
 	
 	describe('#setEventCallback', () => {
-		it('calls cb', (t, done) => {
+		it('calls cb', (_t, done) => {
 			const uEvent = cl.createUserEvent(context);
 			cl.setEventCallback(
 				uEvent,

@@ -5,7 +5,7 @@ import cl from '../index.js';
 
 describe('MemObj', () => {
 	const { context, platform } = cl.quickStart();
-	const buffer = cl.createBuffer(context, 0, 8, null);
+	const buffer = cl.createBuffer(context, 0, 8);
 	
 	after(() => {
 		cl.releaseMemObject(buffer);
@@ -14,7 +14,7 @@ describe('MemObj', () => {
 	describe('#createBuffer', () => {
 		it('throws cl.INVALID_CONTEXT if context is invalid', () => {
 			assert.throws(
-				() => cl.createBuffer(null as unknown as cl.TClContext, 0, 4, null),
+				() => cl.createBuffer(null as unknown as cl.TClContext, 0, 4),
 				new Error('Argument 0 must be of type `Object`'),
 			);
 		});
@@ -33,28 +33,25 @@ describe('MemObj', () => {
 		
 		it('throws cl.INVALID_BUFFER_SIZE if size is 0', () => {
 			assert.throws(
-				() => cl.createBuffer(context, 0, 0, null),
+				() => cl.createBuffer(context, 0, 0),
 				cl.INVALID_BUFFER_SIZE,
 			);
 		});
 		
 		it('uses cl.MEM_READ_WRITE as default value when flags is 0', () => {
-			const buffer = cl.createBuffer(context, 0, 8, null);
+			const buffer = cl.createBuffer(context, 0, 8);
 			const flags = cl.getMemObjectInfo(buffer, cl.MEM_FLAGS);
 			assert.equal(flags, cl.MEM_READ_WRITE);
 			cl.releaseMemObject(buffer);
 		});
 		
 		it('copies memory when passed a Buffer', () => {
-			const array = Buffer.alloc(32);
-			const buffer = cl.createBuffer(context, cl.MEM_COPY_HOST_PTR, 8, array);
+			const buffer = cl.createBuffer(context, cl.MEM_COPY_HOST_PTR, 32, Buffer.alloc(32));
 			cl.releaseMemObject(buffer);
 		});
 		
 		it('copies memory when passed a TypedArray', () => {
-			const array = new ArrayBuffer(32);
-			const i32Array = new Int32Array(array);
-			const buffer = cl.createBuffer(context, cl.MEM_COPY_HOST_PTR, 8, i32Array);
+			const buffer = cl.createBuffer(context, cl.MEM_COPY_HOST_PTR, 32, new Int32Array(8));
 			cl.releaseMemObject(buffer);
 		});
 		
@@ -155,7 +152,7 @@ describe('MemObj', () => {
 		});
 		
 		it('creates a subBuffer', () => {
-			const buffer = cl.createBuffer(context, cl.MEM_ALLOC_HOST_PTR, 8, null);
+			const buffer = cl.createBuffer(context, cl.MEM_ALLOC_HOST_PTR, 8);
 			const subBuffer = cl.createSubBuffer(
 				buffer,
 				0,
@@ -226,23 +223,22 @@ describe('MemObj', () => {
 		} as const;
 		
 		it('creates an image with default flags', () => {
-			const image = cl.createImage(context, 0, imageFormat, imageDesc, null);
+			const image = cl.createImage(context, 0, imageFormat, imageDesc);
 			cl.releaseMemObject(image);
 		});
 		
-		it('creates an image - ', () => {
+		it('creates an image - cl.MEM_WRITE_ONLY', () => {
 			const image = cl.createImage(
 				context,
 				cl.MEM_WRITE_ONLY,
 				imageFormat,
 				imageDesc,
-				null
 			);
 			cl.releaseMemObject(image);
 		});
 		
 		it('creates an image - cl.MEM_READ_ONLY', () => {
-			const image = cl.createImage(context, cl.MEM_READ_ONLY, imageFormat, imageDesc, null);
+			const image = cl.createImage(context, cl.MEM_READ_ONLY, imageFormat, imageDesc);
 			cl.releaseMemObject(image);
 		});
 		
@@ -256,7 +252,7 @@ describe('MemObj', () => {
 		
 		it('creates an image - cl.MEM_ALLOC_HOST_PTR', () => {
 			const image = cl.createImage(
-				context, cl.MEM_ALLOC_HOST_PTR, imageFormat, imageDesc, null,
+				context, cl.MEM_ALLOC_HOST_PTR, imageFormat, imageDesc,
 			);
 			cl.releaseMemObject(image);
 		});
@@ -271,21 +267,21 @@ describe('MemObj', () => {
 		
 		it('creates an image - cl.MEM_HOST_WRITE_ONLY', () => {
 			const image = cl.createImage(
-				context, cl.MEM_HOST_WRITE_ONLY, imageFormat, imageDesc, null,
+				context, cl.MEM_HOST_WRITE_ONLY, imageFormat, imageDesc,
 			);
 			cl.releaseMemObject(image);
 		});
 		
 		it('creates an image - cl.MEM_HOST_READ_ONLY', () => {
 			const image = cl.createImage(
-				context, cl.MEM_HOST_READ_ONLY, imageFormat, imageDesc, null,
+				context, cl.MEM_HOST_READ_ONLY, imageFormat, imageDesc,
 			);
 			cl.releaseMemObject(image);
 		});
 		
 		it('creates an image - cl.MEM_HOST_NO_ACCESS', () => {
 			const image = cl.createImage(
-				context, cl.MEM_HOST_NO_ACCESS, imageFormat, imageDesc, null,
+				context, cl.MEM_HOST_NO_ACCESS, imageFormat, imageDesc,
 			);
 			cl.releaseMemObject(image);
 		});
@@ -293,7 +289,7 @@ describe('MemObj', () => {
 		it('throws if context is invalid', () => {
 			assert.throws(
 				() => cl.createImage(
-					{} as unknown as cl.TClContext, 0, imageFormat, imageDesc, null,
+					{} as unknown as cl.TClContext, 0, imageFormat, imageDesc,
 				),
 			);
 		});
@@ -314,7 +310,7 @@ describe('MemObj', () => {
 		it('throws cl.INVALID_IMAGE_DESCRIPTOR if image_desc is not valid or null', () => {
 			assert.throws(
 				() => cl.createImage(
-					context, 0, imageFormat, -1 as unknown as cl.TClImageDesc, null,
+					context, 0, imageFormat, -1 as unknown as cl.TClImageDesc,
 				),
 				new Error('Argument 3 must be of type `Object`'),
 			);
@@ -323,7 +319,7 @@ describe('MemObj', () => {
 		it('throws cl.INVALID_IMAGE_FORMAT_DESCRIPTOR if image_format is invalid', () => {
 			assert.throws(
 				() => cl.createImage(
-					context, 0, -1 as unknown as cl.TClImageFormat, imageDesc, null,
+					context, 0, -1 as unknown as cl.TClImageFormat, imageDesc,
 				),
 				new Error('Argument 2 must be of type `Object`'),
 			);
@@ -332,7 +328,7 @@ describe('MemObj', () => {
 	
 	describe('#retainMemObject', () => {
 		it('retains mem object', () => {
-			const buffer = cl.createBuffer(context, 0, 8, null);
+			const buffer = cl.createBuffer(context, 0, 8);
 			cl.retainMemObject(buffer);
 			const ret = cl.getMemObjectInfo(buffer, cl.MEM_REFERENCE_COUNT);
 			assert.strictEqual(ret, 2);
@@ -350,18 +346,8 @@ describe('MemObj', () => {
 	
 	describe('#releaseMemObject', () => {
 		it('releases mem object', () => {
-			const buffer = cl.createBuffer(context, 0, 8, null);
+			const buffer = cl.createBuffer(context, 0, 8);
 			cl.releaseMemObject(buffer);
-		});
-		
-		it('can release twice', (t, done) => {
-			const buffer = cl.createBuffer(context, 0, 8, null);
-			cl.releaseMemObject(buffer);
-			
-			setTimeout(() => {
-				cl.releaseMemObject(buffer);
-				done();
-			}, 500);
 		});
 		
 		it('throws if mem object is invalid', () => {

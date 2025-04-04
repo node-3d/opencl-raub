@@ -41,7 +41,7 @@ describe('Program', async () => {
 			cl.releaseProgram(prg);
 		});
 		
-		it('builds and call the callback using a valid program', (t, done) => {
+		it('builds and call the callback using a valid program', (_t, done) => {
 			const cb: cl.TBuildProgramCb = (prg, userData) => {
 				assert.ok(prg);
 				cl.releaseProgram(prg);
@@ -141,14 +141,14 @@ describe('Program', async () => {
 	});
 	
 	describe('#compileProgram', () => {
-		it('builds a program with no input headers', () => {
+		it('compiles a program', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
 			const ret = cl.compileProgram(prg);
 			assert.strictEqual(ret, cl.SUCCESS);
 			cl.releaseProgram(prg);
 		});
 		
-		it('builds and call the callback with no input header', (t, done) => {
+		it('compiles a program - async', (_t, done) => {
 			const cb: cl.TBuildProgramCb = (prg, userData) => {
 				assert.ok(prg);
 				cl.releaseProgram(prg);
@@ -158,17 +158,17 @@ describe('Program', async () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
 			const ret = cl.compileProgram(
 				prg,
-				undefined,
-				undefined,
-				undefined,
-				undefined,
+				null,
+				null,
+				null,
+				null,
 				cb,
 				{ done }
 			);
 			assert.strictEqual(ret, cl.SUCCESS);
 		});
 		
-		it('builds a program with an input header', () => {
+		it('compiles a program with header', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
 			const prg2 = cl.createProgramWithSource(context, squareKern);
 			
@@ -220,23 +220,25 @@ describe('Program', async () => {
 			cl.releaseProgram(prg);
 		});
 		
-		// it('links one program and calls the callback', (t, done) => {
-		// 	const cb: cl.TBuildProgramCb = (prg, userData) => {
-		// 		assert.ok(prg);
-		// 		assert.strictEqual((userData as { done: () => void }).done, done);
+		it('links one program and calls the callback', (_t, done) => {
+			const cb: cl.TBuildProgramCb = (prg, userData) => {
+				console.log('cb prg -', prg);
+				assert.ok(prg);
+				assert.strictEqual((userData as { done: () => void }).done, done);
 				
-		// 		cl.releaseProgram(prg);
-		// 		done();
-		// 	};
+				// cl.releaseProgram(prg);
+				done();
+			};
 			
-		// 	const prg = cl.createProgramWithSource(context, squareKern);
-		// 	cl.compileProgram(prg);
+			const prg = cl.createProgramWithSource(context, squareKern);
+			cl.compileProgram(prg);
 			
-		// 	const nprg = cl.linkProgram(context, null, null, [prg], cb, { done, prg });
+			const nprg = cl.linkProgram(context, null, null, [prg], cb, { done, prg });
 			
-		// 	cl.releaseProgram(prg);
-		// 	cl.releaseProgram(nprg);
-		// });
+			console.log('ctx prg 1 2 -', context, prg, nprg);
+			// cl.releaseProgram(prg);
+			// cl.releaseProgram(nprg);
+		});
 		
 		it('links one compiled program with a list of devices', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);

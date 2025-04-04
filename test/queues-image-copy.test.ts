@@ -377,7 +377,7 @@ describe('CommandQueue - Image Copy', () => {
 			cl.releaseMemObject(image);
 		});
 		
-		it('doesnt throw as we are using the pointer from an event', (t, done) => {
+		it('doesnt throw as we are using the pointer from an event', (_t, done) => {
 			const image = cl.createImage(context, 0, imageFormat, imageDesc, null);
 			const ret = cl.enqueueMapImage(
 				cq,
@@ -404,7 +404,7 @@ describe('CommandQueue - Image Copy', () => {
 			);
 		});
 		
-		it('doesnt throw as we are using the pointer from an event', (t, done) => {
+		it('doesnt throw as we are using the pointer from an event', (_t, done) => {
 			const image = cl.createImage(context, 0, imageFormat, imageDesc, null);
 			const ret = cl.enqueueMapImage(
 				cq,

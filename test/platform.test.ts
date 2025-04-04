@@ -16,7 +16,7 @@ describe('Platform', () => {
 	});
 	
 	const testString = (name: keyof typeof cl) => {
-		it(name + ' returns a string', (t, done) => {
+		it(name + ' returns a string', (_t, done) => {
 			const val = cl.getPlatformInfo(platform, cl[name] as number);
 			U.assertType(val, 'string');
 			done();

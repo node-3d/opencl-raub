@@ -7,7 +7,7 @@ import * as U from './utils.ts';
 describe('MemObj', () => {
 	const { context } = cl.quickStart();
 	
-	const buffer = cl.createBuffer(context, cl.MEM_WRITE_ONLY, 8, null);
+	const buffer = cl.createBuffer(context, cl.MEM_WRITE_ONLY, 8);
 	const format: cl.TClImageFormat = {
 		'channel_order': cl.RGBA,
 		'channel_data_type': cl.UNSIGNED_INT8,
@@ -105,7 +105,7 @@ describe('MemObj', () => {
 		});
 		
 		it('returns cl.MEM_HOST_PTR', () => {
-			const buffer = cl.createBuffer(context, cl.MEM_ALLOC_HOST_PTR, 8, null);
+			const buffer = cl.createBuffer(context, cl.MEM_USE_HOST_PTR, 32, Buffer.alloc(32));
 			const ret = cl.getMemObjectInfo(buffer, cl.MEM_HOST_PTR);
 			U.assertType(ret, 'object');
 		});

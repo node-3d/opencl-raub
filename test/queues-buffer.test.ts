@@ -49,7 +49,7 @@ describe('CommandQueue - Buffer', () => {
 			cl.releaseMemObject(buffer);
 		});
 		
-		it('calls cb', (t, done) => {
+		it('calls cb', (_t, done) => {
 			const cq = U.newQueue(context, device);
 			
 			const buffer = cl.createBuffer(context, cl.MEM_READ_ONLY, 8, null);
@@ -466,7 +466,7 @@ describe('CommandQueue - Buffer', () => {
 			assert.ok(ret.event);
 		});
 		
-		it('doesn\'t throw as we are using the pointer from an event', (t, done) => {
+		it('doesn\'t throw as we are using the pointer from an event', (_t, done) => {
 			const buf = cl.createBuffer(context, cl.MEM_COPY_HOST_PTR, 8, Buffer.alloc(8).fill(3));
 			const ret = cl.enqueueMapBuffer(cq, buf, false, 0, 0, 8);
 			

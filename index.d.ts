@@ -501,7 +501,6 @@ declare namespace cl {
 	export type TClSampler = TClObject & { __brand: "cl_sampler" };
 	export type TClQueue = TClObject & { __brand: "cl_command_queue" };
 	export type TClEvent = TClObject & { __brand: "cl_event" };
-	export type TClMapped = TClObject & { __brand: "cl_mapped_ptr" };
 	
 	export type TClEventOrVoid = TClEvent | undefined;
 	export type TClHostData = ArrayBuffer | ArrayBufferView | Buffer;
@@ -635,12 +634,13 @@ declare namespace cl {
 	) => TClImageFormat[];
 	
 	/**
+	 * For cl.MEM_HOST_PTR returns `ArrayBuffer` for cl.MEM_USE_HOST_PTR buffers, and `null` for others.
 	 * @see [clGetMemObjectInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetMemObjectInfo.html)
 	 */
 	const getMemObjectInfo: (
 		mem: TClMem,
 		param_name: number,
-	) => (number | TClMem | TClContext | Object);
+	) => (number | TClMem | TClContext | ArrayBuffer | null);
 	
 	/**
 	 * @see [clGetImageInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetImageInfo.html)
@@ -720,7 +720,7 @@ declare namespace cl {
 	 */
 	const releaseProgram: (program: TClProgram) => TClStatus;
 	
-	export type TBuildProgramCb = (program: TClProgram, user_data: Object) => undefined;
+	export type TBuildProgramCb = (program: TClProgram, userData: unknown) => void;
 	
 	/**
 	 * @see [clBuildProgram](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clBuildProgram.html)
@@ -730,7 +730,7 @@ declare namespace cl {
 		devices?: TClDevice[] | null,
 		options?: string | null,
 		cb?: TBuildProgramCb | null,
-		user_data?: Object,
+		userData?: unknown,
 	) => TClStatus;
 	
 	/**
@@ -743,7 +743,7 @@ declare namespace cl {
 		headers?: TClProgram[] | null,
 		names?: string[] | null,
 		cb?: TBuildProgramCb | null,
-		user_data?: Object,
+		userData?: unknown,
 	) => TClStatus;
 	
 	/**
@@ -755,7 +755,7 @@ declare namespace cl {
 		options?: string | null,
 		programs?: TClProgram[],
 		cb?: TBuildProgramCb | null,
-		user_data?: Object,
+		userData?: unknown,
 	) => TClProgram;
 	
 	/**

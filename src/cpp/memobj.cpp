@@ -246,15 +246,29 @@ JS_METHOD(getMemObjectInfo) { NAPI_ENV;
 			RET_NUM(val);
 		}
 		case CL_MEM_HOST_PTR: {
-			void* val;
+			size_t memSize;
+			CHECK_ERR(clGetMemObjectInfo(
+				mem,
+				CL_MEM_SIZE,
+				sizeof(size_t),
+				&memSize,
+				nullptr
+			));
+			if (!memSize) {
+				RET_NULL;
+			}
+			void* memPtr;
 			CHECK_ERR(clGetMemObjectInfo(
 				mem,
 				param_name,
 				sizeof(void*),
-				&val,
+				&memPtr,
 				nullptr
 			));
-			RET_WRAPPER(val);
+			if (!memPtr) {
+				RET_NULL;
+			}
+			RET_VALUE(Napi::ArrayBuffer::New(env, memPtr, memSize));
 		}
 		case CL_MEM_CONTEXT: {
 			cl_context val;

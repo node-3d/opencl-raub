@@ -53,7 +53,6 @@ TypeInfo typeInfo[] = {
 		reinterpret_cast<cl_func>(clReleaseEvent),
 		reinterpret_cast<cl_func>(clRetainEvent)
 	},
-	{ "cl_mapped_ptr", noop, noop }
 };
 
 
@@ -63,6 +62,7 @@ IMPLEMENT_ES5_CLASS(Wrapper);
 void Wrapper::init(Napi::Env env, Napi::Object exports) {
 	Napi::Function ctor = wrap(env);
 	JS_ASSIGN_METHOD(toString);
+	JS_ASSIGN_GETTER(_);
 	exports.Set("Wrapper", ctor);
 }
 
@@ -94,9 +94,6 @@ Napi::Object Wrapper::fromRaw(Napi::Env env, cl_command_queue raw) {
 Napi::Object Wrapper::fromRaw(Napi::Env env, cl_event raw) {
 	return _ctorEs5.New({ JS_EXT(raw), JS_NUM(9) });
 }
-Napi::Object Wrapper::fromRaw(Napi::Env env, cl_mapped_ptr raw) {
-	return _ctorEs5.New({ JS_EXT(raw), JS_NUM(10) });
-}
 
 
 Wrapper::Wrapper(const Napi::CallbackInfo& info) { NAPI_ENV;
@@ -116,7 +113,6 @@ Wrapper::Wrapper(const Napi::CallbackInfo& info) { NAPI_ENV;
 	int32_t infoIdx = info[1].ToNumber().Int32Value();
 	
 	_data = extParam.Data();
-	_released = 1;
 	_acquire = typeInfo[infoIdx].acquire;
 	_release = typeInfo[infoIdx].release;
 	_typeName = typeInfo[infoIdx].typeName;
@@ -124,7 +120,6 @@ Wrapper::Wrapper(const Napi::CallbackInfo& info) { NAPI_ENV;
 
 
 Wrapper::~Wrapper() {
-	release();
 }
 
 
@@ -134,6 +129,9 @@ JS_IMPLEMENT_METHOD(Wrapper, toString) { NAPI_ENV;
 	RET_STR(out.str());
 }
 
+JS_IMPLEMENT_GETTER(Wrapper, _) { NAPI_ENV;
+	RET_X64(reinterpret_cast<uint64_t>(_data));
+}
 
 void Wrapper::throwArrayEx(Napi::Env env, int i, const char* msg) {
 	std::stringstream out;
@@ -143,16 +141,11 @@ void Wrapper::throwArrayEx(Napi::Env env, int i, const char* msg) {
 
 
 cl_int Wrapper::acquire() {
-	_released++;
 	return _acquire(_data);
 }
 
 
 cl_int Wrapper::release() {
-	if (_released < 1) {
-		return CL_SUCCESS;
-	}
-	_released--;
 	return _release(_data);
 }
 

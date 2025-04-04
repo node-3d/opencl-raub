@@ -16,21 +16,21 @@ describe('Device', () => {
 	});
 	
 	const testBoolean = (name: keyof typeof cl) => {
-		it(name + ' returns a boolean', (t, done) => {
+		it(name + ' returns a boolean', (_t, done) => {
 			const val = cl.getDeviceInfo(device, cl[name] as number);
 			U.assertType(val, 'boolean');
 			done();
 		});
 	};
 	const testInteger = (name: keyof typeof cl) => {
-		it(name + ' returns an integer', (t, done) => {
+		it(name + ' returns an integer', (_t, done) => {
 			const val = cl.getDeviceInfo(device, cl[name] as number);
 			U.assertType(val, 'number');
 			done();
 		});
 	};
 	const testString = (name: keyof typeof cl) => {
-		it(name + ' returns a string', (t, done) => {
+		it(name + ' returns a string', (_t, done) => {
 			const val = cl.getDeviceInfo(device, cl[name] as number);
 			U.assertType(val, 'string');
 			done();
@@ -43,7 +43,7 @@ describe('Device', () => {
 		});
 	};
 	const testArray = (name: keyof typeof cl) => {
-		it(name + ' returns an array', (t, done) => {
+		it(name + ' returns an array', (_t, done) => {
 			const val = cl.getDeviceInfo(device, cl[name] as number);
 			U.assertType(val, 'array');
 			done();

@@ -9,7 +9,6 @@
 
 namespace opencl {
 
-typedef void *cl_mapped_ptr;
 typedef int (*cl_func)(void*);
 
 
@@ -28,12 +27,12 @@ public:
 	static Napi::Object fromRaw(Napi::Env env, cl_sampler raw);
 	static Napi::Object fromRaw(Napi::Env env, cl_command_queue raw);
 	static Napi::Object fromRaw(Napi::Env env, cl_event raw);
-	static Napi::Object fromRaw(Napi::Env env, cl_mapped_ptr raw);
 	
 	explicit Wrapper(const Napi::CallbackInfo& info);
 	~Wrapper();
 	
 	JS_DECLARE_METHOD(Wrapper, toString);
+	JS_DECLARE_GETTER(Wrapper, _);
 	
 	cl_int acquire();
 	cl_int release();

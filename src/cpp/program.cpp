@@ -116,39 +116,39 @@ JS_METHOD(releaseProgram) { NAPI_ENV;
 	RET_NUM(CL_SUCCESS);
 }
 
-class ProgramWorker : public Napi::AsyncWorker {
+class NotifyHelper {
 public:
-	ProgramWorker(Napi::Function callback, Napi::Object userData, Napi::Object wrapper):
-	Napi::AsyncWorker(callback, "CL::ProgramWorker") {
-		_refProgram.Reset(wrapper, 1);
-		_refData.Reset(userData, 1);
+	NotifyHelper(Napi::Function callback, Napi::Value userData) {
+		_ref.Reset(Napi::Object::New(callback.Env()), 1);
+		_ref.Set("cb", callback);
+		_ref.Set("data", userData);
 	}
 	
-	~ProgramWorker() {}
+	~NotifyHelper() {
+		Napi::Env env = _ref.Env();
+		_ref.Set("cb", env.Undefined());
+		_ref.Set("data", env.Undefined());
+		_ref.Reset();
+	}
 	
-	// Executed inside the worker-thread.
-	void Execute() {}
-	
-	// Executed when the async work is complete
-	// this function will be run inside the main event loop
-	void OnOK () {
-		Napi::Env env = Env();
-		NAPI_HS;
-		Callback().Call({
-			_refProgram.Value(), // program
-			_refData.Value() // userdata
-		});
+	static void CL_CALLBACK callNotify(cl_program prog, void *ptr) {
+		NotifyHelper *notifier = reinterpret_cast<NotifyHelper*>(ptr);
+		notifier->notify(prog);
+		delete notifier;
 	}
 	
 private:
-	Napi::ObjectReference _refProgram;
-	Napi::ObjectReference _refData;
+	Napi::ObjectReference _ref;
+	
+	void notify(cl_program prog) {
+		Napi::Env env = _ref.Env(); NAPI_HS;
+		
+		_ref.Get("cb").As<Napi::Function>().Call({
+			Wrapper::fromRaw(env, prog),
+			_ref.Get("data")
+		});
+	}
 };
-
-void CL_CALLBACK notifyPCB (cl_program prog, void *user_data) {
-	ProgramWorker* asyncCB = reinterpret_cast<ProgramWorker*>(user_data);
-	asyncCB->Queue();
-}
 
 JS_METHOD(buildProgram) { NAPI_ENV;
 	REQ_CL_ARG(0, p, cl_program);
@@ -172,19 +172,13 @@ JS_METHOD(buildProgram) { NAPI_ENV;
 	// callback + userdata
 	if (!IS_ARG_EMPTY(3)) {
 		REQ_FUN_ARG(3, callback);
-		ProgramWorker* cb = new ProgramWorker(
-			callback,
-			info[4].As<Napi::Object>(),
-			info[0].As<Napi::Object>()
-		);
-		
 		err = clBuildProgram(
 			p,
 			(cl_uint) cl_devices.size(),
 			&cl_devices.front(),
 			options.length() > 0 ? options.c_str() : nullptr,
-			notifyPCB,
-			cb
+			NotifyHelper::callNotify,
+			new NotifyHelper(callback, info[4])
 		);
 	} else {
 		err = clBuildProgram(
@@ -250,11 +244,6 @@ JS_METHOD(compileProgram) { NAPI_ENV;
 	
 	if (!IS_ARG_EMPTY(5)) {
 		REQ_FUN_ARG(5, callback);
-		ProgramWorker* cb = new ProgramWorker(
-			callback,
-			info[6].As<Napi::Object>(),
-			info[0].As<Napi::Object>()
-		);
 		err = clCompileProgram(
 			p,
 			(cl_uint) cl_devices.size(),
@@ -263,8 +252,8 @@ JS_METHOD(compileProgram) { NAPI_ENV;
 			(cl_uint) program_headers.size(),
 			&program_headers.front(),
 			&names.front(),
-			notifyPCB,
-			cb
+			NotifyHelper::callNotify,
+			new NotifyHelper(callback, info[6])
 		);
 	} else {
 		err = clCompileProgram(
@@ -311,18 +300,12 @@ JS_METHOD(linkProgram) { NAPI_ENV;
 		}
 	}
 	
-	// OSX ISSUE: ret always equals to CL_SUCCESS
 	cl_int ret = CL_SUCCESS;
 	
 	cl_program prg;
 	
 	if (!IS_ARG_EMPTY(4)) {
 		REQ_FUN_ARG(4, callback);
-		ProgramWorker* cb = new ProgramWorker(
-			callback,
-			info[5].As<Napi::Object>(),
-			info[0].As<Napi::Object>()
-		);
 		prg = clLinkProgram(
 			ctx,
 			(cl_uint) cl_devices.size(),
@@ -330,8 +313,8 @@ JS_METHOD(linkProgram) { NAPI_ENV;
 			options.length() > 0 ? options.c_str() : nullptr,
 			(cl_uint) cl_programs.size(),
 			&cl_programs.front(),
-			notifyPCB,
-			cb,
+			NotifyHelper::callNotify,
+			new NotifyHelper(callback, info[5]),
 			&ret
 		);
 	} else {
