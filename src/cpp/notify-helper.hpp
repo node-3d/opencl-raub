@@ -9,13 +9,15 @@ class NotifyHelper {
 public:
 	NotifyHelper(Napi::Function callback, Napi::Value userData) {
 		Napi::Env env = callback.Env();
-		_tsfn = Napi::ThreadSafeFunction::New(
-			env, callback, Napi::Object(), "NotifyHelper", 0, 1, _delete
-		);
 		
 		_ref.Reset(Napi::Object::New(env), 1);
 		_ref.Set("cb", callback);
 		_ref.Set("data", userData);
+		
+		void *context = nullptr;
+		_tsfn = Napi::ThreadSafeFunction::New(
+			env, callback, _ref.Value(), "NotifyHelper", 0LLU, 1LLU, context, _delete, this
+		);
 	}
 	
 	~NotifyHelper() {
@@ -26,11 +28,11 @@ public:
 	}
 	
 	static void CL_CALLBACK callNotify(T resource, void *ptr) {
-		NotifyHelper *notifier = reinterpret_cast<NotifyHelper*>(ptr);
+		NotifyHelper<T> *notifier = reinterpret_cast<NotifyHelper<T>*>(ptr);
 		notifier->_notify(resource);
 	}
 	static void CL_CALLBACK callNotifyStatus(T resource, cl_int status, void *ptr) {
-		NotifyHelper *notifier = reinterpret_cast<NotifyHelper*>(ptr);
+		NotifyHelper<T> *notifier = reinterpret_cast<NotifyHelper<T>*>(ptr);
 		notifier->_notifyStatus(resource, status);
 	}
 	
@@ -38,15 +40,12 @@ private:
 	Napi::ObjectReference _ref;
 	Napi::ThreadSafeFunction _tsfn;
 	
-	static void _delete(napi_env env, void* data, void*) {
-		if (data != nullptr) {
-			NotifyHelper* that = static_cast<NotifyHelper*>(data);
-			delete that;
-		}
+	static void _delete(napi_env env, NotifyHelper<T>* that, void*) {
+		delete that;
 	}
 	
 	void _notify(T resource) {
-		NotifyHelper *that = this;
+		NotifyHelper<T> *that = this;
 		napi_status result = _tsfn.NonBlockingCall(
 			[that, resource](Napi::Env env, Napi::Function callback) {
 				callback.Call(
@@ -63,7 +62,7 @@ private:
 	}
 	
 	void _notifyStatus(T resource, cl_int status) {
-		NotifyHelper *that = this;
+		NotifyHelper<T> *that = this;
 		napi_status result = _tsfn.NonBlockingCall(
 			[that, resource, status](Napi::Env env, Napi::Function callback) {
 				callback.Call(
