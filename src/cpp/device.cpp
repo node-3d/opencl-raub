@@ -1,4 +1,4 @@
-#include "types.hpp"
+#include "wrapper.hpp"
 
 
 namespace opencl {
@@ -26,7 +26,7 @@ JS_METHOD(getDeviceIDs) { NAPI_ENV;
 	for (uint32_t i = 0; i < n; i++) {
 		// This is a noop for root-level devices but properly retains sub-devices.
 		CHECK_ERR(clRetainDevice(devices[i]));
-		deviceArray.Set(i, Wrapper::fromRaw(env, devices[i]));
+		deviceArray.Set(i, Wrapper::from(env, devices[i]));
 	}
 	
 	RET_VALUE(deviceArray);
@@ -386,7 +386,7 @@ JS_METHOD(createSubDevices) { NAPI_ENV;
 	
 	Napi::Array subDevicesArray = Napi::Array::New(env);
 	for (uint32_t i = 0; i<capacity; i++) {
-		subDevicesArray.Set(i, Wrapper::fromRaw(env, subDevices[i]));
+		subDevicesArray.Set(i, Wrapper::from(env, subDevices[i]));
 	}
 	
 	RET_VALUE(subDevicesArray);

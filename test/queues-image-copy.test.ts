@@ -120,7 +120,7 @@ describe('CommandQueue - Image Copy', () => {
 	});
 	
 	describe('#enqueueCopyImageToBuffer', () => {
-		it('works with read only buffers', () => {
+		it('works with read-only buffers', () => {
 			const image = cl.createImage(
 				context,
 				cl.MEM_COPY_HOST_PTR,
@@ -248,7 +248,7 @@ describe('CommandQueue - Image Copy', () => {
 	});
 
 	describe('#enqueueCopyBufferToImage', () => {
-		it('works with read only buffers', () => {
+		it('works with read-only buffers', () => {
 			const image = cl.createImage(
 				context,
 				cl.MEM_HOST_READ_ONLY,
@@ -398,7 +398,7 @@ describe('CommandQueue - Image Copy', () => {
 				cl.COMPLETE,
 				() => {
 					cl.releaseMemObject(image);
-					cl.releaseEvent(ret.event as unknown as cl.TClEvent);
+					cl.releaseEvent(ret.event as cl.TClEvent);
 					done();
 				},
 			);

@@ -1,6 +1,7 @@
 #include <uv.h>
 
-#include "types.hpp"
+#include "wrapper.hpp"
+#include "notify-helper.hpp"
 
 
 namespace opencl {
@@ -116,40 +117,6 @@ JS_METHOD(releaseProgram) { NAPI_ENV;
 	RET_NUM(CL_SUCCESS);
 }
 
-class NotifyHelper {
-public:
-	NotifyHelper(Napi::Function callback, Napi::Value userData) {
-		_ref.Reset(Napi::Object::New(callback.Env()), 1);
-		_ref.Set("cb", callback);
-		_ref.Set("data", userData);
-	}
-	
-	~NotifyHelper() {
-		Napi::Env env = _ref.Env();
-		_ref.Set("cb", env.Undefined());
-		_ref.Set("data", env.Undefined());
-		_ref.Reset();
-	}
-	
-	static void CL_CALLBACK callNotify(cl_program prog, void *ptr) {
-		NotifyHelper *notifier = reinterpret_cast<NotifyHelper*>(ptr);
-		notifier->notify(prog);
-		delete notifier;
-	}
-	
-private:
-	Napi::ObjectReference _ref;
-	
-	void notify(cl_program prog) {
-		Napi::Env env = _ref.Env(); NAPI_HS;
-		
-		_ref.Get("cb").As<Napi::Function>().Call({
-			Wrapper::fromRaw(env, prog),
-			_ref.Get("data")
-		});
-	}
-};
-
 JS_METHOD(buildProgram) { NAPI_ENV;
 	REQ_CL_ARG(0, p, cl_program);
 	
@@ -177,8 +144,8 @@ JS_METHOD(buildProgram) { NAPI_ENV;
 			(cl_uint) cl_devices.size(),
 			&cl_devices.front(),
 			options.length() > 0 ? options.c_str() : nullptr,
-			NotifyHelper::callNotify,
-			new NotifyHelper(callback, info[4])
+			NotifyHelper<cl_program>::callNotify,
+			new NotifyHelper<cl_program>(callback, info[4])
 		);
 	} else {
 		err = clBuildProgram(
@@ -252,8 +219,8 @@ JS_METHOD(compileProgram) { NAPI_ENV;
 			(cl_uint) program_headers.size(),
 			&program_headers.front(),
 			&names.front(),
-			NotifyHelper::callNotify,
-			new NotifyHelper(callback, info[6])
+			NotifyHelper<cl_program>::callNotify,
+			new NotifyHelper<cl_program>(callback, info[6])
 		);
 	} else {
 		err = clCompileProgram(
@@ -313,8 +280,8 @@ JS_METHOD(linkProgram) { NAPI_ENV;
 			options.length() > 0 ? options.c_str() : nullptr,
 			(cl_uint) cl_programs.size(),
 			&cl_programs.front(),
-			NotifyHelper::callNotify,
-			new NotifyHelper(callback, info[5]),
+			NotifyHelper<cl_program>::callNotify,
+			new NotifyHelper<cl_program>(callback, info[5]),
 			&ret
 		);
 	} else {
@@ -390,7 +357,7 @@ JS_METHOD(getProgramInfo) { NAPI_ENV;
 			Napi::Array arr = Napi::Array::New(env);
 			for(size_t i = 0; i < n; i++) {
 				CHECK_ERR(clRetainDevice(devices[i]))
-				arr.Set(i, Wrapper::fromRaw(env, devices[i]));
+				arr.Set(i, Wrapper::from(env, devices[i]));
 			}
 			
 			RET_VALUE(arr);

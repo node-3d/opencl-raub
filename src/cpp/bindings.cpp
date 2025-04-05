@@ -1,3 +1,4 @@
+#include "./wrapper.cpp"
 #include "./queue.cpp"
 #include "./common.cpp"
 #include "./context.cpp"
@@ -8,7 +9,6 @@
 #include "./platform.cpp"
 #include "./program.cpp"
 #include "./sampler.cpp"
-#include "./types.cpp"
 
 
 #define JS_CL_CONSTANT(name)                                                  \

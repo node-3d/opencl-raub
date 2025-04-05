@@ -1,4 +1,4 @@
-#include "types.hpp"
+#include "wrapper.hpp"
 
 
 namespace opencl {
@@ -62,36 +62,37 @@ IMPLEMENT_ES5_CLASS(Wrapper);
 void Wrapper::init(Napi::Env env, Napi::Object exports) {
 	Napi::Function ctor = wrap(env);
 	JS_ASSIGN_METHOD(toString);
+	JS_ASSIGN_METHOD(valueOf);
 	JS_ASSIGN_GETTER(_);
 	exports.Set("Wrapper", ctor);
 }
 
 
-Napi::Object Wrapper::fromRaw(Napi::Env env, cl_platform_id raw) {
+Napi::Object Wrapper::from(Napi::Env env, cl_platform_id raw) {
 	return _ctorEs5.Value().New({ JS_EXT(raw), JS_NUM(1) });
 }
-Napi::Object Wrapper::fromRaw(Napi::Env env, cl_device_id raw) {
+Napi::Object Wrapper::from(Napi::Env env, cl_device_id raw) {
 	return _ctorEs5.New({ JS_EXT(raw), JS_NUM(2) });
 }
-Napi::Object Wrapper::fromRaw(Napi::Env env, cl_context raw) {
+Napi::Object Wrapper::from(Napi::Env env, cl_context raw) {
 	return _ctorEs5.New({ JS_EXT(raw), JS_NUM(3) });
 }
-Napi::Object Wrapper::fromRaw(Napi::Env env, cl_program raw) {
+Napi::Object Wrapper::from(Napi::Env env, cl_program raw) {
 	return _ctorEs5.New({ JS_EXT(raw), JS_NUM(4) });
 }
-Napi::Object Wrapper::fromRaw(Napi::Env env, cl_kernel raw) {
+Napi::Object Wrapper::from(Napi::Env env, cl_kernel raw) {
 	return _ctorEs5.New({ JS_EXT(raw), JS_NUM(5) });
 }
-Napi::Object Wrapper::fromRaw(Napi::Env env, cl_mem raw) {
+Napi::Object Wrapper::from(Napi::Env env, cl_mem raw) {
 	return _ctorEs5.New({ JS_EXT(raw), JS_NUM(6) });
 }
-Napi::Object Wrapper::fromRaw(Napi::Env env, cl_sampler raw) {
+Napi::Object Wrapper::from(Napi::Env env, cl_sampler raw) {
 	return _ctorEs5.New({ JS_EXT(raw), JS_NUM(7) });
 }
-Napi::Object Wrapper::fromRaw(Napi::Env env, cl_command_queue raw) {
+Napi::Object Wrapper::from(Napi::Env env, cl_command_queue raw) {
 	return _ctorEs5.New({ JS_EXT(raw), JS_NUM(8) });
 }
-Napi::Object Wrapper::fromRaw(Napi::Env env, cl_event raw) {
+Napi::Object Wrapper::from(Napi::Env env, cl_event raw) {
 	return _ctorEs5.New({ JS_EXT(raw), JS_NUM(9) });
 }
 
@@ -127,6 +128,10 @@ JS_IMPLEMENT_METHOD(Wrapper, toString) { NAPI_ENV;
 	std::stringstream out;
 	out << "{ " << _typeName << " @" << _data << " }";
 	RET_STR(out.str());
+}
+
+JS_IMPLEMENT_METHOD(Wrapper, valueOf) { NAPI_ENV;
+	RET_X64(reinterpret_cast<uint64_t>(_data));
 }
 
 JS_IMPLEMENT_GETTER(Wrapper, _) { NAPI_ENV;

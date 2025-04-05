@@ -1,6 +1,6 @@
 #include <algorithm>
 
-#include "types.hpp"
+#include "wrapper.hpp"
 
 
 namespace opencl {
@@ -725,7 +725,7 @@ JS_METHOD(enqueueMapBuffer) { NAPI_ENV;
 	Napi::Object result = Napi::Object::New(env);
 	result.Set("buffer", Napi::ArrayBuffer::New(env, mPtr, size));
 	if (eventPtr) {
-		result.Set("event", Wrapper::fromRaw(env, event));
+		result.Set("event", Wrapper::from(env, event));
 	} else {
 		result.Set("event", JS_NULL);
 	}
@@ -788,7 +788,7 @@ JS_METHOD(enqueueMapImage) { NAPI_ENV;
 	result.Set("image_slice_pitch", JS_NUM(image_slice_pitch));
 	
 	if (eventPtr) {
-		result.Set("event", Wrapper::fromRaw(env, event));
+		result.Set("event", Wrapper::from(env, event));
 	} else {
 		result.Set("event", JS_NULL);
 	}

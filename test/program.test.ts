@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { strict as assert } from 'node:assert';
-import { describe, it, after } from 'node:test';
+import { describe, it, type TestContext } from 'node:test';
 import cl from '../index.js';
 import * as U from './utils.ts';
 
@@ -220,24 +220,36 @@ describe('Program', async () => {
 			cl.releaseProgram(prg);
 		});
 		
-		it('links one program and calls the callback', (_t, done) => {
+		it('links one program and calls the callback', (t: TestContext, done: () => void) => {
+			t.plan(2); // plan for 2 assertions in event callback
+			
 			const cb: cl.TBuildProgramCb = (prg, userData) => {
-				console.log('cb prg -', prg);
 				assert.ok(prg);
-				assert.strictEqual((userData as { done: () => void }).done, done);
+				assert.strictEqual(userData, 'hello');
 				
-				// cl.releaseProgram(prg);
+				cl.releaseProgram(prg);
 				done();
 			};
 			
 			const prg = cl.createProgramWithSource(context, squareKern);
 			cl.compileProgram(prg);
 			
-			const nprg = cl.linkProgram(context, null, null, [prg], cb, { done, prg });
+			cl.linkProgram(
+				context,
+				null,
+				null,
+				[prg],
+				(linked, userData) => {
+					t.assert.ok(linked);
+					t.assert.strictEqual(userData, 'hello');
+					
+					cl.releaseProgram(linked);
+					done();
+				},
+				'hello',
+			);
 			
-			console.log('ctx prg 1 2 -', context, prg, nprg);
-			// cl.releaseProgram(prg);
-			// cl.releaseProgram(nprg);
+			cl.releaseProgram(prg);
 		});
 		
 		it('links one compiled program with a list of devices', () => {

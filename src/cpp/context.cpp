@@ -1,4 +1,4 @@
-#include "types.hpp"
+#include "wrapper.hpp"
 
 
 namespace opencl {
@@ -128,7 +128,7 @@ JS_METHOD(getContextInfo) { NAPI_ENV;
 		Napi::Array arr = Napi::Array::New(env);
 		for(size_t i = 0; i < n; i++) {
 			CHECK_ERR(clRetainDevice(devices[i]))
-			arr.Set(i, Wrapper::fromRaw(env, devices[i]));
+			arr.Set(i, Wrapper::from(env, devices[i]));
 		}
 		RET_VALUE(arr);
 	}

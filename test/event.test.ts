@@ -1,5 +1,5 @@
 import { strict as assert } from 'node:assert';
-import { describe, it, after } from 'node:test';
+import { describe, it, type TestContext } from 'node:test';
 import cl from '../index.js';
 import * as U from './utils.ts';
 
@@ -9,49 +9,49 @@ describe('Event', () => {
 	
 	describe('#createUserEvent', () => {
 		it('creates a user Event', () => {
-			const uEvent = cl.createUserEvent(context);
-			assert.ok(uEvent);
+			const userEvent = cl.createUserEvent(context);
+			assert.ok(userEvent);
 			
-			cl.setUserEventStatus(uEvent, cl.COMPLETE); // on NVIDIA hangs if not set
-			cl.releaseEvent(uEvent);
+			cl.setUserEventStatus(userEvent, cl.COMPLETE); // on NVIDIA hangs if not set
+			cl.releaseEvent(userEvent);
 		});
 	});
 	
 	describe('#getEventInfo', () => {
 		const testNumber = (name: keyof typeof cl, expected: number) => {
 			it('returns value for ' + name, () => {
-				const uEvent = cl.createUserEvent(context);
-				const val = cl.getEventInfo(uEvent, cl[name] as number);
+				const userEvent = cl.createUserEvent(context);
+				const val = cl.getEventInfo(userEvent, cl[name] as number);
 				U.assertType(val, 'number');
 				assert.strictEqual(expected, val);
 				
-				cl.setUserEventStatus(uEvent, cl.COMPLETE); // on NVIDIA hangs if not set
-				cl.releaseEvent(uEvent);
+				cl.setUserEventStatus(userEvent, cl.COMPLETE); // on NVIDIA hangs if not set
+				cl.releaseEvent(userEvent);
 			});
 		};
 		
 		const testObject = (name: keyof typeof cl) => {
 			it('returns the good value for ' + name, () => {
-				const uEvent = cl.createUserEvent(context);
+				const userEvent = cl.createUserEvent(context);
 				
-				const val = cl.getEventInfo(uEvent, cl[name] as number);
+				const val = cl.getEventInfo(userEvent, cl[name] as number);
 				U.assertType(val, 'object');
 				
-				cl.setUserEventStatus(uEvent, cl.COMPLETE); // on NVIDIA hangs if not set
-				cl.releaseEvent(uEvent);
+				cl.setUserEventStatus(userEvent, cl.COMPLETE); // on NVIDIA hangs if not set
+				cl.releaseEvent(userEvent);
 			});
 		};
 		
 		testNumber('EVENT_COMMAND_EXECUTION_STATUS', cl.SUBMITTED);
 		
 		it('returns the good value for EVENT_REFERENCE_COUNT', () => {
-			const uEvent = cl.createUserEvent(context);
-			const val = cl.getEventInfo(uEvent, cl.EVENT_REFERENCE_COUNT);
+			const userEvent = cl.createUserEvent(context);
+			const val = cl.getEventInfo(userEvent, cl.EVENT_REFERENCE_COUNT);
 			U.assertType(val, 'number');
 			assert.strictEqual(1, val);
 			
-			cl.setUserEventStatus(uEvent, cl.COMPLETE); // on NVIDIA hangs if not set
-			cl.releaseEvent(uEvent);
+			cl.setUserEventStatus(userEvent, cl.COMPLETE); // on NVIDIA hangs if not set
+			cl.releaseEvent(userEvent);
 		});
 		
 		testNumber('EVENT_COMMAND_TYPE', cl.COMMAND_USER);
@@ -60,65 +60,70 @@ describe('Event', () => {
 	
 	describe('#setUserEventStatus', () => {
 		it('sets the status CL_COMPLETE', () => {
-			const uEvent = cl.createUserEvent(context);
-			cl.setUserEventStatus(uEvent, cl.COMPLETE);
-			const result = cl.getEventInfo(uEvent, cl.EVENT_COMMAND_EXECUTION_STATUS);
+			const userEvent = cl.createUserEvent(context);
+			cl.setUserEventStatus(userEvent, cl.COMPLETE);
+			const result = cl.getEventInfo(userEvent, cl.EVENT_COMMAND_EXECUTION_STATUS);
 			assert.strictEqual(result, cl.COMPLETE);
-			cl.releaseEvent(uEvent);
+			cl.releaseEvent(userEvent);
 		});
 		
 		it('throws an error for invalid status', () => {
-			const uEvent = cl.createUserEvent(context);
+			const userEvent = cl.createUserEvent(context);
 			assert.throws(
-				() => cl.setUserEventStatus(uEvent, 123),
+				() => cl.setUserEventStatus(userEvent, 123),
 				cl.INVALID_VALUE,
 			);
 				
-			cl.setUserEventStatus(uEvent, cl.COMPLETE); // on NVIDIA hangs if not set
-			cl.releaseEvent(uEvent);
+			cl.setUserEventStatus(userEvent, cl.COMPLETE); // on NVIDIA hangs if not set
+			cl.releaseEvent(userEvent);
 		});
 	});
 	
 	describe('#retainEvent', () => {
 		it('increments ref count after call', () => {
-			const uEvent = cl.createUserEvent(context);
-			cl.retainEvent(uEvent);
-			const after = cl.getEventInfo(uEvent, cl.EVENT_REFERENCE_COUNT);
+			const userEvent = cl.createUserEvent(context);
+			cl.retainEvent(userEvent);
+			const after = cl.getEventInfo(userEvent, cl.EVENT_REFERENCE_COUNT);
 			assert.strictEqual(after, 2);
 				
-			cl.setUserEventStatus(uEvent, cl.COMPLETE); // on NVIDIA hangs if not set
-			cl.releaseEvent(uEvent);
-			cl.releaseEvent(uEvent);
+			cl.setUserEventStatus(userEvent, cl.COMPLETE); // on NVIDIA hangs if not set
+			cl.releaseEvent(userEvent);
+			cl.releaseEvent(userEvent);
 		});
 	});
 	
 	describe('#releaseEvent', () => {
 		it('decrements ref count after call', () => {
-			const uEvent = cl.createUserEvent(context);
-			cl.retainEvent(uEvent);
-			cl.releaseEvent(uEvent);
-			const after = cl.getEventInfo(uEvent, cl.EVENT_REFERENCE_COUNT);
+			const userEvent = cl.createUserEvent(context);
+			cl.retainEvent(userEvent);
+			cl.releaseEvent(userEvent);
+			const after = cl.getEventInfo(userEvent, cl.EVENT_REFERENCE_COUNT);
 			assert.strictEqual(after, 1);
 				
-			cl.setUserEventStatus(uEvent, cl.COMPLETE); // on NVIDIA hangs if not set
-			cl.releaseEvent(uEvent);
+			cl.setUserEventStatus(userEvent, cl.COMPLETE); // on NVIDIA hangs if not set
+			cl.releaseEvent(userEvent);
 		});
 	});
 	
 	describe('#setEventCallback', () => {
-		it('calls cb', (_t, done) => {
-			const uEvent = cl.createUserEvent(context);
+		it('calls cb', (t: TestContext, done: () => void) => {
+			t.plan(2); // plan for 2 assertions in event callback
+			
+			const userEvent = cl.createUserEvent(context);
+			
 			cl.setEventCallback(
-				uEvent,
+				userEvent,
 				cl.COMPLETE,
-				(userData: Object, status: number, e: cl.TClEvent): void => {
-					assert.strictEqual(e, uEvent);
+				(e: cl.TClEvent, _status: number, userData: unknown): void => {
+					t.assert.strictEqual(e._, userEvent._);
+					t.assert.strictEqual(userData, 'hello');
 					cl.releaseEvent(e);
-					(userData as { done: () => void }).done();
+					done();
 				},
-				{ done },
+				'hello',
 			);
-			cl.setUserEventStatus(uEvent, cl.COMPLETE);
+			
+			cl.setUserEventStatus(userEvent, cl.COMPLETE);
 		});
 	});
 });

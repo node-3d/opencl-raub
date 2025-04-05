@@ -1,7 +1,8 @@
 #include <uv.h>
 
-#include "types.hpp"
+#include "wrapper.hpp"
 #include "common.hpp"
+#include "notify-helper.hpp"
 
 
 namespace opencl {
@@ -132,91 +133,17 @@ JS_METHOD(getEventProfilingInfo) { NAPI_ENV;
 	THROW_ERR(CL_INVALID_VALUE);
 }
 
-
-class EventWorker : public Napi::AsyncWorker {
-public:
-	EventWorker(Napi::Function callback, Napi::Object userData, Napi::Object wrapper):
-	Napi::AsyncWorker(callback, "CL::EventWorker") {
-		_refEvent.Reset(wrapper, 1);
-		_refData.Reset(userData, 1);
-		this->async = new uv_async_t();
-		this->async->data = reinterpret_cast<void*>(this);
-		uv_async_init(
-			uv_default_loop(),
-			this->async,
-			(uv_async_cb)
-			dispatched_async_uv_callback
-		);
-	}
-	
-	~EventWorker() {
-		uv_close(reinterpret_cast<uv_handle_t*>(this->async), &delete_async_handle);
-	}
-	
-	uv_async_t *async;
-	
-	void setStatus(int status) {
-		_status = status;
-	}
-	
-	// Executed inside the worker-thread.
-	void Execute() {
-	}
-	
-	// Executed when the async work is complete
-	// this function will be run inside the main event loop
-	void OnOK () {
-		Napi::Env env = Env();
-		NAPI_HS;
-		Callback().Call({
-			_refData.Value(), // userdata
-			JS_NUM(_status), // error status
-			_refEvent.Value() // event
-		});
-	}
-	
-protected:
-	static void delete_async_handle(uv_handle_t *handle);
-	// The callback invoked by the call to uv_async_send() in notifyCB.
-	// Invoked on the main thread, so it's safe to call AsyncQueueWorker.
-	static void dispatched_async_uv_callback(uv_async_t*);
-	
-private:
-	int _status = 0;
-	Napi::ObjectReference _refEvent;
-	Napi::ObjectReference _refData;
-};
-
-void EventWorker::delete_async_handle(uv_handle_t *handle) {
-	delete reinterpret_cast<uv_async_t*>(handle);
-}
-
-void EventWorker::dispatched_async_uv_callback(uv_async_t *req) {
-	EventWorker* asyncCB = static_cast<EventWorker*>(req->data);
-	asyncCB->Queue();
-}
-
-// callback invoked off the main thread by clSetEventCallback
-void CL_CALLBACK notifyCB (cl_event event, cl_int event_command_exec_status, void *user_data) {
-	EventWorker* asyncCB = reinterpret_cast<EventWorker*>(user_data);
-	asyncCB->setStatus(event_command_exec_status);
-	// send a message to the main thread to safely invoke the JS callback
-	uv_async_send(asyncCB->async);
-}
-
 JS_METHOD(setEventCallback) { NAPI_ENV;
 	REQ_CL_ARG(0, ev, cl_event);
 	REQ_UINT32_ARG(1, callbackStatusType);
 	REQ_FUN_ARG(2, callback);
-	LET_OBJ_ARG(3, userData);
 	
-	EventWorker* asyncCB = new EventWorker(
-		callback,
-		userData,
-		info[0].As<Napi::Object>()
-	);
-	
-	CHECK_ERR(clSetEventCallback(ev, callbackStatusType, notifyCB, asyncCB));
+	CHECK_ERR(clSetEventCallback(
+		ev,
+		callbackStatusType,
+		NotifyHelper<cl_event>::callNotifyStatus,
+		new NotifyHelper<cl_event>(callback, info[3])
+	));
 	
 	RET_NUM(CL_SUCCESS);
 }

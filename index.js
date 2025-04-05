@@ -20,11 +20,11 @@ cl.Wrapper.prototype[inspect.custom] = cl.Wrapper.prototype.toString;
 let cached = null;
 
 const showDevices = (devices, mainDevice) => {
-	console.log(
+	console.info(
 		'AVAILABLE DEVICES:',
 		devices.map(({ name, version }) => `${version} ${name}`),
 	);
-	console.log('ACTIVE DEVICE:', `${mainDevice.version} ${mainDevice.name}`);
+	console.info('ACTIVE DEVICE:', `${mainDevice.version} ${mainDevice.name}`);
 };
 
 cl.quickStart = (isLoggingDevices = false) => {

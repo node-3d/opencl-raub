@@ -18,20 +18,21 @@ DECLARE_ES5_CLASS(Wrapper, Wrapper);
 public:
 	static void init(Napi::Env env, Napi::Object exports);
 	
-	static Napi::Object fromRaw(Napi::Env env, cl_platform_id raw);
-	static Napi::Object fromRaw(Napi::Env env, cl_device_id raw);
-	static Napi::Object fromRaw(Napi::Env env, cl_context raw);
-	static Napi::Object fromRaw(Napi::Env env, cl_program raw);
-	static Napi::Object fromRaw(Napi::Env env, cl_kernel raw);
-	static Napi::Object fromRaw(Napi::Env env, cl_mem raw);
-	static Napi::Object fromRaw(Napi::Env env, cl_sampler raw);
-	static Napi::Object fromRaw(Napi::Env env, cl_command_queue raw);
-	static Napi::Object fromRaw(Napi::Env env, cl_event raw);
+	static Napi::Object from(Napi::Env env, cl_platform_id raw);
+	static Napi::Object from(Napi::Env env, cl_device_id raw);
+	static Napi::Object from(Napi::Env env, cl_context raw);
+	static Napi::Object from(Napi::Env env, cl_program raw);
+	static Napi::Object from(Napi::Env env, cl_kernel raw);
+	static Napi::Object from(Napi::Env env, cl_mem raw);
+	static Napi::Object from(Napi::Env env, cl_sampler raw);
+	static Napi::Object from(Napi::Env env, cl_command_queue raw);
+	static Napi::Object from(Napi::Env env, cl_event raw);
 	
 	explicit Wrapper(const Napi::CallbackInfo& info);
 	~Wrapper();
 	
 	JS_DECLARE_METHOD(Wrapper, toString);
+	JS_DECLARE_METHOD(Wrapper, valueOf);
 	JS_DECLARE_GETTER(Wrapper, _);
 	
 	cl_int acquire();
@@ -78,7 +79,7 @@ private:
 		}                                                                     \
 	}
 
-#define RET_WRAPPER(W) RET_VALUE(Wrapper::fromRaw(env, W));
+#define RET_WRAPPER(W) RET_VALUE(Wrapper::from(env, W));
 
 #define REQ_WRAP_ARG(I, VAR)                                                  \
 	REQ_OBJ_ARG(I, _obj_##VAR);                                               \

@@ -1,4 +1,4 @@
-#include "types.hpp"
+#include "wrapper.hpp"
 
 
 namespace opencl {

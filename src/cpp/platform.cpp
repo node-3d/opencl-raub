@@ -1,4 +1,4 @@
-#include "types.hpp"
+#include "wrapper.hpp"
 
 
 namespace opencl {
@@ -16,7 +16,7 @@ JS_METHOD(getPlatformIDs) { NAPI_ENV;
 	CHECK_ERR(clGetPlatformIDs(num_entries, platforms.get(), nullptr));
 	
 	for (size_t i = 0; i < num_entries; i++) {
-		platformArray.Set(i, Wrapper::fromRaw(env, platforms[i]));
+		platformArray.Set(i, Wrapper::from(env, platforms[i]));
 	}
 	
 	RET_VALUE(platformArray);

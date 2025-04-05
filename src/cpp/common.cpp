@@ -16,8 +16,6 @@ void getPtrAndLen(Napi::Object obj, void** ptr, size_t *len) {
 	}
 }
 
-#define CASE_RET(CODE, MSG) case CODE: return MSG;
-
 const char* getExceptionMessage(const cl_int code) {
 	switch (code) {
 		case CL_SUCCESS:
@@ -143,7 +141,7 @@ const char* getExceptionMessage(const cl_int code) {
 		case CL_INVALID_GL_SHAREGROUP_REFERENCE_KHR:
 			return "Invalid GL sharegroup reference";
 		default:
-			printf("OpenCL Unknown error: %d\n", code);
+			fprintf(stderr, "OpenCL Unknown error: %d\n", code);
 			return "Unknown error";
 	}
 }

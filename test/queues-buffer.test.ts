@@ -250,7 +250,7 @@ describe('CommandQueue - Buffer', () => {
 	});
 
 	describe('#enqueueCopyBuffer', () => {
-		it('works with read only buffers', () => {
+		it('works with read-only buffers', () => {
 			const buffer = cl.createBuffer(context, cl.MEM_COPY_HOST_PTR, 32, Buffer.alloc(32));
 			const dst = cl.createBuffer(context, cl.MEM_READ_ONLY, 8, null);
 			const ret = cl.enqueueCopyBuffer(cq, buffer, dst, 0, 0, 8);
@@ -271,7 +271,7 @@ describe('CommandQueue - Buffer', () => {
 	});
 	
 	describe('#enqueueCopyBufferRect', () => {
-		it('works with read only buffers', () => {
+		it('works with read-only buffers', () => {
 			const buffer = cl.createBuffer(context, cl.MEM_COPY_HOST_PTR, 32, Buffer.alloc(32));
 			const dst = cl.createBuffer(context, cl.MEM_READ_ONLY, 32, null);
 			const ret = cl.enqueueCopyBufferRect(
@@ -285,7 +285,7 @@ describe('CommandQueue - Buffer', () => {
 			assert.strictEqual(ret, cl.SUCCESS);
 		});
 		
-		it('works with write only buffers', () => {
+		it('works with write-only buffers', () => {
 			const buffer = cl.createBuffer(context, cl.MEM_COPY_HOST_PTR, 32, Buffer.alloc(32));
 			const dst = cl.createBuffer(context, cl.MEM_WRITE_ONLY, 32, null);
 			const ret = cl.enqueueCopyBufferRect(

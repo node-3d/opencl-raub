@@ -505,12 +505,23 @@ declare namespace cl {
 	export type TClEventOrVoid = TClEvent | undefined;
 	export type TClHostData = ArrayBuffer | ArrayBufferView | Buffer;
 	
-	type TClImageFormat = {
+	export type TClImageFormat = {
 		channel_order?: number,
 		channel_data_type?: number,
 	};
 	
-	type TClSubBufferInfo = {
+	export type TClImageDesc = {
+		type?: number,
+		width?: number,
+		height?: number,
+		depth?: number,
+		array_size?: number,
+		rowPitch?: number,
+		slicePitch?: number,
+		buffer?: TClMem | null,
+	};
+	
+	export type TClSubBufferInfo = {
 		origin: number,
 		size: number,
 	};
@@ -540,8 +551,8 @@ declare namespace cl {
 	 */
 	const setKernelArg: (
 		kernel: TClKernel,
-		arg_idx: number,
-		arg_type: string | null,
+		argIdx: number,
+		argType: string | null,
 		value: unknown,
 	) => TClStatus;
 	
@@ -550,7 +561,7 @@ declare namespace cl {
 	 */
 	const getKernelInfo: (
 		kernel: TClKernel,
-		param_name: number,
+		paramName: number,
 	) => (string | number | TClContext | TClProgram);
 	
 	/**
@@ -558,8 +569,8 @@ declare namespace cl {
 	 */
 	const getKernelArgInfo: (
 		kernel: TClKernel,
-		arg_idx: number,
-		param_name: number,
+		argIdx: number,
+		paramName: number,
 	) => (string | number);
 	
 	/**
@@ -568,7 +579,7 @@ declare namespace cl {
 	const getKernelWorkGroupInfo: (
 		kernel: TClKernel,
 		device: TClDevice,
-		param_name: number,
+		paramName: number,
 	) => (number | number[]);
 	
 	
@@ -593,16 +604,6 @@ declare namespace cl {
 		info: TClSubBufferInfo,
 	) => TClMem;
 	
-	type TClImageDesc = {
-		type?: number,
-		width?: number,
-		height?: number,
-		depth?: number,
-		array_size?: number,
-		row_pitch?: number,
-		slice_pitch?: number,
-		buffer?: TClMem | null,
-	};
 	/**
 	 * @see [clCreateImage](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateImage.html)
 	 */
@@ -630,7 +631,7 @@ declare namespace cl {
 	const getSupportedImageFormats: (
 		context: TClContext,
 		flags: number,
-		image_type: number,
+		imageType: number,
 	) => TClImageFormat[];
 	
 	/**
@@ -639,13 +640,13 @@ declare namespace cl {
 	 */
 	const getMemObjectInfo: (
 		mem: TClMem,
-		param_name: number,
+		paramName: number,
 	) => (number | TClMem | TClContext | ArrayBuffer | null);
 	
 	/**
 	 * @see [clGetImageInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetImageInfo.html)
 	 */
-	const getImageInfo: (mem: TClMem, param_name: number) => (number | TClMem);
+	const getImageInfo: (mem: TClMem, paramName: number) => (number | TClMem);
 	
 	/**
 	 * @see [clCreateFromGLBuffer](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateFromGLBuffer.html)
@@ -685,7 +686,7 @@ declare namespace cl {
 	/**
 	 * @see [clGetPlatformInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetPlatformInfo.html)
 	 */
-	const getPlatformInfo: (platform: TClPlatform, param_name: number) => string;
+	const getPlatformInfo: (platform: TClPlatform, paramName: number) => string;
 	
 	/**
 	 * @see [clCreateProgramWithSource](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateProgramWithSource.html)
@@ -768,7 +769,7 @@ declare namespace cl {
 	 */
 	const getProgramInfo: (
 		program: TClProgram,
-		param_name: number,
+		paramName: number,
 	) => (number | TClContext | TClDevice[] | number[] | Object[] | string);
 	
 	/**
@@ -777,7 +778,7 @@ declare namespace cl {
 	const getProgramBuildInfo: (
 		program: TClProgram,
 		device: TClDevice,
-		param_name: number,
+		paramName: number,
 	) => (number | string);
 	
 	
@@ -796,7 +797,7 @@ declare namespace cl {
 	 */
 	const getSamplerInfo: (
 		sampler: TClSampler,
-		param_name: number,
+		paramName: number,
 	) => (number | boolean | TClContext);
 	
 	/**
@@ -805,8 +806,8 @@ declare namespace cl {
 	const createSampler: (
 		context: TClContext,
 		normalized: boolean | number,
-		addressing_mode: number,
-		filter_mode: number,
+		addressingMode: number,
+		filterMode: number,
 	) => TClSampler;
 	
 	/**
@@ -834,7 +835,7 @@ declare namespace cl {
 	 */
 	const getCommandQueueInfo: (
 		queue: TClQueue,
-		param_name: number,
+		paramName: number,
 	) => (TClContext | TClDevice | number);
 	
 	/**
@@ -853,11 +854,11 @@ declare namespace cl {
 	const enqueueReadBuffer: (
 		queue: TClQueue,
 		buffer: TClMem,
-		blocking_read: boolean,
+		blockingRead: boolean,
 		offset: number,
 		size: number,
 		host: TClHostData,
-		event_wait_list?: TClEvent[] | null,
+		waitList?: TClEvent[] | null,
 		hasEvent?: boolean,
 	) => TClEventOrVoid;
 	
@@ -867,16 +868,16 @@ declare namespace cl {
 	const enqueueReadBufferRect: (
 		queue: TClQueue,
 		buffer: TClMem,
-		blocking_read: boolean,
-		buffer_offset: number[],
-		host_offset: number[],
+		blockingRead: boolean,
+		bufferOffset: number[],
+		hostOffset: number[],
 		region: number[],
-		buffer_row_pitch: number,
-		buffer_slice_pitch: number,
-		host_row_pitch: number,
-		host_slice_pitch: number,
+		bufferRowPitch: number,
+		bufferSlicePitch: number,
+		hostRowPitch: number,
+		hostSlicePitch: number,
 		host: TClHostData,
-		event_wait_list?: TClEvent[] | null,
+		waitList?: TClEvent[] | null,
 		hasEvent?: boolean,
 	) => TClEventOrVoid;
 	
@@ -886,11 +887,11 @@ declare namespace cl {
 	const enqueueWriteBuffer: (
 		queue: TClQueue,
 		buffer: TClMem,
-		blocking_write: boolean,
+		blockingWrite: boolean,
 		offset: number,
 		size: number,
 		host: TClHostData,
-		event_wait_list?: TClEvent[] | null,
+		waitList?: TClEvent[] | null,
 		hasEvent?: boolean,
 	) => TClEventOrVoid;
 	
@@ -900,16 +901,16 @@ declare namespace cl {
 	const enqueueWriteBufferRect: (
 		queue: TClQueue,
 		buffer: TClMem,
-		blocking_write: boolean,
+		blockingWrite: boolean,
 		bufferOffsets: number[],
 		hostOffsets: number[],
 		regions: number[],
-		buffer_row_pitch: number,
-		buffer_slice_pitch: number,
-		host_row_pitch: number,
-		host_slice_pitch: number,
+		bufferRowPitch: number,
+		bufferSlicePitch: number,
+		hostRowPitch: number,
+		hostSlicePitch: number,
 		host: TClHostData,
-		event_wait_list?: TClEvent[] | null,
+		waitList?: TClEvent[] | null,
 		hasEvent?: boolean,
 	) => TClEventOrVoid;
 	
@@ -920,10 +921,10 @@ declare namespace cl {
 		queue: TClQueue,
 		src: TClMem,
 		dest: TClMem,
-		src_offset: number,
-		dest_ofset: number,
+		srcOffset: number,
+		destOfset: number,
 		size: number,
-		event_wait_list?: TClEvent[] | null,
+		waitList?: TClEvent[] | null,
 		hasEvent?: boolean,
 	) => TClEventOrVoid;
 	
@@ -934,14 +935,14 @@ declare namespace cl {
 		queue: TClQueue,
 		src: TClMem,
 		dest: TClMem,
-		src_origins: number[],
-		dest_origins: number[],
+		srcOrigins: number[],
+		destOrigins: number[],
 		regions: number[],
-		src_row_pitch: number,
-		src_slice_pitch: number,
-		dest_row_pitch: number,
-		dest_slice_pitch: number,
-		event_wait_list?: TClEvent[] | null,
+		srcRowPitch: number,
+		srcSlicePitch: number,
+		destRowPitch: number,
+		destSlicePitch: number,
+		waitList?: TClEvent[] | null,
 		hasEvent?: boolean,
 	) => TClEventOrVoid;
 	
@@ -951,13 +952,13 @@ declare namespace cl {
 	const enqueueReadImage: (
 		queue: TClQueue,
 		image: TClMem,
-		blocking_read: boolean,
-		src_origins: number[],
+		blockingRead: boolean,
+		srcOrigins: number[],
 		regions: number[],
-		row_pitch: number,
-		slice_pitch: number,
+		rowPitch: number,
+		slicePitch: number,
 		host: TClHostData,
-		event_wait_list?: TClEvent[] | null,
+		waitList?: TClEvent[] | null,
 		hasEvent?: boolean,
 	) => TClEventOrVoid;
 	
@@ -967,13 +968,13 @@ declare namespace cl {
 	const enqueueWriteImage: (
 		queue: TClQueue,
 		image: TClMem,
-		blocking_write: boolean,
-		src_origins: number[],
+		blockingWrite: boolean,
+		srcOrigins: number[],
 		regions: number[],
-		row_pitch: number,
-		slice_pitch: number,
+		rowPitch: number,
+		slicePitch: number,
 		host: TClHostData,
-		event_wait_list?: TClEvent[] | null,
+		waitList?: TClEvent[] | null,
 		hasEvent?: boolean,
 	) => TClEventOrVoid;
 	
@@ -984,10 +985,10 @@ declare namespace cl {
 		queue: TClQueue,
 		src: TClMem,
 		dest: TClMem,
-		src_origins: number[],
-		dest_origins: number[],
+		srcOrigins: number[],
+		destOrigins: number[],
 		regions: number[],
-		event_wait_list?: TClEvent[] | null,
+		waitList?: TClEvent[] | null,
 		hasEvent?: boolean,
 	) => TClEventOrVoid;
 	
@@ -998,10 +999,10 @@ declare namespace cl {
 		queue: TClQueue,
 		src: TClMem,
 		dest: TClMem,
-		src_origins: number[],
+		srcOrigins: number[],
 		regions: number[],
-		dest_offset: number,
-		event_wait_list?: TClEvent[] | null,
+		destOffset: number,
+		waitList?: TClEvent[] | null,
 		hasEvent?: boolean,
 	) => TClEventOrVoid;
 	
@@ -1012,10 +1013,10 @@ declare namespace cl {
 		queue: TClQueue,
 		src: TClMem,
 		dest: TClMem,
-		src_offset: number,
-		dest_origins: number[],
+		srcOffset: number,
+		destOrigins: number[],
 		regions: number[],
-		event_wait_list?: TClEvent[] | null,
+		waitList?: TClEvent[] | null,
 		hasEvent?: boolean,
 	) => TClEventOrVoid;
 	
@@ -1025,11 +1026,11 @@ declare namespace cl {
 	const enqueueMapBuffer: (
 		queue: TClQueue,
 		mem: TClMem,
-		blocking_map: boolean, // if false, use result.event
-		map_flags: number,
+		blockingMap: boolean, // if false, use result.event
+		mapFlags: number,
 		offset: number,
 		size: number,
-		event_wait_list?: TClEvent[] | null,
+		waitList?: TClEvent[] | null,
 	) => Readonly<{
 		buffer: ArrayBuffer,
 		event: TClEvent | null,
@@ -1041,11 +1042,11 @@ declare namespace cl {
 	const enqueueMapImage: (
 		queue: TClQueue,
 		mem: TClMem,
-		blocking_map: boolean, // if false, use result.event
-		map_flags: number,
+		blockingMap: boolean, // if false, use result.event
+		mapFlags: number,
 		origins: number[],
 		regions: number[],
-		event_wait_list?: TClEvent[] | null,
+		waitList?: TClEvent[] | null,
 	) => Readonly<{
 		buffer: ArrayBuffer,
 		event: TClEvent | null,
@@ -1060,7 +1061,7 @@ declare namespace cl {
 		queue: TClQueue,
 		mem: TClMem,
 		host: TClHostData,
-		event_wait_list?: TClEvent[] | null,
+		waitList?: TClEvent[] | null,
 		hasEvent?: boolean,
 	) => TClEventOrVoid;
 	
@@ -1070,11 +1071,11 @@ declare namespace cl {
 	const enqueueNDRangeKernel: (
 		queue: TClQueue,
 		kernel: TClKernel,
-		work_dim: number,
-		work_offset?: number[] | null,
-		work_global?: number[] | null,
-		work_local?: number[] | null,
-		event_wait_list?: TClEvent[] | null,
+		workDim: number,
+		workOffset?: number[] | null,
+		workGlobal?: number[] | null,
+		workLocal?: number[] | null,
+		waitList?: TClEvent[] | null,
 		hasEvent?: boolean,
 	) => TClEventOrVoid;
 	
@@ -1084,7 +1085,7 @@ declare namespace cl {
 	const enqueueTask: (
 		queue: TClQueue,
 		kernel: TClKernel,
-		event_wait_list?: TClEvent[] | null,
+		waitList?: TClEvent[] | null,
 		hasEvent?: boolean,
 	) => TClEventOrVoid;
 	
@@ -1106,7 +1107,7 @@ declare namespace cl {
 	 */
 	const enqueueMarkerWithWaitList: (
 		queue: TClQueue,
-		event_wait_list: TClEvent[],
+		waitList: TClEvent[],
 	) => TClEvent;
 	
 	/**
@@ -1114,7 +1115,7 @@ declare namespace cl {
 	 */
 	const enqueueBarrierWithWaitList: (
 		queue: TClQueue,
-		event_wait_list: TClEvent[],
+		waitList: TClEvent[],
 		hasEvent?: boolean,
 	) => TClEventOrVoid;
 	
@@ -1134,7 +1135,7 @@ declare namespace cl {
 		pattern: number | TClHostData,
 		offset: number,
 		size: number,
-		event_wait_list?: TClEvent[] | null,
+		waitList?: TClEvent[] | null,
 		hasEvent?: boolean,
 	) => TClEventOrVoid;
 	
@@ -1145,9 +1146,9 @@ declare namespace cl {
 		queue: TClQueue,
 		image: TClMem,
 		host: TClHostData,
-		src_origins: number[],
+		srcOrigins: number[],
 		regions: number[],
-		event_wait_list?: TClEvent[] | null,
+		waitList?: TClEvent[] | null,
 		hasEvent?: boolean,
 	) => TClEventOrVoid;
 	
@@ -1158,7 +1159,7 @@ declare namespace cl {
 		queue: TClQueue,
 		objectt: TClMem[],
 		flags: number,
-		event_wait_list?: TClEvent[] | null,
+		waitList?: TClEvent[] | null,
 		hasEvent?: boolean,
 	) => TClEventOrVoid;
 	
@@ -1168,7 +1169,7 @@ declare namespace cl {
 	const enqueueAcquireGLObjects: (
 		queue: TClQueue,
 		mem: TClMem,
-		event_wait_list?: TClEvent[] | null,
+		waitList?: TClEvent[] | null,
 		hasEvent?: boolean,
 	) => TClEventOrVoid;
 	
@@ -1178,7 +1179,7 @@ declare namespace cl {
 	const enqueueReleaseGLObjects: (
 		queue: TClQueue,
 		mem: TClMem,
-		event_wait_list?: TClEvent[] | null,
+		waitList?: TClEvent[] | null,
 		hasEvent?: boolean,
 	) => TClEventOrVoid;
 	
@@ -1196,7 +1197,7 @@ declare namespace cl {
 	 */
 	const createContextFromType: (
 		properties: (number | TClPlatform)[] | null,
-		device_type: number,
+		deviceType: number,
 	) => TClContext;
 	
 	/**
@@ -1214,7 +1215,7 @@ declare namespace cl {
 	 */
 	const getContextInfo: (
 		context: TClContext,
-		param_name: number,
+		paramName: number,
 	) => TClDevice[] | number | number[] | TClPlatform[];
 	
 	
@@ -1223,7 +1224,7 @@ declare namespace cl {
 	 */
 	const getDeviceIDs: (
 		platform: TClPlatform,
-		device_type?: number, // default is `cl.DEVICE_TYPE_ALL`
+		deviceType?: number, // default is `cl.DEVICE_TYPE_ALL`
 	) => TClDevice[];
 	
 	/**
@@ -1231,7 +1232,7 @@ declare namespace cl {
 	 */
 	const getDeviceInfo: (
 		device: TClDevice,
-		param_name: number,
+		paramName: number,
 	) => string | number | boolean | TClPlatform | number[] | null;
 	
 	/**
@@ -1256,14 +1257,14 @@ declare namespace cl {
 	/**
 	 * @see [clWaitForEvents](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clWaitForEvents.html)
 	 */
-	const waitForEvents: (event_wait_list: TClEvent[]) => TClStatus;
+	const waitForEvents: (waitList: TClEvent[]) => TClStatus;
 	
 	/**
 	 * @see [clGetEventInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetEventInfo.html)
 	 */
 	const getEventInfo: (
 		event: TClEvent,
-		param_name: number,
+		paramName: number,
 	) => (TClQueue | TClContext | number);
 	
 	/**
@@ -1291,9 +1292,9 @@ declare namespace cl {
 	 */
 	const setEventCallback: (
 		event: TClEvent,
-		status_type: number,
-		cb: (user_data: Object, status: number, event: TClEvent) => void,
-		user_data?: Object,
+		statusType: number,
+		cb: (event: TClEvent, status: number, userData: unknown) => void,
+		userData?: unknown,
 	) => TClStatus;
 	
 	/**
@@ -1302,7 +1303,7 @@ declare namespace cl {
 	 */
 	const getEventProfilingInfo: (
 		event: TClEvent,
-		param_name: number,
+		paramName: number,
 	) => number;
 	
 	/**

@@ -190,7 +190,7 @@ describe('Kernel', () => {
 			});
 		});
 		
-		it('fails when passed a fourth argument on a kernel that only has three', () => {
+		it('fails to pass an extra argument', () => {
 			U.withProgram(context, squareKern, (prg) => {
 				const k = cl.createKernel(prg, 'square');
 				assert.throws(

@@ -3,7 +3,7 @@
 #include <utility>
 #include <tuple>
 
-#include "types.hpp"
+#include "wrapper.hpp"
 
 
 namespace opencl {
@@ -33,7 +33,7 @@ JS_METHOD(createKernelsInProgram) { NAPI_ENV;
 
 	Napi::Array karr = Napi::Array::New(env);
 	for(cl_uint i = 0; i < numkernels; i++) {
-		karr.Set(i, Wrapper::fromRaw(env, kernels[i]));
+		karr.Set(i, Wrapper::from(env, kernels[i]));
 	}
 	delete[] kernels;
 	
