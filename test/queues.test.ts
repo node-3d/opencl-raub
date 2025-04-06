@@ -83,7 +83,7 @@ describe('CommandQueue - Common', () => {
 		});
 	});
 	
-	describe('# enqueueUnmapMemObject', () => {
+	describe('#enqueueUnmapMemObject', () => {
 		it('throws as we are unmapping a non mapped memobject', () => {
 			const buf = cl.createBuffer(context, 0, 8, null);
 			assert.throws(
@@ -92,11 +92,11 @@ describe('CommandQueue - Common', () => {
 			cl.releaseMemObject(buf);
 		});
 		
-		it('returns success', () => {
+		it('returns void', () => {
 			const buf = cl.createBuffer(context, 0, 8, null);
 			const mapped = cl.enqueueMapBuffer(cq, buf, true, cl.MAP_READ, 0, 8);
 			const res = cl.enqueueUnmapMemObject(cq, buf, mapped.buffer);
-			assert.equal(res, cl.SUCCESS);
+			assert.equal(res, undefined);
 			cl.releaseMemObject(buf);
 		});
 	});

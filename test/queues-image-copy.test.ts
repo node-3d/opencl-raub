@@ -55,7 +55,7 @@ describe('CommandQueue - Image Copy', () => {
 
 			cl.releaseMemObject(image1);
 			cl.releaseMemObject(image2);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('works with write images', () => {
@@ -85,7 +85,7 @@ describe('CommandQueue - Image Copy', () => {
 
 			cl.releaseMemObject(image1);
 			cl.releaseMemObject(image2);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('works with read images', () => {
@@ -115,7 +115,7 @@ describe('CommandQueue - Image Copy', () => {
 
 			cl.releaseMemObject(image1);
 			cl.releaseMemObject(image2);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 	});
 	
@@ -141,7 +141,7 @@ describe('CommandQueue - Image Copy', () => {
 			
 			cl.releaseMemObject(image);
 			cl.releaseMemObject(buffer);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('works with write buffers', () => {
@@ -165,7 +165,7 @@ describe('CommandQueue - Image Copy', () => {
 			
 			cl.releaseMemObject(image);
 			cl.releaseMemObject(buffer);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('works with different values of source and destination offsets', () => {
@@ -189,7 +189,7 @@ describe('CommandQueue - Image Copy', () => {
 			
 			cl.releaseMemObject(image);
 			cl.releaseMemObject(buffer);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('throws cl.INVALID_VALUE if origin is invalid', () => {
@@ -269,7 +269,7 @@ describe('CommandQueue - Image Copy', () => {
 			
 			cl.releaseMemObject(image);
 			cl.releaseMemObject(buffer);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('works with write buffers', () => {
@@ -293,7 +293,7 @@ describe('CommandQueue - Image Copy', () => {
 			
 			cl.releaseMemObject(image);
 			cl.releaseMemObject(buffer);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('throws cl.INVALID_VALUE if origin is invalid', () => {
@@ -445,7 +445,7 @@ describe('CommandQueue - Image Copy', () => {
 				cl.MIGRATE_MEM_OBJECT_HOST
 			);
 			
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 			cl.releaseMemObject(image);
 			cl.releaseMemObject(buffer);
 		});
@@ -466,7 +466,7 @@ describe('CommandQueue - Image Copy', () => {
 				cl.MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED
 			);
 			
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 			cl.releaseMemObject(image);
 			cl.releaseMemObject(buffer);
 		});

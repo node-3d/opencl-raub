@@ -34,8 +34,8 @@ JS_METHOD(createBuffer) { NAPI_ENV;
 JS_METHOD(createSubBuffer) { NAPI_ENV;
 	REQ_CL_ARG(0, buffer, cl_mem);
 	REQ_OFFS_ARG(1, flags);
-	REQ_OFFS_ARG(1, origin);
-	REQ_OFFS_ARG(1, size);
+	REQ_OFFS_ARG(2, origin);
+	REQ_OFFS_ARG(3, size);
 	
 	cl_buffer_region buffer_create_info;
 	buffer_create_info.origin = origin;

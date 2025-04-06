@@ -47,7 +47,7 @@ describe('CommandQueue - Image', () => {
 				0,
 				Buffer.alloc(64 * 4),
 			);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('fails with bad parameters', () => {
@@ -128,7 +128,7 @@ describe('CommandQueue - Image', () => {
 				0,
 				Buffer.alloc(32)
 			);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('works with cl.MEM_HOST_WRITE_ONLY images', () => {
@@ -150,7 +150,7 @@ describe('CommandQueue - Image', () => {
 				Buffer.alloc(32)
 			);
 			cl.releaseMemObject(image);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('throws cl.INVALID_OPERATION with cl.MEM_HOST_READ_ONLY images', () => {
@@ -214,7 +214,7 @@ describe('CommandQueue - Image', () => {
 	describe('#enqueueFillImage', () => {
 		it('fills image with color', () => {
 			const ret = cl.enqueueFillImage(cq, image, color, zeroArray, validRegion);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('throws cl.INVALID_VALUE if color is null', () => {

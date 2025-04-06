@@ -30,14 +30,14 @@ describe('Program', async () => {
 		it('builds using a valid program and a given device', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
 			const ret = cl.buildProgram(prg, [device]);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 			cl.releaseProgram(prg);
 		});
 		
 		it('builds using a valid program', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
 			const ret = cl.buildProgram(prg);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 			cl.releaseProgram(prg);
 		});
 		
@@ -50,13 +50,13 @@ describe('Program', async () => {
 			};
 			const prg = cl.createProgramWithSource(context, squareKern);
 			const ret = cl.buildProgram(prg, undefined, undefined, cb, { done });
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('builds using a valid program and options', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
 			const ret = cl.buildProgram(prg, null, '-D NOCL_TEST=5');
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 			cl.releaseProgram(prg);
 		});
 		
@@ -144,7 +144,7 @@ describe('Program', async () => {
 		it('compiles a program', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
 			const ret = cl.compileProgram(prg);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 			cl.releaseProgram(prg);
 		});
 		
@@ -165,7 +165,7 @@ describe('Program', async () => {
 				cb,
 				{ done }
 			);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('compiles a program with header', () => {
@@ -173,7 +173,7 @@ describe('Program', async () => {
 			const prg2 = cl.createProgramWithSource(context, squareKern);
 			
 			const ret = cl.compileProgram(prg, null, null, [prg2], ['prg2.h']);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 			cl.releaseProgram(prg);
 		});
 		

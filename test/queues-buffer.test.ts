@@ -18,7 +18,7 @@ describe('CommandQueue - Buffer', () => {
 			const nbuffer = Buffer.alloc(5);
 			const ret = cl.enqueueReadBuffer(cq, buffer, true, 0, 8, nbuffer);
 			cl.releaseMemObject(buffer);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('fails if buffer is null', () => {
@@ -77,7 +77,7 @@ describe('CommandQueue - Buffer', () => {
 			);
 			
 			cl.releaseMemObject(buffer);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('fails if buffer is null', () => {
@@ -130,7 +130,7 @@ describe('CommandQueue - Buffer', () => {
 			const ret = cl.enqueueWriteBuffer(cq, buffer, true, 0, 8, nbuffer);
 			
 			cl.releaseMemObject(buffer);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('fails if buffer is null', () => {
@@ -163,7 +163,7 @@ describe('CommandQueue - Buffer', () => {
 			);
 			
 			cl.releaseMemObject(buffer);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('fails if buffer is null', () => {
@@ -217,7 +217,7 @@ describe('CommandQueue - Buffer', () => {
 			const ret = cl.enqueueFillBuffer(cq, buffer, 2, 0, 16);
 			
 			cl.releaseMemObject(buffer);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('fills a buffer with a scallar float pattern', () => {
@@ -225,7 +225,7 @@ describe('CommandQueue - Buffer', () => {
 			const buffer = cl.createBuffer(context, cl.MEM_USE_HOST_PTR, 32, array);
 			const ret = cl.enqueueFillBuffer(cq, buffer, 2.5, 0, 16);
 			cl.releaseMemObject(buffer);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('fills a buffer with a vector pattern', () => {
@@ -235,7 +235,7 @@ describe('CommandQueue - Buffer', () => {
 			const buffer = cl.createBuffer(context, cl.MEM_USE_HOST_PTR, 32, array);
 			const ret = cl.enqueueFillBuffer(cq, buffer, pattern, 0, 16);
 			cl.releaseMemObject(buffer);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('fills a buffer with a vector pattern', () => {
@@ -245,7 +245,7 @@ describe('CommandQueue - Buffer', () => {
 			const buffer = cl.createBuffer(context, cl.MEM_USE_HOST_PTR, 32, array);
 			const ret = cl.enqueueFillBuffer(cq, buffer, pattern, 0, 16);
 			cl.releaseMemObject(buffer);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 	});
 
@@ -256,7 +256,7 @@ describe('CommandQueue - Buffer', () => {
 			const ret = cl.enqueueCopyBuffer(cq, buffer, dst, 0, 0, 8);
 			
 			cl.releaseMemObject(buffer);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('works with write buffers', () => {
@@ -265,7 +265,7 @@ describe('CommandQueue - Buffer', () => {
 			const ret = cl.enqueueCopyBuffer(cq, buffer, dst, 0, 0, 8);
 			
 			cl.releaseMemObject(buffer);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 
 	});
@@ -282,7 +282,7 @@ describe('CommandQueue - Buffer', () => {
 			);
 			
 			cl.releaseMemObject(buffer);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('works with write-only buffers', () => {
@@ -296,7 +296,7 @@ describe('CommandQueue - Buffer', () => {
 			);
 			
 			cl.releaseMemObject(buffer);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('works with different buffer origin values', () => {
@@ -308,7 +308,7 @@ describe('CommandQueue - Buffer', () => {
 				0, 0,
 				0, 0,
 			);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 			
 			ret = cl.enqueueCopyBufferRect(
 				cq, buffer, dst,
@@ -317,7 +317,7 @@ describe('CommandQueue - Buffer', () => {
 				0, 0,
 			);
 			cl.releaseMemObject(buffer);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('works with different host origin values', () => {
@@ -329,7 +329,7 @@ describe('CommandQueue - Buffer', () => {
 				0, 0,
 				0, 0,
 			);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 			
 			ret = cl.enqueueCopyBufferRect(
 				cq, buffer, dst,
@@ -337,7 +337,7 @@ describe('CommandQueue - Buffer', () => {
 				0, 0,
 				0, 0,
 			);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 			
 			ret = cl.enqueueCopyBufferRect(
 				cq, buffer, dst,
@@ -347,7 +347,7 @@ describe('CommandQueue - Buffer', () => {
 			);
 					
 			cl.releaseMemObject(buffer);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('works with different region values', () => {
@@ -359,7 +359,7 @@ describe('CommandQueue - Buffer', () => {
 				0, 0,
 				0, 0,
 			);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 			
 			ret = cl.enqueueCopyBufferRect(
 				cq, buffer, dst,
@@ -367,7 +367,7 @@ describe('CommandQueue - Buffer', () => {
 				0, 0,
 				0, 0,
 			);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 			
 			ret = cl.enqueueCopyBufferRect(
 				cq, buffer, dst,
@@ -378,7 +378,7 @@ describe('CommandQueue - Buffer', () => {
 			
 			cl.releaseMemObject(buffer);
 			
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('works with different row pitch values', () => {
@@ -390,7 +390,7 @@ describe('CommandQueue - Buffer', () => {
 				1, 0,
 				0, 0,
 			);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 			
 			ret = cl.enqueueCopyBufferRect(
 				cq, buffer, dst,
@@ -401,7 +401,7 @@ describe('CommandQueue - Buffer', () => {
 			
 			cl.releaseMemObject(buffer);
 			
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('works with different splice pitch values', () => {
@@ -413,7 +413,7 @@ describe('CommandQueue - Buffer', () => {
 				1, 2,
 				0, 0,
 			);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 			
 			ret = cl.enqueueCopyBufferRect(
 				cq, buffer, dst,
@@ -424,7 +424,7 @@ describe('CommandQueue - Buffer', () => {
 			
 			cl.releaseMemObject(buffer);
 			
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 		
 		it('works with different host pointer values', () => {
@@ -435,7 +435,7 @@ describe('CommandQueue - Buffer', () => {
 				0, 0,
 				0, 0,
 			);
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 			
 			const buffer2 = cl.createBuffer(context, cl.MEM_USE_HOST_PTR, 64, Buffer.alloc(64));
 			ret = cl.enqueueCopyBufferRect(cq, buffer2, dst,
@@ -447,11 +447,11 @@ describe('CommandQueue - Buffer', () => {
 			cl.releaseMemObject(buffer1);
 			cl.releaseMemObject(dst);
 			
-			assert.strictEqual(ret, cl.SUCCESS);
+			assert.strictEqual(ret, undefined);
 		});
 	});
 	
-	describe('# enqueueMapBuffer', () => {
+	describe('#enqueueMapBuffer', () => {
 		it('returns a valid buffer', () => {
 			const buf = cl.createBuffer(context, cl.MEM_READ_WRITE, 8, null);
 			const ret = cl.enqueueMapBuffer(cq, buf, true, cl.MAP_READ, 0, 8);

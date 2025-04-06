@@ -252,7 +252,6 @@ JS_METHOD(linkProgram) { NAPI_ENV;
 		}
 	}
 	
-
 	std::string options;
 	if (!IS_ARG_EMPTY(2)) {
 		REQ_STR_ARG(2, str);

@@ -19,9 +19,10 @@ The API directly reflects the low-level **OpenCL** interface. There are minor ch
 similar to how WebGL is different from OpenGL.
 * All `cl*` methods are available as `cl.*` starting lowercase,
 	e.g: `clCreateKernel -> cl.createKernel`.
-* All `CL_*` constants are available as `cl.*`, e.g.: `CL_SUCCESS -> cl.SUCCESS`.
+* All `CL_*` constants are available as `cl.*`, e.g.: `CL_TRUE -> cl.TRUE`.
 * The CL resource pointers are wrapped in JS objects, such as `TClPlatform`, `TClContext`, `TClEvent`.
 * For `cl.enqueue*()` methods, you can pass `hasEvent = true`, in that case a `TClEvent` is returned.
+* The CL status is not returned, instead a JS exception is thrown in case of a CL error.
 
 Most of the method arguments comply to the original C-style spec, some parameters are omitted
 due to JS specifics. For example, passing an array, you don't need to specify its length.
