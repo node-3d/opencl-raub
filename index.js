@@ -7,16 +7,6 @@ const cl = require('./core');
 
 cl.Wrapper.prototype[inspect.custom] = cl.Wrapper.prototype.toString;
 
-// global.WebCLPlatform = cl.WebCLPlatform = function (_) { this._ = _; };
-// global.WebCLDevice = cl.WebCLDevice = function (_) { this._ = _; };
-// global.WebCLContext = cl.WebCLContext = function (_) { this._ = _; };
-// global.WebCLCommandQueue = cl.WebCLCommandQueue = function (_) { this._ = _; };
-// global.WebCLMemObject = cl.WebCLMemObject = function (_) { this._ = _; };
-// global.WebCLEvent = cl.WebCLEvent = function (_) { this._ = _; };
-// global.WebCLProgram = cl.WebCLProgram = function (_) { this._ = _; };
-// global.WebCLKernel = cl.WebCLKernel = function (_) { this._ = _; };
-// global.WebCLSampler = cl.WebCLSampler = function (_) { this._ = _; };
-
 let cached = null;
 
 const showDevices = (devices, mainDevice) => {

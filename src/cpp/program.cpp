@@ -105,7 +105,7 @@ JS_METHOD(retainProgram) { NAPI_ENV;
 	cl_int err = p->acquire();
 	CHECK_ERR(err);
 	
-	RET_NUM(CL_SUCCESS);
+	RET_UNDEFINED;
 }
 
 JS_METHOD(releaseProgram) { NAPI_ENV;
@@ -114,7 +114,7 @@ JS_METHOD(releaseProgram) { NAPI_ENV;
 	cl_int err = p->release();
 	CHECK_ERR(err);
 	
-	RET_NUM(CL_SUCCESS);
+	RET_UNDEFINED;
 }
 
 JS_METHOD(buildProgram) { NAPI_ENV;
@@ -160,7 +160,7 @@ JS_METHOD(buildProgram) { NAPI_ENV;
 	
 	CHECK_ERR(err);
 	
-	RET_NUM(CL_SUCCESS);
+	RET_UNDEFINED;
 }
 
 JS_METHOD(compileProgram) { NAPI_ENV;
@@ -238,7 +238,7 @@ JS_METHOD(compileProgram) { NAPI_ENV;
 	
 	CHECK_ERR(err);
 	
-	RET_NUM(CL_SUCCESS);
+	RET_UNDEFINED;
 }
 
 JS_METHOD(linkProgram) { NAPI_ENV;
@@ -308,7 +308,7 @@ JS_METHOD(unloadPlatformCompiler) { NAPI_ENV;
 	
 	CHECK_ERR(clUnloadPlatformCompiler(platform));
 	
-	RET_NUM(CL_SUCCESS);
+	RET_UNDEFINED;
 }
 
 JS_METHOD(getProgramInfo) { NAPI_ENV;
@@ -362,7 +362,7 @@ JS_METHOD(getProgramInfo) { NAPI_ENV;
 			
 			RET_VALUE(arr);
 		}
-		// DRIVER ISSUE : Segfault if program has not been compiled
+		
 		case CL_PROGRAM_BINARY_SIZES: {
 			cl_uint nsizes;
 			CHECK_ERR(clGetProgramInfo(

@@ -28,13 +28,14 @@ const queue = cl.createCommandQueue(context, device, cl.QUEUE_PROFILING_ENABLE);
 
 const saxpyKernelSource = `
 	__kernel
-	void saxpy_kernel(float alpha,
+	void saxpy_kernel(
+		float alpha,
 		__global float *A,
 		__global float *B,
 		__global float *C
 	) {
 		int idx = get_global_id(0);
-		C[idx] = alpha* A[idx] + B[idx];
+		C[idx] = alpha * A[idx] + B[idx];
 	}
 `;
 
@@ -84,10 +85,12 @@ const readEvent = cl.enqueueReadBuffer(
 
 cl.waitForEvents([readEvent]);
 
+const valueActual = C[VECTOR_SIZE - 1];
+const valueExpected = 2 * (VECTOR_SIZE - 1) + 1;
 console.log(
 	`C[${VECTOR_SIZE - 1}] =`,
-	C[VECTOR_SIZE - 1],
-	C[VECTOR_SIZE - 1] === (2 * (VECTOR_SIZE - 1) + 1) ? '(correct!)' : '(wrong!)',
+	valueActual,
+	valueActual === valueExpected ? '(correct!)' : `(expected ${valueExpected})`,
 );
 
 // get all event statistics

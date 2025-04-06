@@ -478,8 +478,6 @@ declare namespace cl {
 	const DEVICE_KERNEL_EXEC_TIMEOUT_NV: number;
 	const DEVICE_INTEGRATED_MEMORY_NV: number;
 	
-	export type TClStatus = number;
-
 	/**
 	 * Common CL object holder, wraps C++ OpenCL pointers for JS.
 	*/
@@ -502,7 +500,7 @@ declare namespace cl {
 	export type TClQueue = TClObject & { __brand: "cl_command_queue" };
 	export type TClEvent = TClObject & { __brand: "cl_event" };
 	
-	export type TClEventOrVoid = TClEvent | undefined;
+	export type TClEventOrVoid = TClEvent | void;
 	export type TClHostData = ArrayBuffer | ArrayBufferView | Buffer;
 	
 	export type TClImageFormat = {
@@ -516,8 +514,8 @@ declare namespace cl {
 		height?: number,
 		depth?: number,
 		array_size?: number,
-		rowPitch?: number,
-		slicePitch?: number,
+		row_pitch?: number,
+		slice_pitch?: number,
 		buffer?: TClMem | null,
 	};
 	
@@ -526,38 +524,55 @@ declare namespace cl {
 		size: number,
 	};
 	
+	export type TBuildProgramCb = (program: TClProgram, userData: unknown) => void;
+	
 	/**
-	 * @see [clCreateKernel](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateKernel.html)
+	 * Creates a kernel object.
+	 * 
+	 * @see [clCreateKernel](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clCreateKernel.html)
 	 */
 	const createKernel: (program: TClProgram, name: string) => TClKernel;
 	
 	/**
-	 * @see [clCreateKernelsInProgram](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateKernelsInProgram.html)
+	 * Creates kernel objects for all kernel functions in a program object.
+	 * 
+	 * @see [clCreateKernelsInProgram](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clCreateKernelsInProgram.html)
 	 */
 	const createKernelsInProgram: (program: TClProgram) => TClKernel[];
 	
 	/**
-	 * @see [clRetainKernel](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clRetainKernel.html)
+	 * Increments the kernel object reference count.
+	 * 
+	 * @see [clRetainKernel](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clRetainKernel.html)
 	 */
-	const retainKernel: (kernel: TClKernel) => TClStatus;
+	const retainKernel: (kernel: TClKernel) => void;
 	
 	/**
-	 * @see [clReleaseKernel](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clReleaseKernel.html)
+	 * Decrements the kernel reference count.
+	 * 
+	 * @see [clReleaseKernel](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clReleaseKernel.html)
 	 */
-	const releaseKernel: (kernel: TClKernel) => TClStatus;
+	const releaseKernel: (kernel: TClKernel) => void;
 	
 	/**
-	 * @see [clSetKernelArg](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clSetKernelArg.html)
+	 * Set the argument value for a specific argument of a kernel.
+	 * 
+	 * It is possible to omit `argType` if the program was built with `-cl-kernel-arg-info`,
+	 * the implementation will fetch the necessary data in that case.
+	 * 
+	 * @see [clSetKernelArg](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clSetKernelArg.html)
 	 */
 	const setKernelArg: (
 		kernel: TClKernel,
 		argIdx: number,
 		argType: string | null,
 		value: unknown,
-	) => TClStatus;
+	) => void;
 	
 	/**
-	 * @see [clGetKernelInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetKernelInfo.html)
+	 * Returns information about the kernel object.
+	 * 
+	 * @see [clGetKernelInfo](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clGetKernelInfo.html)
 	 */
 	const getKernelInfo: (
 		kernel: TClKernel,
@@ -565,7 +580,9 @@ declare namespace cl {
 	) => (string | number | TClContext | TClProgram);
 	
 	/**
-	 * @see [clGetKernelArgInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetKernelArgInfo.html)
+	 * Returns information about the arguments of a kernel.
+	 * 
+	 * @see [clGetKernelArgInfo](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clGetKernelArgInfo.html)
 	 */
 	const getKernelArgInfo: (
 		kernel: TClKernel,
@@ -574,7 +591,9 @@ declare namespace cl {
 	) => (string | number);
 	
 	/**
-	 * @see [clGetKernelWorkGroupInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetKernelWorkGroupInfo.html)
+	 * Returns information about the kernel object that may be specific to a device.
+	 * 
+	 * @see [clGetKernelWorkGroupInfo](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clGetKernelWorkGroupInfo.html)
 	 */
 	const getKernelWorkGroupInfo: (
 		kernel: TClKernel,
@@ -584,7 +603,9 @@ declare namespace cl {
 	
 	
 	/**
-	 * @see [clCreateBuffer](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateBuffer.html)
+	 * Creates a buffer object.
+	 * 
+	 * @see [clCreateBuffer](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clCreateBuffer.html)
 	 */
 	const createBuffer: (
 		context: TClContext,
@@ -594,18 +615,24 @@ declare namespace cl {
 	) => TClMem;
 	
 	/**
-	 * Note: only `type = cl.BUFFER_CREATE_TYPE_REGION` is supported.
-	 * @see [clCreateSubBuffer](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateSubBuffer.html)
+	 * Creates a new buffer object (referred to as a sub-buffer object) from an existing buffer object.
+	 * 
+	 * The CL argument `type` is omitted as being redundant. Arguments `origin` and `size`
+	 * are unwrapped from "info", the same way as in WebCL.
+	 * 
+	 * @see [clCreateSubBuffer](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clCreateSubBuffer.html)
 	 */
 	const createSubBuffer: (
 		mem: TClMem,
 		flags: number,
-		type: number,
-		info: TClSubBufferInfo,
+		origin: number,
+		size: number,
 	) => TClMem;
 	
 	/**
-	 * @see [clCreateImage](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateImage.html)
+	 * Creates a 1D image, 1D image buffer, 1D image array, 2D image, 2D image array or 3D image object.
+	 * 
+	 * @see [clCreateImage](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clCreateImage.html)
 	 */
 	const createImage: (
 		context: TClContext,
@@ -616,17 +643,23 @@ declare namespace cl {
 	) => TClMem;
 	
 	/**
-	 * @see [clRetainMemObject](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clRetainMemObject.html)
+	 * Increments the memory object reference count.
+	 * 
+	 * @see [clRetainMemObject](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clRetainMemObject.html)
 	 */
-	const retainMemObject: (mem: TClMem) => TClStatus;
+	const retainMemObject: (mem: TClMem) => void;
 	
 	/**
-	 * @see [clReleaseMemObject](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clReleaseMemObject.html)
+	 * Decrements the memory object reference count.
+	 * 
+	 * @see [clReleaseMemObject](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clReleaseMemObject.html)
 	 */
-	const releaseMemObject: (mem: TClMem) => TClStatus;
+	const releaseMemObject: (mem: TClMem) => void;
 	
 	/**
-	 * @see [clGetSupportedImageFormats](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetSupportedImageFormats.html)
+	 * Get the list of image formats supported by an OpenCL implementation.
+	 * 
+	 * @see [clGetSupportedImageFormats](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clGetSupportedImageFormats.html)
 	 */
 	const getSupportedImageFormats: (
 		context: TClContext,
@@ -635,8 +668,10 @@ declare namespace cl {
 	) => TClImageFormat[];
 	
 	/**
-	 * For cl.MEM_HOST_PTR returns `ArrayBuffer` for cl.MEM_USE_HOST_PTR buffers, and `null` for others.
-	 * @see [clGetMemObjectInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetMemObjectInfo.html)
+	 * Get information that is common to all memory objects (buffer and image objects).
+	 * 
+	 * For `cl.MEM_HOST_PTR` returns `ArrayBuffer` for `cl.MEM_USE_HOST_PTR` buffers, and `null` for others.
+	 * @see [clGetMemObjectInfo](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clGetMemObjectInfo.html)
 	 */
 	const getMemObjectInfo: (
 		mem: TClMem,
@@ -644,12 +679,16 @@ declare namespace cl {
 	) => (number | TClMem | TClContext | ArrayBuffer | null);
 	
 	/**
-	 * @see [clGetImageInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetImageInfo.html)
+	 * Get information specific to an image object created with clCreateImage.
+	 * 
+	 * @see [clGetImageInfo](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clGetImageInfo.html)
 	 */
 	const getImageInfo: (mem: TClMem, paramName: number) => (number | TClMem);
 	
 	/**
-	 * @see [clCreateFromGLBuffer](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateFromGLBuffer.html)
+	 * Create OpenCL buffer object from an OpenGL buffer object.
+	 * 
+	 * @see [clCreateFromGLBuffer](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clCreateFromGLBuffer.html)
 	 */
 	const createFromGLBuffer: (
 		context: TClContext,
@@ -658,7 +697,9 @@ declare namespace cl {
 	) => TClMem;
 	
 	/**
-	 * @see [clCreateFromGLRenderbuffer](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateFromGLRenderbuffer.html)
+	 * Create OpenCL 2D image object from an OpenGL renderbuffer.
+	 * 
+	 * @see [clCreateFromGLRenderbuffer](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clCreateFromGLRenderbuffer.html)
 	 */
 	const createFromGLRenderbuffer: (
 		context: TClContext,
@@ -667,7 +708,9 @@ declare namespace cl {
 	) => TClMem;
 	
 	/**
-	 * @see [clCreateFromGLTexture](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateFromGLTexture.html)
+	 * Create OpenCL image object from an OpenGL texture object.
+	 * 
+	 * @see [clCreateFromGLTexture](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clCreateFromGLTexture.html)
 	 */
 	const createFromGLTexture: (
 		context: TClContext,
@@ -679,22 +722,30 @@ declare namespace cl {
 	
 	
 	/**
-	 * @see [clGetPlatformIDs](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetPlatformIDs.html)
+	 * Query list of available platforms.
+	 * 
+	 * @see [clGetPlatformIDs](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clGetPlatformIDs.html)
 	 */
 	const getPlatformIDs: () => TClPlatform[];
 	
 	/**
-	 * @see [clGetPlatformInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetPlatformInfo.html)
+	 * Query information about an OpenCL platform.
+	 * 
+	 * @see [clGetPlatformInfo](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clGetPlatformInfo.html)
 	 */
 	const getPlatformInfo: (platform: TClPlatform, paramName: number) => string;
 	
 	/**
-	 * @see [clCreateProgramWithSource](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateProgramWithSource.html)
+	 * Creates a program object for a context, and loads `source` code into the program object.
+	 * 
+	 * @see [clCreateProgramWithSource](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clCreateProgramWithSource.html)
 	 */
 	const createProgramWithSource: (context: TClContext, source: string) => TClProgram;
 	
 	/**
-	 * @see [clCreateProgramWithBinary](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateProgramWithBinary.html)
+	 * Creates a program object for a context, and loads binary bits into the program object.
+	 * 
+	 * @see [clCreateProgramWithBinary](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clCreateProgramWithBinary.html)
 	 */
 	const createProgramWithBinary: (
 		context: TClContext,
@@ -703,7 +754,9 @@ declare namespace cl {
 	) => TClProgram;
 	
 	/**
-	 * @see [clCreateProgramWithBuiltInKernels](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateProgramWithBuiltInKernels.html)
+	 * Creates a program object for a context, and loads the information related to the built-in kernels into a program object.
+	 * 
+	 * @see [clCreateProgramWithBuiltInKernels](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clCreateProgramWithBuiltInKernels.html)
 	 */
 	const createProgramWithBuiltInKernels: (
 		context: TClContext,
@@ -712,19 +765,25 @@ declare namespace cl {
 	) => TClProgram;
 	
 	/**
-	 * @see [clRetainProgram](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clRetainProgram.html)
+	 * Increments the program reference count.
+	 * 
+	 * @see [clRetainProgram](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clRetainProgram.html)
 	 */
-	const retainProgram: (program: TClProgram) => TClStatus;
+	const retainProgram: (program: TClProgram) => void;
 	
 	/**
-	 * @see [clReleaseProgram](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clReleaseProgram.html)
+	 * Decrements the program reference count.
+	 * @see [clReleaseProgram](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clReleaseProgram.html)
 	 */
-	const releaseProgram: (program: TClProgram) => TClStatus;
-	
-	export type TBuildProgramCb = (program: TClProgram, userData: unknown) => void;
+	const releaseProgram: (program: TClProgram) => void;
 	
 	/**
-	 * @see [clBuildProgram](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clBuildProgram.html)
+	 * Builds (compiles and links) a program executable from the program source or binary.
+	 * 
+	 * This can be done in async mode if you pass `cb`. The callback receives both the resulting
+	 * `program` and any `userData` if specified.
+	 * 
+	 * @see [clBuildProgram](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clBuildProgram.html)
 	 */
 	const buildProgram: (
 		program: TClProgram,
@@ -732,10 +791,15 @@ declare namespace cl {
 		options?: string | null,
 		cb?: TBuildProgramCb | null,
 		userData?: unknown,
-	) => TClStatus;
+	) => void;
 	
 	/**
-	 * @see [clCompileProgram](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCompileProgram.html)
+	 * Compiles a program's source for all the devices or a specific device(s) in the OpenCL context associated with a program.
+	 * 
+	 * This can be done in async mode if you pass `cb`. The callback receives both the resulting
+	 * `program` and any `userData` if specified.
+	 * 
+	 * @see [clCompileProgram](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clCompileProgram.html)
 	 */
 	const compileProgram: (
 		program: TClProgram,
@@ -745,10 +809,15 @@ declare namespace cl {
 		names?: string[] | null,
 		cb?: TBuildProgramCb | null,
 		userData?: unknown,
-	) => TClStatus;
+	) => void;
 	
 	/**
-	 * @see [clLinkProgram](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clLinkProgram.html)
+	 * Links a set of compiled program objects and libraries for all the devices or a specific device(s) in the OpenCL context and creates a library or executable.
+	 * 
+	 * This can be done in async mode if you pass `cb`. The callback receives both the resulting
+	 * `program` and any `userData` if specified.
+	 * 
+	 * @see [clLinkProgram](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clLinkProgram.html)
 	 */
 	const linkProgram: (
 		context: TClContext,
@@ -760,20 +829,30 @@ declare namespace cl {
 	) => TClProgram;
 	
 	/**
-	 * @see [clUnloadPlatformCompiler](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clUnloadPlatformCompiler.html)
+	 * Allows the implementation to release the resources allocated by the OpenCL compiler for a platform.
+	 * 
+	 * Note: depending on how bad the CL driver is, this may crash the app, or have no effect at all.
+	 * 
+	 * @see [clUnloadPlatformCompiler](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clUnloadPlatformCompiler.html)
 	 */
-	const unloadPlatformCompiler: (platform: TClPlatform) => TClStatus;
+	const unloadPlatformCompiler: (platform: TClPlatform) => void;
 	
 	/**
-	 * @see [clGetProgramInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetProgramInfo.html)
+	 * Returns information about the program object.
+	 * 
+	 * The return type depends on requested info.
+	 * 
+	 * @see [clGetProgramInfo](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clGetProgramInfo.html)
 	 */
 	const getProgramInfo: (
 		program: TClProgram,
 		paramName: number,
-	) => (number | TClContext | TClDevice[] | number[] | Object[] | string);
+	) => (number | TClContext | TClDevice[] | number[] | ArrayBuffer[] | string);
 	
 	/**
-	 * @see [clGetProgramBuildInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetProgramBuildInfo.html)
+	 * Returns build information for each device in the program object.
+	 * 
+	 * @see [clGetProgramBuildInfo](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clGetProgramBuildInfo.html)
 	 */
 	const getProgramBuildInfo: (
 		program: TClProgram,
@@ -783,25 +862,9 @@ declare namespace cl {
 	
 	
 	/**
-	 * @see [clRetainSampler](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clRetainSampler.html)
-	 */
-	const retainSampler: (sampler: TClSampler) => TClStatus;
-	
-	/**
-	 * @see [clReleaseSampler](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clReleaseSampler.html)
-	 */
-	const releaseSampler: (sampler: TClSampler) => TClStatus;
-	
-	/**
-	 * @see [clGetSamplerInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetSamplerInfo.html)
-	 */
-	const getSamplerInfo: (
-		sampler: TClSampler,
-		paramName: number,
-	) => (number | boolean | TClContext);
-	
-	/**
-	 * @see [clCreateSampler](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateSampler.html)
+	 * Creates a sampler object.
+	 * 
+	 * @see [clCreateSampler](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clCreateSampler.html)
 	 */
 	const createSampler: (
 		context: TClContext,
@@ -811,7 +874,33 @@ declare namespace cl {
 	) => TClSampler;
 	
 	/**
-	 * @see [clCreateCommandQueue](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateCommandQueue.html)
+	 * Increments the sampler reference count.
+	 * 
+	 * @see [clRetainSampler](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clRetainSampler.html)
+	 */
+	const retainSampler: (sampler: TClSampler) => void;
+	
+	/**
+	 * Decrements the sampler reference count.
+	 * 
+	 * @see [clReleaseSampler](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clReleaseSampler.html)
+	 */
+	const releaseSampler: (sampler: TClSampler) => void;
+	
+	/**
+	 * Returns information about the sampler object.
+	 * 
+	 * @see [clGetSamplerInfo](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clGetSamplerInfo.html)
+	 */
+	const getSamplerInfo: (
+		sampler: TClSampler,
+		paramName: number,
+	) => (number | boolean | TClContext);
+	
+	/**
+	 * Create a host command-queue on a specific device.
+	 * 
+	 * @see [clCreateCommandQueue](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clCreateCommandQueue.html)
 	 */
 	const createCommandQueue: (
 		context: TClContext,
@@ -821,17 +910,23 @@ declare namespace cl {
 	
 	
 	/**
-	 * @see [clRetainCommandQueue](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clRetainCommandQueue.html)
+	 * Increments the command_queue reference count.
+	 * 
+	 * @see [clRetainCommandQueue](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clRetainCommandQueue.html)
 	 */
-	const retainCommandQueue: (queue: TClQueue) => TClStatus;
+	const retainCommandQueue: (queue: TClQueue) => void;
 	
 	/**
-	 * @see [clReleaseCommandQueue](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clReleaseCommandQueue.html)
+	 * Decrements the command_queue reference count.
+	 * 
+	 * @see [clReleaseCommandQueue](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clReleaseCommandQueue.html)
 	 */
-	const releaseCommandQueue: (queue: TClQueue) => TClStatus;
+	const releaseCommandQueue: (queue: TClQueue) => void;
 	
 	/**
-	 * @see [clGetCommandQueueInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetCommandQueueInfo.html)
+	 * Query information about a command-queue.
+	 * 
+	 * @see [clGetCommandQueueInfo](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clGetCommandQueueInfo.html)
 	 */
 	const getCommandQueueInfo: (
 		queue: TClQueue,
@@ -839,17 +934,23 @@ declare namespace cl {
 	) => (TClContext | TClDevice | number);
 	
 	/**
-	 * @see [clFlush](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clFlush.html)
+	 * Issues all previously queued OpenCL commands in a command-queue to the device associated with the command-queue.
+	 * 
+	 * @see [clFlush](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clFlush.html)
 	 */
-	const flush: (queue: TClQueue) => TClStatus;
+	const flush: (queue: TClQueue) => void;
 	
 	/**
-	 * @see [clFinish](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clFinish.html)
+	 * Blocks until all previously queued OpenCL commands in a command-queue are issued to the associated device and have completed.
+	 * 
+	 * @see [clFinish](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clFinish.html)
 	 */
-	const finish: (queue: TClQueue) => TClStatus;
+	const finish: (queue: TClQueue) => void;
 	
 	/**
-	 * @see [clEnqueueReadBuffer](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueReadBuffer.html)
+	 * Enqueue commands to read from a buffer object to host memory.
+	 * 
+	 * @see [clEnqueueReadBuffer](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueReadBuffer.html)
 	 */
 	const enqueueReadBuffer: (
 		queue: TClQueue,
@@ -863,7 +964,9 @@ declare namespace cl {
 	) => TClEventOrVoid;
 	
 	/**
-	 * @see [clEnqueueReadBufferRect](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueReadBufferRect.html)
+	 * Enqueue command to read from a 2D or 3D rectangular region from a buffer object to host memory.
+	 * 
+	 * @see [clEnqueueReadBufferRect](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueReadBufferRect.html)
 	 */
 	const enqueueReadBufferRect: (
 		queue: TClQueue,
@@ -882,7 +985,9 @@ declare namespace cl {
 	) => TClEventOrVoid;
 	
 	/**
-	 * @see [clEnqueueWriteBuffer](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueWriteBuffer.html)
+	 * Enqueue commands to read from a buffer object to host memory.
+	 * 
+	 * @see [clEnqueueWriteBuffer](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueWriteBuffer.html)
 	 */
 	const enqueueWriteBuffer: (
 		queue: TClQueue,
@@ -896,7 +1001,9 @@ declare namespace cl {
 	) => TClEventOrVoid;
 	
 	/**
-	 * @see [clEnqueueWriteBufferRect](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueWriteBufferRect.html)
+	 * Enqueue command to read from a 2D or 3D rectangular region from a buffer object to host memory.
+	 * 
+	 * @see [clEnqueueWriteBufferRect](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueWriteBufferRect.html)
 	 */
 	const enqueueWriteBufferRect: (
 		queue: TClQueue,
@@ -915,7 +1022,9 @@ declare namespace cl {
 	) => TClEventOrVoid;
 	
 	/**
-	 * @see [clEnqueueCopyBuffer](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueCopyBuffer.html)
+	 * Enqueues a command to copy from one buffer object to another.
+	 * 
+	 * @see [clEnqueueCopyBuffer](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueCopyBuffer.html)
 	 */
 	const enqueueCopyBuffer: (
 		queue: TClQueue,
@@ -929,7 +1038,9 @@ declare namespace cl {
 	) => TClEventOrVoid;
 	
 	/**
-	 * @see [clEnqueueCopyBufferRect](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueCopyBufferRect.html)
+	 * Enqueues a command to copy a 2D or 3D rectangular region from a buffer object to another buffer object.
+	 * 
+	 * @see [clEnqueueCopyBufferRect](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueCopyBufferRect.html)
 	 */
 	const enqueueCopyBufferRect: (
 		queue: TClQueue,
@@ -947,7 +1058,9 @@ declare namespace cl {
 	) => TClEventOrVoid;
 	
 	/**
-	 * @see [clEnqueueReadImage](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueReadImage.html)
+	 * Enqueue commands to read from an image or image array object to host memory.
+	 * 
+	 * @see [clEnqueueReadImage](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueReadImage.html)
 	 */
 	const enqueueReadImage: (
 		queue: TClQueue,
@@ -963,7 +1076,9 @@ declare namespace cl {
 	) => TClEventOrVoid;
 	
 	/**
-	 * @see [clEnqueueWriteImage](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueWriteImage.html)
+	 * Enqueues a command to write from a 2D or 3D image object to host memory.
+	 * 
+	 * @see [clEnqueueWriteImage](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueWriteImage.html)
 	 */
 	const enqueueWriteImage: (
 		queue: TClQueue,
@@ -979,7 +1094,9 @@ declare namespace cl {
 	) => TClEventOrVoid;
 	
 	/**
-	 * @see [clEnqueueCopyImage](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueCopyImage.html)
+	 * Enqueues a command to copy image objects.
+	 * 
+	 * @see [clEnqueueCopyImage](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueCopyImage.html)
 	 */
 	const enqueueCopyImage: (
 		queue: TClQueue,
@@ -993,7 +1110,9 @@ declare namespace cl {
 	) => TClEventOrVoid;
 	
 	/**
-	 * @see [clEnqueueCopyImageToBuffer](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueCopyImageToBuffer.html)
+	 * Enqueues a command to copy an image object to a buffer object.
+	 * 
+	 * @see [clEnqueueCopyImageToBuffer](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueCopyImageToBuffer.html)
 	 */
 	const enqueueCopyImageToBuffer: (
 		queue: TClQueue,
@@ -1007,7 +1126,9 @@ declare namespace cl {
 	) => TClEventOrVoid;
 	
 	/**
-	 * @see [clEnqueueCopyBufferToImage](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueCopyBufferToImage.html)
+	 * Enqueues a command to copy a buffer object to an image object.
+	 * 
+	 * @see [clEnqueueCopyBufferToImage](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueCopyBufferToImage.html)
 	 */
 	const enqueueCopyBufferToImage: (
 		queue: TClQueue,
@@ -1021,7 +1142,11 @@ declare namespace cl {
 	) => TClEventOrVoid;
 	
 	/**
-	 * @see [clEnqueueMapBuffer](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueMapBuffer.html)
+	 * Enqueues a command to map a region of a buffer object into the host address space and returns a pointer to this mapped region.
+	 * 
+	 * Parameter `blockingMap` determines if output `event` exists. When map is blocking, the `event` will be `null`.
+	 * 
+	 * @see [clEnqueueMapBuffer](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueMapBuffer.html)
 	 */
 	const enqueueMapBuffer: (
 		queue: TClQueue,
@@ -1037,7 +1162,11 @@ declare namespace cl {
 	}>;
 	
 	/**
-	 * @see [clEnqueueMapImage](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueMapImage.html)
+	 * Enqueues a command to map a region of an image object into the host address space and returns a pointer to this mapped region.
+	 * 
+	 * Parameter `blockingMap` determines if output `event` exists. When map is blocking, the `event` will be `null`.
+	 * 
+	 * @see [clEnqueueMapImage](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueMapImage.html)
 	 */
 	const enqueueMapImage: (
 		queue: TClQueue,
@@ -1055,7 +1184,9 @@ declare namespace cl {
 	}>;
 	
 	/**
-	 * @see [clEnqueueUnmapMemObject](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueUnmapMemObject.html)
+	 * Enqueues a command to unmap a previously mapped region of a memory object.
+	 * 
+	 * @see [clEnqueueUnmapMemObject](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueUnmapMemObject.html)
 	 */
 	const enqueueUnmapMemObject: (
 		queue: TClQueue,
@@ -1066,7 +1197,9 @@ declare namespace cl {
 	) => TClEventOrVoid;
 	
 	/**
-	 * @see [clEnqueueNDRangeKernel](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueNDRangeKernel.html)
+	 * Enqueues a command to execute a kernel on a device.
+	 * 
+	 * @see [clEnqueueNDRangeKernel](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueNDRangeKernel.html)
 	 */
 	const enqueueNDRangeKernel: (
 		queue: TClQueue,
@@ -1080,7 +1213,9 @@ declare namespace cl {
 	) => TClEventOrVoid;
 	
 	/**
-	 * @see [clEnqueueTask](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueTask.html)
+	 * Enqueues a command to execute a kernel, using a single work-item, on a device.
+	 * 
+	 * @see [clEnqueueTask](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueTask.html)
 	 */
 	const enqueueTask: (
 		queue: TClQueue,
@@ -1090,12 +1225,17 @@ declare namespace cl {
 	) => TClEventOrVoid;
 	
 	/**
+	 * Enqueues a command to execute a native C/C++ function not compiled using the OpenCL compiler.
+	 * 
 	 * FIXME: not implemented.
-	 * @see [clEnqueueNativeKernel](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueNativeKernel.html)
+	 * 
+	 * @see [clEnqueueNativeKernel](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueNativeKernel.html)
 	 */
 	const enqueueNativeKernel: () => TClEventOrVoid;
 	
 	/**
+	 * Enqueues a marker command which waits for all previously enqueued commands to complete.
+	 * 
 	 * @see [clEnqueueMarker](https://registry.khronos.org/OpenCL/sdk/1.0/docs/man/xhtml/clEnqueueMarker.html)
 	 */
 	const enqueueMarker: (
@@ -1103,7 +1243,9 @@ declare namespace cl {
 	) => TClEvent;
 	
 	/**
-	 * @see [clEnqueueMarkerWithWaitList](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueMarkerWithWaitList.html)
+	 * Enqueues a marker command which waits for either a list of events to complete, or all previously enqueued commands to complete.
+	 * 
+	 * @see [clEnqueueMarkerWithWaitList](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueMarkerWithWaitList.html)
 	 */
 	const enqueueMarkerWithWaitList: (
 		queue: TClQueue,
@@ -1111,7 +1253,9 @@ declare namespace cl {
 	) => TClEvent;
 	
 	/**
-	 * @see [clEnqueueBarrierWithWaitList](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueBarrierWithWaitList.html)
+	 * A synchronization point that enqueues a barrier operation.
+	 * 
+	 * @see [clEnqueueBarrierWithWaitList](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueBarrierWithWaitList.html)
 	 */
 	const enqueueBarrierWithWaitList: (
 		queue: TClQueue,
@@ -1120,6 +1264,8 @@ declare namespace cl {
 	) => TClEventOrVoid;
 	
 	/**
+	 * A synchronization point that enqueues a barrier operation.
+	 * 
 	 * @see [clEnqueueBarrier](https://registry.khronos.org/OpenCL/sdk/1.0/docs/man/xhtml/clEnqueueBarrier.html)
 	 */
 	const enqueueBarrier: (
@@ -1127,7 +1273,12 @@ declare namespace cl {
 	) => TClEventOrVoid;
 	
 	/**
-	 * @see [clEnqueueFillBuffer](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueFillBuffer.html)
+	 * Enqueues a command to fill a buffer object with a pattern of a given pattern size.
+	 * 
+	 * A short `pattern` can be given as an integer value - will be treated as `uint32_t`.
+	 * I.e. `0x0` to `0xffffffff` values make sense.
+	 * 
+	 * @see [clEnqueueFillBuffer](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueFillBuffer.html)
 	 */
 	const enqueueFillBuffer: (
 		queue: TClQueue,
@@ -1140,7 +1291,9 @@ declare namespace cl {
 	) => TClEventOrVoid;
 	
 	/**
-	 * @see [clEnqueueFillImage](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueFillImage.html)
+	 * Enqueues a command to fill an image object with a specified color.
+	 * 
+	 * @see [clEnqueueFillImage](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueFillImage.html)
 	 */
 	const enqueueFillImage: (
 		queue: TClQueue,
@@ -1153,7 +1306,9 @@ declare namespace cl {
 	) => TClEventOrVoid;
 	
 	/**
-	 * @see [clEnqueueMigrateMemObjects](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueMigrateMemObjects.html)
+	 * Enqueues a command to indicate which device a set of memory objects should be associated with.
+	 * 
+	 * @see [clEnqueueMigrateMemObjects](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueMigrateMemObjects.html)
 	 */
 	const enqueueMigrateMemObjects: (
 		queue: TClQueue,
@@ -1164,7 +1319,9 @@ declare namespace cl {
 	) => TClEventOrVoid;
 	
 	/**
-	 * @see [clEnqueueAcquireGLObjects](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueAcquireGLObjects.html)
+	 * Acquire OpenCL memory objects created from OpenGL objects.
+	 * 
+	 * @see [clEnqueueAcquireGLObjects](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueAcquireGLObjects.html)
 	 */
 	const enqueueAcquireGLObjects: (
 		queue: TClQueue,
@@ -1174,7 +1331,9 @@ declare namespace cl {
 	) => TClEventOrVoid;
 	
 	/**
-	 * @see [clEnqueueReleaseGLObjects](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clEnqueueReleaseGLObjects.html)
+	 * Release OpenCL memory objects created from OpenGL objects.
+	 * 
+	 * @see [clEnqueueReleaseGLObjects](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clEnqueueReleaseGLObjects.html)
 	 */
 	const enqueueReleaseGLObjects: (
 		queue: TClQueue,
@@ -1185,7 +1344,9 @@ declare namespace cl {
 	
 	
 	/**
-	 * @see [clCreateContext](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateContext.html)
+	 * Create an OpenCL context.
+	 * 
+	 * @see [clCreateContext](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clCreateContext.html)
 	 */
 	const createContext: (
 		properties: (number | TClPlatform)[] | null,
@@ -1193,7 +1354,9 @@ declare namespace cl {
 	) => TClContext;
 	
 	/**
-	 * @see [clCreateContext](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateContextFromType.html)
+	 * Create an OpenCL context from a device type.
+	 * 
+	 * @see [clCreateContextFromType](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clCreateContextFromType.html)
 	 */
 	const createContextFromType: (
 		properties: (number | TClPlatform)[] | null,
@@ -1201,17 +1364,23 @@ declare namespace cl {
 	) => TClContext;
 	
 	/**
-	 * @see [clRetainContext](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clRetainContext.html)
+	 * Retain an OpenCL context.
+	 * 
+	 * @see [clRetainContext](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clRetainContext.html)
 	 */
-	const retainContext: (context: TClContext) => TClStatus;
+	const retainContext: (context: TClContext) => void;
 	
 	/**
-	 * @see [clReleaseContext](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clReleaseContext.html)
+	 * Release an OpenCL context.
+	 * 
+	 * @see [clReleaseContext](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clReleaseContext.html)
 	 */
-	const releaseContext: (context: TClContext) => TClStatus;
+	const releaseContext: (context: TClContext) => void;
 	
 	/**
-	 * @see [clGetContextInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetContextInfo.html)
+	 * Query information about an OpenCL context.
+	 * 
+	 * @see [clGetContextInfo](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clGetContextInfo.html)
 	 */
 	const getContextInfo: (
 		context: TClContext,
@@ -1220,7 +1389,9 @@ declare namespace cl {
 	
 	
 	/**
-	 * @see [clGetDeviceIDs](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetDeviceIDs.html)
+	 * Query devices available on a platform.
+	 * 
+	 * @see [clGetDeviceIDs](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clGetDeviceIDs.html)
 	 */
 	const getDeviceIDs: (
 		platform: TClPlatform,
@@ -1228,7 +1399,9 @@ declare namespace cl {
 	) => TClDevice[];
 	
 	/**
-	 * @see [clGetDeviceInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetDeviceInfo.html)
+	 * Query specific information about a device.
+	 * 
+	 * @see [clGetDeviceInfo](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clGetDeviceInfo.html)
 	 */
 	const getDeviceInfo: (
 		device: TClDevice,
@@ -1236,7 +1409,11 @@ declare namespace cl {
 	) => string | number | boolean | TClPlatform | number[] | null;
 	
 	/**
-	 * @see 
+	 * Create sub-devices partitioning an OpenCL device.
+	 * 
+	 * Note: this doesn't really work (driver-wise). Who needs that, anyway.
+	 * 
+	 * @see [clCreateSubDevices](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clCreateSubDevices.html)
 	 */
 	const createSubDevices: (
 		device: TClDevice,
@@ -1244,23 +1421,31 @@ declare namespace cl {
 	) => TClDevice[];
 	
 	/**
-	 * @see [clRetainDevice](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clRetainDevice.html)
+	 * Retain an OpenCL device.
+	 * 
+	 * @see [clRetainDevice](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clRetainDevice.html)
 	 */
-	const retainDevice: (device: TClDevice) => TClStatus;
+	const retainDevice: (device: TClDevice) => void;
 	
 	/**
-	 * @see [clReleaseDevice](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clReleaseDevice.html)
+	 * Release an OpenCL device.
+	 * 
+	 * @see [clReleaseDevice](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clReleaseDevice.html)
 	 */
-	const releaseDevice: (device: TClDevice) => TClStatus;
+	const releaseDevice: (device: TClDevice) => void;
 	
 	
 	/**
-	 * @see [clWaitForEvents](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clWaitForEvents.html)
+	 * Waits on the host thread for commands identified by event objects to complete.
+	 * 
+	 * @see [clWaitForEvents](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clWaitForEvents.html)
 	 */
-	const waitForEvents: (waitList: TClEvent[]) => TClStatus;
+	const waitForEvents: (waitList: TClEvent[]) => void;
 	
 	/**
-	 * @see [clGetEventInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetEventInfo.html)
+	 * Returns information about the event object.
+	 * 
+	 * @see [clGetEventInfo](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clGetEventInfo.html)
 	 */
 	const getEventInfo: (
 		event: TClEvent,
@@ -1268,38 +1453,49 @@ declare namespace cl {
 	) => (TClQueue | TClContext | number);
 	
 	/**
-	 * @see [clCreateUserEvent](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clCreateUserEvent.html)
+	 * Creates a user event object.
+	 * 
+	 * @see [clCreateUserEvent](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clCreateUserEvent.html)
 	 */
 	const createUserEvent: (context: TClContext) => TClEvent;
 	
 	/**
-	 * @see [clRetainEvent](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clRetainEvent.html)
+	 * Increments the event reference count.
+	 * 
+	 * @see [clRetainEvent](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clRetainEvent.html)
 	 */
-	const retainEvent: (event: TClEvent) => TClStatus;
+	const retainEvent: (event: TClEvent) => void;
 	
 	/**
-	 * @see [clReleaseEvent](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clReleaseEvent.html)
+	 * Decrements the event reference count.
+	 * 
+	 * @see [clReleaseEvent](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clReleaseEvent.html)
 	 */
-	const releaseEvent: (event: TClEvent) => TClStatus;
+	const releaseEvent: (event: TClEvent) => void;
 	
 	/**
-	 * @see [clSetUserEventStatus](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clSetUserEventStatus.html)
+	 * Sets the execution status of a user event object.
+	 * 
+	 * @see [clSetUserEventStatus](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clSetUserEventStatus.html)
 	 */
-	const setUserEventStatus: (event: TClEvent, status: number) => TClStatus;
+	const setUserEventStatus: (event: TClEvent, status: number) => void;
 	
 	/**
-	 * @see [clSetEventCallback](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clSetEventCallback.html)
+	 * Registers a user callback function for a specific command execution status.
+	 * 
+	 * @see [clSetEventCallback](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clSetEventCallback.html)
 	 */
 	const setEventCallback: (
 		event: TClEvent,
 		statusType: number,
 		cb: (event: TClEvent, status: number, userData: unknown) => void,
 		userData?: unknown,
-	) => TClStatus;
+	) => void;
 	
 	/**
-	 * TODO: hould it be 1 x64 number?
-	 * @see [clGetEventProfilingInfo](https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/clGetEventProfilingInfo.html)
+	 * Returns profiling information for the command associated with event if profiling is enabled.
+	 * 
+	 * @see [clGetEventProfilingInfo](https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/clGetEventProfilingInfo.html)
 	 */
 	const getEventProfilingInfo: (
 		event: TClEvent,

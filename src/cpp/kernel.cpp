@@ -46,7 +46,7 @@ JS_METHOD(retainKernel) { NAPI_ENV;
 	cl_int err = k->acquire();
 	CHECK_ERR(err);
 	
-	RET_NUM(CL_SUCCESS);
+	RET_UNDEFINED;
 }
 
 JS_METHOD(releaseKernel) { NAPI_ENV;
@@ -55,7 +55,7 @@ JS_METHOD(releaseKernel) { NAPI_ENV;
 	cl_int err = k->release();
 	CHECK_ERR(err);
 	
-	RET_NUM(CL_SUCCESS);
+	RET_UNDEFINED;
 }
 
 // Caches OpenCL type name to conversion function mapping in a hash table

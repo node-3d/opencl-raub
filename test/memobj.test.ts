@@ -88,121 +88,113 @@ describe('MemObj', () => {
 	});
 	
 	describe('#createSubBuffer', () => {
-		it('throws cl.INVALID_MEM_OBJECT if buffer is not valid', () => {
+		it('throws if buffer is not valid', () => {
 			assert.throws(
 				() => cl.createSubBuffer(
-					null as unknown as cl.TClMem,
+					{} as unknown as cl.TClMem,
 					cl.MEM_READ_WRITE,
-					cl.BUFFER_CREATE_TYPE_REGION,
-					{ origin: 0, size: 2 }
+					0,
+					2,
 				),
-				new Error('Argument 0 must be of type `Object`'),
 			);
 		});
 		
-		it('throws cl.INVALID_VALUE if bufferCreateType is not BUFFER_CREATE_TYPE_REGION', () => {
-			assert.throws(
-				() => cl.createSubBuffer(buffer, 0, -1, { origin: 0, size: 2 }),
-				cl.INVALID_VALUE,
-			);
-		});
-		
-		it('creates a subBuffer', () => {
+		it('creates a subBuffer - empty flags', () => {
 			const subBuffer = cl.createSubBuffer(
-				buffer, 0, cl.BUFFER_CREATE_TYPE_REGION, { origin: 0, size: 2 },
+				buffer, 0, 0, 2,
 			);
 			
 			cl.releaseMemObject(subBuffer);
 		});
 		
-		it('creates a subBuffer', () => {
+		it('creates a subBuffer - cl.MEM_WRITE_ONLY', () => {
 			const subBuffer = cl.createSubBuffer(
 				buffer,
 				cl.MEM_WRITE_ONLY,
-				cl.BUFFER_CREATE_TYPE_REGION,
-				{ origin: 0, size: 2 },
+				0,
+				2,
 			);
 			
 			cl.releaseMemObject(subBuffer);
 		});
 		
-		it('creates a subBuffer', () => {
+		it('creates a subBuffer - cl.MEM_READ_ONLY', () => {
 			const subBuffer = cl.createSubBuffer(
 				buffer,
 				cl.MEM_READ_ONLY,
-				cl.BUFFER_CREATE_TYPE_REGION,
-				{ origin: 0, size: 2 },
+				0,
+				2,
 			);
 			
 			cl.releaseMemObject(subBuffer);
 		});
 		
-		it('creates a subBuffer', () => {
+		it('creates a subBuffer - cl.MEM_USE_HOST_PTR', () => {
 			const i32Array = new Int32Array(8);
 			const buffer = cl.createBuffer(context, cl.MEM_USE_HOST_PTR, 8, i32Array);
 			const subBuffer = cl.createSubBuffer(
 				buffer,
 				0,
-				cl.BUFFER_CREATE_TYPE_REGION,
-				{ origin: 0, size: 2 },
+				0,
+				2,
 			);
 			
 			cl.releaseMemObject(subBuffer);
 			cl.releaseMemObject(buffer);
 		});
 		
-		it('creates a subBuffer', () => {
+		it('creates a subBuffer - cl.MEM_ALLOC_HOST_PTR', () => {
 			const buffer = cl.createBuffer(context, cl.MEM_ALLOC_HOST_PTR, 8);
 			const subBuffer = cl.createSubBuffer(
 				buffer,
 				0,
-				cl.BUFFER_CREATE_TYPE_REGION,
-				{ origin: 0, size: 2 },
+				0,
+				2,
 			);
 			
 			cl.releaseMemObject(subBuffer);
 			cl.releaseMemObject(buffer);
 		});
 		
-		it('creates a subBuffer', () => {
+		it('creates a subBuffer - cl.MEM_COPY_HOST_PTR', () => {
 			const i32Array = new Int32Array(8);
 			const buffer = cl.createBuffer(context, cl.MEM_COPY_HOST_PTR, 8, i32Array);
 			const subBuffer = cl.createSubBuffer(
-				buffer, 0, cl.BUFFER_CREATE_TYPE_REGION, { origin: 0, size: 2 },
+				buffer, 0, 0, 2,
 			);
 			
 			cl.releaseMemObject(subBuffer);
 			cl.releaseMemObject(buffer);
 		});
 		
-		it('creates a subBuffer', () => {
+		it('creates a subBuffer - cl.MEM_HOST_WRITE_ONLY', () => {
 			const subBuffer = cl.createSubBuffer(
 				buffer,
 				cl.MEM_HOST_WRITE_ONLY,
-				cl.BUFFER_CREATE_TYPE_REGION,
-				{ origin: 0, size: 2 },
+				0,
+				2,
 			);
 			
 			cl.releaseMemObject(subBuffer);
 		});
 		
-		it('creates a subBuffer', () => {
+		it('creates a subBuffer - cl.MEM_HOST_READ_ONLY', () => {
 			const subBuffer = cl.createSubBuffer(
 				buffer,
 				cl.MEM_HOST_READ_ONLY,
-				cl.BUFFER_CREATE_TYPE_REGION,
-				{ origin: 0, size: 2 },
+				0,
+				2,
 			);
 			
 			cl.releaseMemObject(subBuffer);
 		});
 		
-		it('creates a subBuffer', () => {
+		it('creates a subBuffer - cl.MEM_HOST_NO_ACCESS', () => {
 			const subBuffer = cl.createSubBuffer(
 				buffer,
 				cl.MEM_HOST_NO_ACCESS,
-				cl.BUFFER_CREATE_TYPE_REGION,
-				{ origin: 0, size: 2 },
+				0,
+				2,
 			);
 			
 			cl.releaseMemObject(subBuffer);

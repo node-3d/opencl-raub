@@ -25,7 +25,7 @@ namespace opencl {
 	if (eventPtr) {                                                           \
 		RET_WRAPPER(event);                                                   \
 	} else {                                                                  \
-		RET_NUM(CL_SUCCESS);                                                  \
+		RET_UNDEFINED;                                                  \
 	}
 
 
@@ -327,9 +327,9 @@ JS_METHOD(enqueueFillBuffer) { NAPI_ENV;
 	void *pattern = nullptr;
 	size_t len = 0;
 	if (info[2].IsNumber()) {
-		REQ_DOUBLE_ARG(2, scalar_pattern_double);
-		pattern = &scalar_pattern_double;
-		len = sizeof(scalar_pattern_double);
+		WEAK_UINT32_ARG(2, scalar_pattern);
+		pattern = &scalar_pattern;
+		len = sizeof(scalar_pattern);
 	} else {
 		REQ_OBJ_ARG(2, buffer);
 		getPtrAndLen(buffer, &pattern, &len);

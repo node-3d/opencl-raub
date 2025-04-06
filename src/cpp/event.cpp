@@ -15,7 +15,7 @@ JS_METHOD(waitForEvents) { NAPI_ENV;
 		&cl_events.front()
 	));
 	
-	RET_NUM(CL_SUCCESS);
+	RET_UNDEFINED;
 }
 
 JS_METHOD(getEventInfo) { NAPI_ENV;
@@ -88,7 +88,7 @@ JS_METHOD(retainEvent) { NAPI_ENV;
 	cl_int err = eventWrapper->acquire();
 	CHECK_ERR(err);
 	
-	RET_NUM(CL_SUCCESS);
+	RET_UNDEFINED;
 }
 
 JS_METHOD(releaseEvent) { NAPI_ENV;
@@ -96,7 +96,7 @@ JS_METHOD(releaseEvent) { NAPI_ENV;
 	cl_int err = eventWrapper->release();
 	CHECK_ERR(err);
 	
-	RET_NUM(CL_SUCCESS);
+	RET_UNDEFINED;
 }
 
 JS_METHOD(setUserEventStatus) { NAPI_ENV;
@@ -105,7 +105,7 @@ JS_METHOD(setUserEventStatus) { NAPI_ENV;
 	
 	CHECK_ERR(clSetUserEventStatus(ev, exec_status));
 	
-	RET_NUM(CL_SUCCESS);
+	RET_UNDEFINED;
 }
 
 JS_METHOD(getEventProfilingInfo) { NAPI_ENV;
@@ -145,7 +145,7 @@ JS_METHOD(setEventCallback) { NAPI_ENV;
 		new NotifyHelper<cl_event>(callback, info[3])
 	));
 	
-	RET_NUM(CL_SUCCESS);
+	RET_UNDEFINED;
 }
 
 

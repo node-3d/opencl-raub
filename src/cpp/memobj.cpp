@@ -34,29 +34,24 @@ JS_METHOD(createBuffer) { NAPI_ENV;
 JS_METHOD(createSubBuffer) { NAPI_ENV;
 	REQ_CL_ARG(0, buffer, cl_mem);
 	REQ_OFFS_ARG(1, flags);
-	REQ_UINT32_ARG(2, buffer_create_type);
+	REQ_OFFS_ARG(1, origin);
+	REQ_OFFS_ARG(1, size);
 	
-	if (buffer_create_type == CL_BUFFER_CREATE_TYPE_REGION) {
-		REQ_OBJ_ARG(3, obj);
-		cl_buffer_region buffer_create_info;
-		buffer_create_info.origin = obj.Get("origin").ToNumber().Int64Value();
-		buffer_create_info.size = obj.Get("size").ToNumber().Int64Value();
-		
-		cl_int ret = CL_SUCCESS;
-		cl_mem mem = clCreateSubBuffer(
-			buffer,
-			flags,
-			buffer_create_type,
-			&buffer_create_info,
-			&ret
-		);
-		CHECK_ERR(ret);
-		
-		RET_WRAPPER(mem);
-	}
+	cl_buffer_region buffer_create_info;
+	buffer_create_info.origin = origin;
+	buffer_create_info.size = size;
 	
-	CHECK_ERR(CL_INVALID_VALUE);
-	RET_UNDEFINED;
+	cl_int ret = CL_SUCCESS;
+	cl_mem mem = clCreateSubBuffer(
+		buffer,
+		flags,
+		CL_BUFFER_CREATE_TYPE_REGION,
+		&buffer_create_info,
+		&ret
+	);
+	CHECK_ERR(ret);
+	
+	RET_WRAPPER(mem);
 }
 
 JS_METHOD(createImage) { NAPI_ENV;
@@ -142,7 +137,7 @@ JS_METHOD(retainMemObject) { NAPI_ENV;
 	cl_int ret = mem->acquire();
 	CHECK_ERR(ret);
 	
-	RET_NUM(CL_SUCCESS);
+	RET_UNDEFINED;
 }
 
 JS_METHOD(releaseMemObject) { NAPI_ENV;
@@ -151,7 +146,7 @@ JS_METHOD(releaseMemObject) { NAPI_ENV;
 	cl_int ret = mem->release();
 	CHECK_ERR(ret);
 	
-	RET_NUM(CL_SUCCESS);
+	RET_UNDEFINED;
 }
 
 JS_METHOD(getSupportedImageFormats) { NAPI_ENV;
