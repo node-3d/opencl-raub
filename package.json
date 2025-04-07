@@ -1,7 +1,7 @@
 {
 	"author": "Luis Blanco <luisblanco1337@gmail.com>",
 	"name": "opencl-raub",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"description": "OpenCL for Node.js",
 	"license": "MIT",
 	"main": "index.js",
@@ -19,6 +19,7 @@
 	],
 	"files": [
 		"core.js",
+		"index.d.ts",
 		"index.js",
 		"install.js",
 		"LICENSE",
