@@ -1,11 +1,11 @@
 import fs from 'node:fs';
 import { strict as assert } from 'node:assert';
 import { describe, it, after } from 'node:test';
-import cl from '../index.js';
+import * as cl from './index.ts';
 import * as U from './utils.ts';
 
-const squareKern = fs.readFileSync('test/kernels/square.cl').toString();
-const squareOneKern = fs.readFileSync('test/kernels/square_one.cl').toString();
+const squareKern = fs.readFileSync(new URL('../examples/assets/kernels/square.cl', import.meta.url)).toString();
+const squareOneKern = fs.readFileSync(new URL('../examples/assets/kernels/square_one.cl', import.meta.url)).toString();
 
 
 describe('CommandQueue - Common', () => {
@@ -134,7 +134,7 @@ describe('CommandQueue - Common', () => {
 		});
 		
 		it('fails if kern is invalid', () => {
-			U.withProgram(context, squareKern, (prg) => {
+			U.withProgram(context, squareKern, () => {
 				assert.throws(
 					() => cl.enqueueNDRangeKernel(
 						cq,

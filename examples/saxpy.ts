@@ -1,4 +1,4 @@
-import cl from '../index.js';
+import * as cl from '@node-3d/opencl';
 
 const getEventExecTime = (event: cl.TClEvent): number => {
 	const startTime = cl.getEventProfilingInfo(event, cl.PROFILING_COMMAND_START);
@@ -66,16 +66,16 @@ cl.setKernelArg(kernel, 3, 'float*', cBuffer);
 
 // Do the work
 const writeEvents = [
-	cl.enqueueWriteBuffer(queue, aBuffer, false, 0, size, A, null, true) as cl.TClEvent,
-	cl.enqueueWriteBuffer(queue, bBuffer, false, 0, size, B, null, true) as cl.TClEvent,
+	cl.enqueueWriteBuffer(queue, aBuffer, false, 0, size, A, undefined, true) as cl.TClEvent,
+	cl.enqueueWriteBuffer(queue, bBuffer, false, 0, size, B, undefined, true) as cl.TClEvent,
 ];
 
 // Execute (enqueue) kernel
-const localWS = null; // process one list at a time
+const localWS = undefined; // process one list at a time
 const globalWS = [VECTOR_SIZE]; // process entire list
 
 const kernelEvent = cl.enqueueNDRangeKernel(
-	queue, kernel, 1, null, globalWS, localWS, writeEvents, true,
+	queue, kernel, 1, undefined, globalWS, localWS, writeEvents, true,
 ) as cl.TClEvent;
 
 // get results and block while getting them

@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
-import { describe, it, after } from 'node:test';
-import cl from '../index.js';
+import { describe, it } from 'node:test';
+import * as cl from './index.ts';
 import * as U from './utils.ts';
 
 

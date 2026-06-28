@@ -1,6 +1,7 @@
 import { strict as assert } from 'node:assert';
-import { describe, it, type TestContext } from 'node:test';
-import cl from '../index.js';
+import { describe, it } from 'node:test';
+import type { TestContext } from 'node:test';
+import * as cl from './index.ts';
 import * as U from './utils.ts';
 
 
@@ -19,7 +20,7 @@ describe('Event', () => {
 	
 	describe('#getEventInfo', () => {
 		const testNumber = (name: keyof typeof cl, expected: number) => {
-			it('returns value for ' + name, () => {
+			it(`returns value for ${name}`, () => {
 				const userEvent = cl.createUserEvent(context);
 				const val = cl.getEventInfo(userEvent, cl[name] as number);
 				U.assertType(val, 'number');
@@ -31,7 +32,7 @@ describe('Event', () => {
 		};
 		
 		const testObject = (name: keyof typeof cl) => {
-			it('returns the good value for ' + name, () => {
+			it(`returns the good value for ${name}`, () => {
 				const userEvent = cl.createUserEvent(context);
 				
 				const val = cl.getEventInfo(userEvent, cl[name] as number);

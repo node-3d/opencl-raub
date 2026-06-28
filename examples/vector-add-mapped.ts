@@ -1,4 +1,4 @@
-import cl from '../index.js';
+import * as cl from '@node-3d/opencl';
 
 const { context, device } = cl.quickStart(true);
 
@@ -51,34 +51,34 @@ cl.setKernelArg(kernel, 2, 'uint*', cBuffer);
 cl.setKernelArg(kernel, 3, 'uint', BUFFER_SIZE);
 
 // Create command queue
-const queue = cl.createCommandQueue(context, device, null); // OpenCL 1.x
+const queue = cl.createCommandQueue(context, device); // OpenCL 1.x
 
 // Execute the OpenCL kernel on the list
 // const localWS = [5]; // process one list at a time
 // const globalWS = [clu.roundUp(localWS, BUFFER_SIZE)]; // process entire list
-const localWS = null;
+const localWS = undefined;
 const globalWS = [BUFFER_SIZE];
 
-console.log('Global work item size: ' + globalWS);
-console.log('Local work item size: ' + localWS);
+console.log(`Global work item size: ${globalWS}`);
+console.log(`Local work item size: ${localWS}`);
 
 // Execute kernel
-cl.enqueueNDRangeKernel(queue, kernel, 1, null, globalWS, localWS);
+cl.enqueueNDRangeKernel(queue, kernel, 1, undefined, globalWS, localWS);
 
 // Map cBuffer to host pointer (blocking mode)
 const mapped = cl.enqueueMapBuffer(queue, cBuffer, true, cl.MAP_READ, 0, size);
 
 let output = 'after mapped.buffer C= ';
 for (let i = 0; i < BUFFER_SIZE; i++) {
-	output += C[i] + ', ';
+	output += `${C[i]}, `;
 }
 console.log(output);
 
 // we are now reading values as bytes, we need to cast it to the output type we want
-output = 'output = [' + mapped.buffer.byteLength + ' bytes] ';
+output = `output = [${mapped.buffer.byteLength} bytes] `;
 const mapView = new Uint8Array(mapped.buffer);
-for (let i = 0; i < mapView.length; i++) {
-	output += mapView[i] + ', ';
+for (const item of mapView) {
+	output += `${item}, `;
 }
 console.log(output);
 
@@ -86,7 +86,7 @@ cl.enqueueUnmapMemObject(queue, cBuffer, mapped.buffer);
 
 output = 'after unmap C= ';
 for (let i = 0; i < BUFFER_SIZE; i++) {
-	output += C[i] + ', ';
+	output += `${C[i]}, `;
 }
 console.log(output);
 

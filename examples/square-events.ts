@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import cl from '../index.js';
+import * as cl from '@node-3d/opencl';
 
 const { context, device } = cl.quickStart(true);
 
@@ -29,7 +29,7 @@ cl.setKernelArg(kern, 2, 'uint', NVALUES);
 
 const cq = cl.createCommandQueue(context, device);
 
-cl.enqueueNDRangeKernel(cq, kern, 1, null, [NVALUES]);
+cl.enqueueNDRangeKernel(cq, kern, 1, undefined, [NVALUES]);
 
 // here we use the returned user event to associate a callback that will be called from OpenCL
 // once read buffer is complete.

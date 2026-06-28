@@ -1,9 +1,9 @@
 import { strict as assert } from 'node:assert';
-import { describe, it, after } from 'node:test';
-import cl from '../index.js';
+import { describe, it } from 'node:test';
+import * as cl from './index.ts';
 
 
-const constants: ReadonlyArray<keyof typeof cl> = [
+const constants: readonly (keyof typeof cl)[] = [
 	'size_CHAR', 'size_SHORT', 'size_INT', 'size_LONG', 'size_FLOAT', 'size_DOUBLE', 'size_HALF',
 	'DEVICE_NOT_FOUND', 'DEVICE_NOT_AVAILABLE', 'COMPILER_NOT_AVAILABLE',
 	'MEM_OBJECT_ALLOCATION_FAILURE', 'OUT_OF_RESOURCES', 'OUT_OF_HOST_MEMORY',
@@ -130,7 +130,7 @@ const constants: ReadonlyArray<keyof typeof cl> = [
 	'CURRENT_DEVICE_FOR_GL_CONTEXT_KHR', 'DEVICES_FOR_GL_CONTEXT_KHR',
 ];
 
-const methods: ReadonlyArray<keyof typeof cl> = [
+const methods: readonly (keyof typeof cl)[] = [
 	'createKernel', 'createKernelsInProgram', 'retainKernel', 'releaseKernel',
 	'setKernelArg', 'getKernelInfo', 'getKernelArgInfo', 'getKernelWorkGroupInfo',
 	'createBuffer', 'createSubBuffer', 'createImage', 'retainMemObject',
@@ -160,15 +160,15 @@ const methods: ReadonlyArray<keyof typeof cl> = [
 
 
 describe('OpenCL Exported API', () => {
-	constants.forEach((constant) => {
+	for (const constant of constants) {
 		it(`\`${constant}\` constant exposed`, () => {
 			assert.ok(cl[constant] !== undefined);
 		});
-	});
+	}
 	
-	methods.forEach((method) => {
+	for (const method of methods) {
 		it(`\`${method}()\` method exposed`, () => {
 			assert.strictEqual(typeof cl[method], 'function');
 		});
-	});
+	}
 });

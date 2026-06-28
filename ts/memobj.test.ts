@@ -1,10 +1,10 @@
 import { strict as assert } from 'node:assert';
 import { describe, it, after } from 'node:test';
-import cl from '../index.js';
+import * as cl from './index.ts';
 
 
 describe('MemObj', () => {
-	const { context, platform } = cl.quickStart();
+	const { context } = cl.quickStart();
 	const buffer = cl.createBuffer(context, 0, 8);
 	
 	after(() => {

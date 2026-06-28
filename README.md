@@ -2,16 +2,16 @@
 
 This is a part of [Node3D](https://github.com/node-3d) project.
 
-[![NPM](https://badge.fury.io/js/opencl-raub.svg)](https://badge.fury.io/js/opencl-raub)
-[![ESLint](https://github.com/node-3d/opencl-raub/actions/workflows/eslint.yml/badge.svg)](https://github.com/node-3d/opencl-raub/actions/workflows/eslint.yml)
-[![Test](https://github.com/node-3d/opencl-raub/actions/workflows/test.yml/badge.svg)](https://github.com/node-3d/opencl-raub/actions/workflows/test.yml)
-[![Cpplint](https://github.com/node-3d/opencl-raub/actions/workflows/cpplint.yml/badge.svg)](https://github.com/node-3d/opencl-raub/actions/workflows/cpplint.yml)
+[![NPM](https://badge.fury.io/js/%40node-3d%2Fopencl.svg)](https://badge.fury.io/js/@node-3d/opencl)
+[![Lint](https://github.com/node-3d/opencl/actions/workflows/lint.yml/badge.svg)](https://github.com/node-3d/opencl/actions/workflows/lint.yml)
+[![Test](https://github.com/node-3d/opencl/actions/workflows/test.yml/badge.svg)](https://github.com/node-3d/opencl/actions/workflows/test.yml)
+[![Cpplint](https://github.com/node-3d/opencl/actions/workflows/cpplint.yml/badge.svg)](https://github.com/node-3d/opencl/actions/workflows/cpplint.yml)
 
 ```console
-npm i -s opencl-raub
+npm install @node-3d/opencl
 ```
 
-> This addon is ABI-compatible across Node.js versions. **There is no compilation** during `npm i`.
+> This addon is ABI-compatible across Node.js versions. **There is no compilation** during `npm install`.
 
 **Node.js** addon with **OpenCL 1.2** bindings. This is not WebCL.
 
@@ -27,18 +27,38 @@ similar to how WebGL is different from OpenGL.
 Most of the method arguments comply to the original C-style spec, some parameters are omitted
 due to JS specifics. For example, passing an array, you don't need to specify its length.
 
-See [TypeScript declarations](/index.d.ts) for more details.
+## API
+
+The package is intended to be imported as a namespace:
+
+```ts
+import * as cl from '@node-3d/opencl';
+```
+
+The namespace contains:
+
+* OpenCL constants, with `CL_` prefixes removed.
+* Platform/device/context helpers such as `getPlatformIDs`, `getDeviceIDs`,
+  `createContext`, and `createContextFromType`.
+* Queue, program, kernel, sampler, memory, image, and event functions mirroring OpenCL 1.2.
+* GL interop helpers such as `createFromGLBuffer`, `createFromGLTexture`,
+  `enqueueAcquireGLObjects`, and `enqueueReleaseGLObjects`.
+* `quickStart(isLoggingDevices?)`, which chooses the first available platform/device and
+  creates a context for examples and small tools.
+
+Resources are native handles wrapped in JS objects. Release resources explicitly with the
+matching `release*` function when ownership ends.
 
 
 ## Examples
 
 1. Import the module:
 	```ts
-	import cl from 'opencl-raub';
+	import * as cl from '@node-3d/opencl';
 	```
 2. Fetch the CL control objects:
 	```ts
-	const { context, device } = cl.quickStart(); // see /index.js
+	const { context, device } = cl.quickStart();
 	const queue = cl.createCommandQueue(context, device);
 	```
 3. Prepare the data input/output buffers:
@@ -112,4 +132,4 @@ See [TypeScript declarations](/index.d.ts) for more details.
 
 
 See `examples` for more details. The full code of the above example is available
-[here](examples/simple.js).
+[here](examples/simple.ts).

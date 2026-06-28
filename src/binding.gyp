@@ -1,17 +1,17 @@
 {
 	'variables': {
-		'bin': '<!(node -p "require(\'addon-tools-raub\').bin")',
+		'bin': '<!(node -e "import(\'@node-3d/addon-tools\').then((m) => m.printBin())")',
 		'cl_include': 'include',
 	},
 	'targets': [
 		{
 			'target_name': 'opencl',
-			'includes': ['../node_modules/addon-tools-raub/utils/common.gypi'],
+			'includes': ['common.gypi'],
 			'sources': [
 				'cpp/bindings.cpp',
 			],
 			'include_dirs': [
-				'<!@(node -p "require(\'addon-tools-raub\').getInclude()")',
+				'<!@(node -e "import(\'@node-3d/addon-tools\').then((m) => m.printInclude())")',
 				'<(cl_include)',
 			],
 			'conditions': [

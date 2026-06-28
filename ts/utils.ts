@@ -1,16 +1,16 @@
 import { strict as assert } from 'node:assert';
-import cl from '../index.js';
+import * as cl from './index.ts';
 
 
-export const newQueue = (context: cl.TClContext, device: cl.TClDevice) => {
-	return cl.createCommandQueue(context, device, null);;
-};
+export const newQueue = (context: cl.TClContext, device: cl.TClDevice): cl.TClQueue => (
+	cl.createCommandQueue(context, device, null)
+);
 
 export const withProgram = (
 	context: cl.TClContext,
 	source: string,
 	cb: (p: cl.TClProgram) => void,
-) => {
+): void => {
 	const prg = cl.createProgramWithSource(context, source);
 	cl.buildProgram(prg, null, '-cl-kernel-arg-info');
 	try {
@@ -24,13 +24,13 @@ export const withProgramAsync = (
 	context: cl.TClContext,
 	source: string,
 	cb: (p: cl.TClProgram, done: () => void) => void,
-) => {
+): void => {
 	const prg = cl.createProgramWithSource(context, source);
 	cl.buildProgram(prg, null, '-cl-kernel-arg-info');
 
 	try {
 		cb(prg, () => cl.releaseProgram(prg));
-	} catch (_e) {
+	} catch {
 		cl.releaseProgram(prg);
 	}
 };
@@ -39,7 +39,7 @@ export const withCQ = (
 	context: cl.TClContext,
 	device: cl.TClDevice,
 	cb: (p: cl.TClQueue) => void,
-) => {
+): void => {
 	const cq = newQueue(context, device);
 	try { cb(cq); }
 	finally { cl.releaseCommandQueue(cq); }
@@ -49,11 +49,13 @@ export const withAsyncCQ = (
 	context: cl.TClContext,
 	device: cl.TClDevice,
 	cb: (p: cl.TClQueue, done: () => void) => void,
-) => {
+): void => {
 	const cq = newQueue(context, device);
 	try {
 		cb(cq, () => cl.releaseCommandQueue(cq));
-	} catch (_e) { cl.releaseCommandQueue(cq); }
+	} catch {
+		cl.releaseCommandQueue(cq);
+	}
 };
 
 export const assertType = (v: unknown, name: string): void => {

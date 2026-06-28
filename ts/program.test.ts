@@ -1,15 +1,16 @@
 import fs from 'node:fs';
 import { strict as assert } from 'node:assert';
-import { describe, it, type TestContext } from 'node:test';
-import cl from '../index.js';
+import { describe, it } from 'node:test';
+import type { TestContext } from 'node:test';
+import * as cl from './index.ts';
 import * as U from './utils.ts';
 
-const squareKern = fs.readFileSync('test/kernels/square.cl').toString();
-const squareCpyKern = fs.readFileSync('test/kernels/square_cpy.cl').toString();
+const squareKern = fs.readFileSync(new URL('../examples/assets/kernels/square.cl', import.meta.url)).toString();
+const squareCpyKern = fs.readFileSync(new URL('../examples/assets/kernels/square_cpy.cl', import.meta.url)).toString();
 
 
-describe('Program', async () => {
-	const { platform, context, device } = cl.quickStart();
+describe('Program', () => {
+	const { context, device } = cl.quickStart();
 	
 	describe('#createProgramWithSource', () => {
 		it('returns a valid program', () => {
@@ -26,7 +27,7 @@ describe('Program', async () => {
 		});
 	});
 	
-	await describe('#buildProgram', async () => {
+	describe('#buildProgram', () => {
 		it('builds using a valid program and a given device', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
 			const ret = cl.buildProgram(prg, [device]);
@@ -68,7 +69,7 @@ describe('Program', async () => {
 		});
 		
 		it('throws if program is INVALID', () => {
-			const prg = cl.createProgramWithSource(context, squareKern + '????');
+			const prg = cl.createProgramWithSource(context, `${squareKern}????`);
 			assert.throws(
 				() => cl.buildProgram(prg, [device]),
 				cl.BUILD_PROGRAM_FAILURE,
@@ -223,14 +224,6 @@ describe('Program', async () => {
 		it('links one program and calls the callback', (t: TestContext, done: () => void) => {
 			t.plan(2); // plan for 2 assertions in event callback
 			
-			const cb: cl.TBuildProgramCb = (prg, userData) => {
-				assert.ok(prg);
-				assert.strictEqual(userData, 'hello');
-				
-				cl.releaseProgram(prg);
-				done();
-			};
-			
 			const prg = cl.createProgramWithSource(context, squareKern);
 			cl.compileProgram(prg);
 			
@@ -277,7 +270,7 @@ describe('Program', async () => {
 	
 	describe('#getProgramInfo', () => {
 		const testForType = (key: keyof typeof cl, _assert: (v: unknown) => void) => {
-			it('returns the good type for ' + key, () => {
+			it(`returns the good type for ${key}`, () => {
 				U.withProgram(context, squareKern, (prg) => {
 					const val = cl.getProgramInfo(prg, cl[key] as unknown as number);
 					_assert(val);
@@ -295,14 +288,14 @@ describe('Program', async () => {
 		
 		it('has the same program source as the one given', () => {
 			const prg = cl.createProgramWithSource(context, squareKern);
-			assert(cl.getProgramInfo(prg, cl.PROGRAM_SOURCE) == squareKern);
+			assert.ok(cl.getProgramInfo(prg, cl.PROGRAM_SOURCE) === squareKern);
 			cl.releaseProgram(prg);
 		});
 	});
 	
 	describe('#getProgramBuildInfo', () => {
 		const testForType = (key: keyof typeof cl, _assert: (v: unknown) => void) => {
-			it('returns the good type for ' + key, () => {
+			it(`returns the good type for ${key}`, () => {
 				U.withProgram(context, squareKern, (prg) => {
 					const val = cl.getProgramBuildInfo(prg, device, cl[key] as unknown as number);
 					_assert(val);

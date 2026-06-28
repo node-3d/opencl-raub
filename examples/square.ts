@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import cl from '../index.js';
+import * as cl from '@node-3d/opencl';
 
 const { context, device } = cl.quickStart(true);
 const cq = cl.createCommandQueue(context, device);
@@ -36,7 +36,7 @@ cl.setKernelArg(kern2, 0, 'uint*', inputsMem);
 cl.setKernelArg(kern2, 1, 'uint*', outputsMem);
 cl.setKernelArg(kern2, 2, 'uint', NVALUES);
 
-cl.enqueueNDRangeKernel(cq, kern2, 1, null, [NVALUES]);
+cl.enqueueNDRangeKernel(cq, kern2, 1, undefined, [NVALUES]);
 cl.enqueueReadBuffer(cq, outputsMem, true, 0, NVALUES * BYTES_PER_ELEMENT, outputs);
 cl.finish(cq);
 

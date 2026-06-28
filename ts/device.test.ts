@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
-import cl from '../index.js';
+import * as cl from './index.ts';
 import * as U from './utils.ts';
 
 
@@ -16,34 +16,34 @@ describe('Device', () => {
 	});
 	
 	const testBoolean = (name: keyof typeof cl) => {
-		it(name + ' returns a boolean', (_t, done) => {
+		it(`${name} returns a boolean`, (_t, done) => {
 			const val = cl.getDeviceInfo(device, cl[name] as number);
 			U.assertType(val, 'boolean');
 			done();
 		});
 	};
 	const testInteger = (name: keyof typeof cl) => {
-		it(name + ' returns an integer', (_t, done) => {
+		it(`${name} returns an integer`, (_t, done) => {
 			const val = cl.getDeviceInfo(device, cl[name] as number);
 			U.assertType(val, 'number');
 			done();
 		});
 	};
 	const testString = (name: keyof typeof cl) => {
-		it(name + ' returns a string', (_t, done) => {
+		it(`${name} returns a string`, (_t, done) => {
 			const val = cl.getDeviceInfo(device, cl[name] as number);
 			U.assertType(val, 'string');
 			done();
 		});
 	};
 	const testObject = (name: keyof typeof cl) => {
-		it(name + ' returns an object', () => {
+		it(`${name} returns an object`, () => {
 			const info = cl.getDeviceInfo(device, cl[name] as number);
 			U.assertType(info, 'object');
 		});
 	};
 	const testArray = (name: keyof typeof cl) => {
-		it(name + ' returns an array', (_t, done) => {
+		it(`${name} returns an array`, (_t, done) => {
 			const val = cl.getDeviceInfo(device, cl[name] as number);
 			U.assertType(val, 'array');
 			done();

@@ -1,10 +1,10 @@
 {
 	"author": "Luis Blanco <luisblanco1337@gmail.com>",
-	"name": "opencl-raub",
-	"version": "2.0.1",
+	"name": "@node-3d/opencl",
+	"version": "3.0.0",
 	"description": "OpenCL for Node.js",
 	"license": "MIT",
-	"main": "index.js",
+	"main": "dist/index.js",
 	"keywords": [
 		"addon",
 		"opencl",
@@ -18,41 +18,59 @@
 		"gyp"
 	],
 	"files": [
-		"core.js",
-		"index.d.ts",
-		"index.js",
+		"dist",
 		"install.js",
 		"LICENSE",
 		"package.json",
-		"README.md"
+		"tsconfig.json"
 	],
 	"engines": {
-		"node": ">=22.14.0",
-		"npm": ">=10.9.2"
-	},
-	"config": {
-		"install": "2.0.0"
+		"node": ">=24.13.0",
+		"npm": ">=11.6.2"
 	},
 	"scripts": {
-		"postinstall": "node install",
-		"eslint": "eslint .",
-		"build": "cd src && node-gyp rebuild -j max --silent && node -e \"require('addon-tools-raub').cpbin('opencl')\"",
-		"test": "node --no-warnings=ExperimentalWarning --experimental-strip-types --test --watch",
-		"test-ci": "node --no-warnings=ExperimentalWarning --experimental-strip-types --test --test-reporter spec"
+		"postinstall": "node install.js",
+		"build:rebuild": "cd src && node-gyp rebuild -j max --silent && node -e \"import('@node-3d/addon-tools').then((m) => m.cpbin('opencl'))\"",
+		"build:compile": "cd src && node-gyp build -j max --silent && node -e \"import('@node-3d/addon-tools').then((m) => m.cpbin('opencl'))\"",
+		"test:watch": "node --test --watch \"ts/**/*.test.ts\"",
+		"test:ci": "node --test \"ts/**/*.test.ts\"",
+		"lint:all": "npm run lint:gypi && npm run lint:ts && npm run lint:oxlint",
+		"lint:gypi": "node -e \"import('@node-3d/addon-tools').then((m) => m.checkGypi())\"",
+		"lint:oxlint": "oxlint .",
+		"build:ci": "rslib build",
+		"build:watch": "rslib build --watch",
+		"lint:ts": "tsgo -p tsconfig.json --noEmit",
+		"prepare": "npm run build:ci"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/node-3d/opencl-raub.git"
+		"url": "https://github.com/node-3d/opencl.git"
 	},
 	"dependencies": {
-		"addon-tools-raub": "^9.3.0",
-		"segfault-raub": "^3.2.0"
+		"@node-3d/addon-tools": "^11.0.0",
+		"@node-3d/segfault": "^4.0.0"
 	},
 	"devDependencies": {
-		"@types/node": "^22.13.4",
-		"@eslint/js": "^9.20.0",
-		"eslint": "^9.20.1",
+		"@types/node": "^24.1.0",
 		"node-addon-api": "^8.3.0",
-		"typescript": "^5.7.3"
+		"typescript": "^6.0.3",
+		"oxlint": "^1.65.0",
+		"@rslib/core": "^0.21.3",
+		"@typescript/native-preview": "^7.0.0-dev.20260503.1"
+	},
+	"type": "module",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"bugs": {
+		"url": "https://github.com/node-3d/node-3d/issues"
+	},
+	"homepage": "https://github.com/node-3d/node-3d#readme",
+	"publishConfig": {
+		"access": "public"
 	}
 }

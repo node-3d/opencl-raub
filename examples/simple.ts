@@ -1,7 +1,7 @@
-import cl from '../index.js';
+import * as cl from '@node-3d/opencl';
 
 const { context, device } = cl.quickStart(true);
-const queue = cl.createCommandQueue(context, device, null);
+const queue = cl.createCommandQueue(context, device);
 
 const BUFFER_SIZE = 10;
 const BYTE_SIZE = BUFFER_SIZE * Uint32Array.BYTES_PER_ELEMENT;
@@ -46,7 +46,7 @@ cl.setKernelArg(kernel, 3, 'uint', BUFFER_SIZE);
 // Do the work
 cl.enqueueWriteBuffer(queue, bufferA, true, 0, BYTE_SIZE, arrayA);
 cl.enqueueWriteBuffer(queue, bufferB, true, 0, BYTE_SIZE, arrayB);
-cl.enqueueNDRangeKernel(queue, kernel, 1, null, [BUFFER_SIZE]);
+cl.enqueueNDRangeKernel(queue, kernel, 1, undefined, [BUFFER_SIZE]);
 cl.enqueueReadBuffer(queue, bufferC, true, 0, BYTE_SIZE, arrayC);
 
 // print results

@@ -1,11 +1,11 @@
 import fs from 'node:fs';
 import { strict as assert } from 'node:assert';
-import { describe, it, after } from 'node:test';
-import cl from '../index.js';
+import { describe, it } from 'node:test';
+import * as cl from './index.ts';
 import * as U from './utils.ts';
 
-const squareKern = fs.readFileSync('test/kernels/square.cl').toString();
-const squareCpyKern = fs.readFileSync('test/kernels/square_cpy.cl').toString();
+const squareKern = fs.readFileSync(new URL('../examples/assets/kernels/square.cl', import.meta.url)).toString();
+const squareCpyKern = fs.readFileSync(new URL('../examples/assets/kernels/square_cpy.cl', import.meta.url)).toString();
 
 
 describe('Kernel', () => {
@@ -34,7 +34,7 @@ describe('Kernel', () => {
 			U.withProgram(context, [squareKern, squareCpyKern].join('\n'), (prg) => {
 				const kerns = cl.createKernelsInProgram(prg);
 				assert.ok(kerns);
-				assert(kerns.length == 2);
+				assert.ok(kerns.length === 2);
 				
 				assert.ok(kerns[0]);
 				assert.ok(kerns[1]);
@@ -131,8 +131,8 @@ describe('Kernel', () => {
 			U.withProgram(context, squareKern, (prg) => {
 				const k = cl.createKernel(prg, 'square');
 				
-				assert(cl.setKernelArg(k, 2, null, 5) == cl.SUCCESS);
-				assert(cl.setKernelArg(k, 2, 'uint', 5) == cl.SUCCESS);
+				assert.ok(cl.setKernelArg(k, 2, null, 5) === cl.SUCCESS);
+				assert.ok(cl.setKernelArg(k, 2, 'uint', 5) === cl.SUCCESS);
 				
 				cl.releaseKernel(k);
 			});
@@ -208,7 +208,7 @@ describe('Kernel', () => {
 
 	describe('#getKernelInfo', () => {
 		const testForType = (key: keyof typeof cl, _assert: (v: unknown) => void) => {
-			it('returns the good type for ' + key, () => {
+			it(`returns the good type for ${key}`, () => {
 				U.withProgram(context, squareKern, (prg) => {
 					const k = cl.createKernel(prg, 'square');
 					const val = cl.getKernelInfo(k, cl[key] as number);
@@ -232,7 +232,7 @@ describe('Kernel', () => {
 				const k = cl.createKernel(prg, 'square');
 				const nbArgs = cl.getKernelInfo(k, cl.KERNEL_NUM_ARGS);
 				cl.releaseKernel(k);
-				if (nbArgs != 3) {
+				if (nbArgs !== 3) {
 					assert.fail(nbArgs, 3);
 				}
 			});
@@ -243,7 +243,7 @@ describe('Kernel', () => {
 				const k = cl.createKernel(prg, 'square');
 				const name = cl.getKernelInfo(k, cl.KERNEL_FUNCTION_NAME);
 				cl.releaseKernel(k);
-				if (name != 'square') {
+				if (name !== 'square') {
 					assert.fail(name, 'square');
 				}
 			});
@@ -270,17 +270,6 @@ describe('Kernel', () => {
 	});
 	
 	describe('#getKernelArgInfo', () => {
-		const testForType = (key: keyof typeof cl, _assert: (v: unknown) => void) => {
-			it('returns the good type for ' + key, () => {
-				U.withProgram(context, squareKern, (prg) => {
-					const k = cl.createKernel(prg, 'square');
-					const val = cl.getKernelArgInfo(k, 0, cl[key] as number);
-					cl.releaseKernel(k);
-					_assert(val);
-				});
-			});
-		};
-		
 		it('returns the corresponding names', () => {
 			U.withProgram(context, squareKern, (prg) => {
 				const k = cl.createKernel(prg, 'square');
@@ -310,7 +299,7 @@ describe('Kernel', () => {
 	
 	describe('#getKernelWorkGroupInfo', () => {
 		const testForType = (key: keyof typeof cl, _assert: (v: unknown) => void) => {
-			it('returns the good type for ' + key, () => {
+			it(`returns the good type for ${key}`, () => {
 				U.withProgram(context, squareKern, (prg) => {
 					const k = cl.createKernel(prg, 'square');
 					const val = cl.getKernelWorkGroupInfo(k, device, cl[key] as number);
